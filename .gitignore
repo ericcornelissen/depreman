@@ -1,0 +1,11 @@
+# Configuration file for git (https://git-scm.com/docs/gitignore)
+
+## ESLint
+.eslintcache
+
+## Node.js
+node_modules/
+.npm/
+.node_repl_history
+depreman-*.tgz
+npm-debug.log*

@@ -28,14 +28,14 @@ export function printAndExit(result, options) {
 			console.log(chalk.dim(id));
 		}
 
-		for (const path of pkg.kept) {
+		for (const { path } of pkg.kept) {
 			const msg = `\t${path.map(pkgToString).join(" > ")}`;
 			console.log(msg);
 		}
 
 		if (options.complete) {
-			for (const { rule, path } of pkg.ignored) {
-				const prefix = `(allowed ${rule.pkg}${rule.transitive ? " > *" : ""})`;
+			for (const { path, reason } of pkg.ignored) {
+				const prefix = `(allowed "${reason}")`;
 				const msg = `\t${chalk.italic(prefix)} ${path.map(pkgToString).join(" > ")}`;
 				console.log(chalk.dim(msg));
 			}

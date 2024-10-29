@@ -21,6 +21,10 @@ export async function readConfig() {
 	} catch (_) {
 		throw new Error("Configuration file .ndmrc not found");
 	}
-	const config = JSON.parse(rawConfig);
-	return config;
+
+	try {
+		return JSON.parse(rawConfig);
+	} catch (error) {
+		throw new Error(`Configuration file invalid (${error.message})`);
+	}
 }

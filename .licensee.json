@@ -1,0 +1,15 @@
+{
+  "licenses": {
+    "spdx": [
+      "Apache-2.0",
+      "BlueOak-1.0.0",
+      "BSD-2-Clause",
+      "BSD-3-Clause",
+      "CC0-1.0",
+      "CC-BY-3.0",
+      "ISC",
+      "MIT"
+    ]
+  },
+  "corrections": true
+}
