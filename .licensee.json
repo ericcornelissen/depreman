@@ -1,6 +1,7 @@
 {
   "licenses": {
     "spdx": [
+      "0BSD",
       "Apache-2.0",
       "BlueOak-1.0.0",
       "BSD-2-Clause",
@@ -8,7 +9,8 @@
       "CC0-1.0",
       "CC-BY-3.0",
       "ISC",
-      "MIT"
+      "MIT",
+      "Python-2.0"
     ]
   },
   "corrections": true

@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: GFDL-1.3-or-later -->
+
 # npm Deprecation Manager
 
 A manager for npm deprecations.
@@ -45,7 +47,7 @@ glob@8.1.0 ("Glob versions prior to v9 are no longer supported"):
 
 1. Configure.
 
-## Configuration
+### Configuration
 
 An `.ndmrc` file is just a JSON file with rules for deprecated dependencies to
 ignore ([semver] version ranges are supported), for example:
@@ -62,7 +64,7 @@ ignore ([semver] version ranges are supported), for example:
     },
     "package-b@v3": {
       "#ignore": "ignore deprecations for not-ignored@v1 > package-b@v3"
-    },
+    }
   },
 
   "also-not-ignored@v4": {
@@ -80,3 +82,12 @@ ignore ([semver] version ranges are supported), for example:
 ```
 
 [semver]: https://www.npmjs.com/package/semver
+
+## License
+
+This software is available under the `AGPL-3.0-only` license, see [LICENSE] for
+the full license text. Documentation is available under the `GFDL-1.3-or-later`
+license, see [GNU Free Documentation License v1.3] for the full license text.
+
+[LICENSE]: ./LICENSE
+[gnu free documentation license v1.3]: https://www.gnu.org/licenses/fdl-1.3.en.html

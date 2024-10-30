@@ -29,14 +29,14 @@ export function printAndExit(result, options) {
 		}
 
 		for (const { path } of pkg.kept) {
-			const msg = `\t${path.map(pkgToString).join(" > ")}`;
+			const msg = `\t. > ${path.map(pkgToString).join(" > ")}`;
 			console.log(msg);
 		}
 
 		if (options.complete) {
 			for (const { path, reason } of pkg.ignored) {
 				const prefix = `(allowed "${reason}")`;
-				const msg = `\t${chalk.italic(prefix)} ${path.map(pkgToString).join(" > ")}`;
+				const msg = `\t. > ${path.map(pkgToString).join(" > ")}\n\t\t${chalk.italic(prefix)}`;
 				console.log(chalk.dim(msg));
 			}
 		}

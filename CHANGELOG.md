@@ -9,7 +9,8 @@ Versioning].
 
 ## [Unreleased]
 
-- _No changes yet_
+- Improve the path-to-the-deprecated package output by adding an indicator for
+  the current project to the list.
 
 ## [0.2.0] - 2024-10-29
 
@@ -18,7 +19,7 @@ Versioning].
 - Add support for using semver ranges in deprecation rules.
 - Improve messaging when the configuration file is invalid.
 
-## [0.0.1] - 2024-10-28
+## [0.1.0] - 2024-10-28
 
 - Initial release.
 

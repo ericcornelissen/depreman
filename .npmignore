@@ -4,6 +4,7 @@
 # Except the ones we want to publish
 !bin/
 !src/
+!CHANGELOG.md
 !LICENSE
-!package.json
 !README.md
+!package.json
