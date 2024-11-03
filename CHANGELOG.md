@@ -9,6 +9,7 @@ Versioning].
 
 ## [Unreleased]
 
+- Add support for expiry dates using the `#expire` directive.
 - Improve the path-to-the-deprecated package output by adding an indicator for
   the current project to the list.
 

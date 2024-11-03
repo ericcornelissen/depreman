@@ -50,7 +50,14 @@ glob@8.1.0 ("Glob versions prior to v9 are no longer supported"):
 ### Configuration
 
 An `.ndmrc` file is just a JSON file with rules for deprecated dependencies to
-ignore ([semver] version ranges are supported), for example:
+ignore. The object hierarchy should reflect the dependency hierarchy with keys
+representing `<package>@<version>` pairs ([semver] version ranges supported).
+The `*` wildcard can be used to match any number of dependencies in a hierarchy.
+Use the `"#ignore"` directive when a deprecation for a given dependency should
+be ignored and assign it a reason as a string. Optionally, use the `"#expire"`
+directive to set a date (`YYYY-MM-DD`) on which the rule expires.
+
+For example:
 
 ```json
 {
@@ -63,7 +70,8 @@ ignore ([semver] version ranges are supported), for example:
       "#ignore": "ignore deprecations for not-ignored@v1 > package-a@v2"
     },
     "package-b@v3": {
-      "#ignore": "ignore deprecations for not-ignored@v1 > package-b@v3"
+      "#ignore": "and for package-b@v3 only until December 31, 2024",
+      "#expire": "2024-12-31"
     }
   },
 

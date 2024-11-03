@@ -14,6 +14,8 @@
 
 import semverSatisfies from "semver/functions/satisfies.js";
 
+import * as date from "./date.js";
+
 export function removeIgnored(config, deprecations) {
 	const result = [];
 	for (const pkg of deprecations) {
@@ -41,6 +43,15 @@ function isIgnored(config, path) {
 	if (path.length === 0) {
 		const decision = config["#ignore"];
 		if (!!decision) {
+			const expire = config["#expire"];
+			if (expire !== undefined) {
+				const expires = date.parse(expire);
+				const today = date.today();
+				if (expires.isBefore(today) || expires.is(today)) {
+					return false;
+				}
+			}
+
 			return typeof decision === "string" ? decision : "no reason given";
 		} else {
 			return false;
