@@ -21,16 +21,21 @@ export function removeIgnored(config, deprecations) {
 	for (const pkg of deprecations) {
 		const kept = [], ignored = []
 		for (const path of pkg.paths) {
-			const reason = isIgnored(config, path);
-			if (!!reason) {
-				ignored.push({ path, reason });
+			const ignore = isIgnored(config, path);
+			if (!!ignore) {
+				ignored.push({
+					path,
+					reason: typeof ignore === "string" ? ignore : null,
+				});
 			} else {
 				kept.push({ path });
 			}
 		}
 
 		result.push({
-			...pkg,
+			name: pkg.name,
+			version: pkg.version,
+			reason: pkg.reason,
 			ignored,
 			kept,
 		});
@@ -52,7 +57,7 @@ function isIgnored(config, path) {
 				}
 			}
 
-			return typeof decision === "string" ? decision : "no reason given";
+			return typeof decision === "string" ? decision : true;
 		} else {
 			return false;
 		}

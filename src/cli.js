@@ -20,7 +20,22 @@ import { obtainDependencyPaths } from "./hierarchy.js";
 import { removeIgnored } from "./ignores.js";
 import { printAndExit } from "./output.js";
 
-const complete = argv.includes("--complete");
+const help = argv.includes("--help") || argv.includes("-h");
+const everything = !(argv.includes("--errors-only"));
+
+if (help) {
+	console.log(`depreman [-h|--help] [--errors-only]
+
+Manage npm deprecation.  Create an '.ndmrc' file with a JSON-based configuration
+to ignore npm deprecation warnings for your dependencies.
+
+   -h, --help
+      Show this help message.
+   --errors-only
+      Only output deprecations that are not ignored.
+`);
+		exit(0);
+}
 
 try {
 	const [config, deprecations] = await Promise.all([
@@ -29,7 +44,7 @@ try {
 	]);
 
 	const result = removeIgnored(config, deprecations);
-	printAndExit(result, { complete });
+	printAndExit(result, { everything });
 } catch (error) {
 	console.error("error:", error.message);
 	exit(2);

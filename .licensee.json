@@ -13,5 +13,8 @@
       "Python-2.0"
     ]
   },
+  "packages": {
+    "jsonp": "0.2.1"
+  },
   "corrections": true
 }

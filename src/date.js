@@ -12,9 +12,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-const dateExpr = /(?<yyyy>\d{4})-(?<mm>\d{2})-(?<dd>\d{2})/;
+const dateExpr = /(?<yyyy>\d{4})-(?<mm>\d{1,2})-(?<dd>\d{1,2})/;
 
-class DepremanDate {
+export class DepremanDate {
 	constructor({ year, month, day }) {
 		this.year = year;
 		this.month = month;
@@ -23,7 +23,7 @@ class DepremanDate {
 
 	is(that) {
 		if (!(that instanceof DepremanDate)) {
-			throw new Error(`not a data: ${that}`);
+			throw new Error(`not a date '${that}'`);
 		}
 
 		return this.year === that.year
@@ -33,7 +33,7 @@ class DepremanDate {
 
 	isBefore(that) {
 		if (!(that instanceof DepremanDate)) {
-			throw new Error(`not a data: ${that}`);
+			throw new Error(`not a date '${that}'`);
 		}
 
 		if (this.year < that.year) {
@@ -53,7 +53,7 @@ class DepremanDate {
 export function parse(str) {
 	const parsed = dateExpr.exec(str);
 	if (parsed === null) {
-		throw new Error(`invalid expiry date '${str}' (must be 'yyyy-mm-dd')`);
+		throw new Error(`invalid date '${str}' (must be 'yyyy-mm-dd')`);
 	}
 
 	const { yyyy, mm, dd } = parsed.groups;

@@ -24,7 +24,7 @@ export function printAndExit(result, options) {
 		if (pkg.kept.length > 0) {
 			exitCode = 1;
 			console.log(id, chalk.italic(`("${pkg.reason}"):`));
-		} else if (options.complete) {
+		} else if (options.everything) {
 			console.log(chalk.dim(id));
 		}
 
@@ -33,9 +33,9 @@ export function printAndExit(result, options) {
 			console.log(msg);
 		}
 
-		if (options.complete) {
+		if (options.everything) {
 			for (const { path, reason } of pkg.ignored) {
-				const prefix = `(allowed "${reason}")`;
+				const prefix = `(allowed "${typeof reason === "string" ? reason : "no reason given"}")`;
 				const msg = `\t. > ${path.map(pkgToString).join(" > ")}\n\t\t${chalk.italic(prefix)}`;
 				console.log(chalk.dim(msg));
 			}

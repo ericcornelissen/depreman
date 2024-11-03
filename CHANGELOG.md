@@ -9,6 +9,12 @@ Versioning].
 
 ## [Unreleased]
 
+- _No changes yet_
+
+## [0.3.0] - 2024-11-03
+
+- Add a `--help` message.
+- Add `--errors-only` (replaces undocumented `--complete`).
 - Add support for expiry dates using the `#expire` directive.
 - Improve the path-to-the-deprecated package output by adding an indicator for
   the current project to the list.

@@ -1,6 +1,6 @@
 {
   "name": "depreman",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "AGPL-3.0-only",
   "description": "Manage npm deprecations",
   "repository": {
@@ -25,10 +25,12 @@
     "npm": "^10"
   },
   "scripts": {
-    "dogfeed": "node bin/cli.js",
+    "coverage": "node --test --experimental-test-coverage 'src/*.test.js'",
+    "dogfeed": "node bin/cli.js --errors-only",
     "licenses": "licensee --errors-only",
-    "verify": "npm run vet && npm run licenses && npm run dogfeed",
-    "vet": "lockfile-lint && publint --strict"
+    "test": "node --test 'src/*.test.js'",
+    "verify": "npm run test && npm run vet && npm run licenses && npm run dogfeed",
+    "vet": "lockfile-lint && ls-engines && publint --strict"
   },
   "dependencies": {
     "chalk": "^5.0.0",
@@ -37,6 +39,7 @@
   "devDependencies": {
     "licensee": "11.1.1",
     "lockfile-lint": "4.14.0",
+    "ls-engines": "0.9.3",
     "publint": "0.2.12"
   }
 }
