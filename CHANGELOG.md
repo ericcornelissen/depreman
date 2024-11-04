@@ -10,6 +10,7 @@ Versioning].
 ## [Unreleased]
 
 - Fix bug where rules following a wildcard would not be matched.
+- Let `*` match 0-or-more instead of 1-or-more.
 
 ## [0.3.0] - 2024-11-03
 

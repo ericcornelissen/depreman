@@ -70,7 +70,9 @@ function isIgnored(config, path) {
 		}
 
 		if (rule === "*") {
-			const reason = isIgnored(config, remaining) || isIgnored(config[rule], remaining);
+			const reason = isIgnored(config, remaining)
+				|| isIgnored(config[rule], remaining)
+				|| isIgnored(config[rule], path);
 			if (!!reason) {
 				return reason;
 			} else {
