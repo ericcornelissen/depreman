@@ -187,8 +187,8 @@ test("ignore.js", async (t) => {
 						"*": {
 							"bar@2.0.0": {
 								"#ignore": "ignored with wildcard",
-							}
-						}
+							},
+						},
 					},
 				},
 				deprecations: [
@@ -215,6 +215,86 @@ test("ignore.js", async (t) => {
 								path: [
 									{ name: "foo", version: "1.0.0" },
 									{ name: "some-package", version: "3.0.0" },
+									{ name: "bar", version: "2.0.0" },
+								],
+								reason: "ignored with wildcard",
+							},
+						],
+						kept: [],
+					},
+				],
+			},
+			{
+				config: {
+					"foo@1.0.0": {
+						"*": {
+							"bar@2.0.0": {
+								"#ignore": "ignored with wildcard",
+							},
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+								{ name: "bar", version: "2.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						ignored: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.0" },
+									{ name: "bar", version: "2.0.0" },
+								],
+								reason: "ignored with wildcard",
+							},
+						],
+						kept: [],
+					},
+				],
+			},
+			{
+				config: {
+					"foo@1.0.0": {
+						"*": {
+							"#ignore": "ignored with wildcard",
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+								{ name: "bar", version: "2.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						ignored: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.0" },
 									{ name: "bar", version: "2.0.0" },
 								],
 								reason: "ignored with wildcard",
