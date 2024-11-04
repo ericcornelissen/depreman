@@ -70,7 +70,12 @@ function isIgnored(config, path) {
 		}
 
 		if (rule === "*") {
-			return isIgnored(config, remaining) || isIgnored(config[rule], remaining);
+			const reason = isIgnored(config, remaining) || isIgnored(config[rule], remaining);
+			if (!!reason) {
+				return reason;
+			} else {
+				continue;
+			}
 		}
 
 		const [name, version] = parseRule(rule);

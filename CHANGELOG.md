@@ -9,7 +9,7 @@ Versioning].
 
 ## [Unreleased]
 
-- _No changes yet_
+- Fix bug where rules following a wildcard would not be matched.
 
 ## [0.3.0] - 2024-11-03
 
