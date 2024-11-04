@@ -9,6 +9,10 @@ Versioning].
 
 ## [Unreleased]
 
+- _No changes yet_
+
+## [0.3.1] - 2024-11-04
+
 - Fix bug where rules following a wildcard would not be matched.
 - Fix matching deprecations for `npm:` aliased dependencies.
 - Improve matching of aliased dependencies in deprecation paths.
