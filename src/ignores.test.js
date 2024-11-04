@@ -301,6 +301,50 @@ test("ignore.js", async (t) => {
 					},
 				],
 			},
+			{
+				config: {
+					"foo@1.0.0": {
+						"*": {
+							"baz@3.0.0": {
+								"#ignore": "ignored with wildcard",
+							}
+						},
+						"bar@2.0.0": {
+							"#ignore": "ignored with wildcard",
+						}
+					},
+				},
+				deprecations: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+								{ name: "bar", version: "2.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						ignored: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.0" },
+									{ name: "bar", version: "2.0.0" },
+								],
+								reason: "ignored with wildcard",
+							},
+						],
+						kept: [],
+					},
+				],
+			},
 		];
 
 		for (const i in goodTestCases) {
