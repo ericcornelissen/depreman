@@ -12,11 +12,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { run } from "./command.js";
+import { spawn } from "node:child_process";
 
 export async function obtainDeprecations() {
 	return new Promise((resolve, reject) => {
-		const process = run("npm clean-install --no-audit --no-fund --no-update-notifier");
+		const process = spawn(
+			"npm",
+			[
+				"clean-install",
+				"--no-audit",
+				"--no-fund",
+				"--no-update-notifier",
+			],
+			{
+				shell: false,
+			},
+		);
 
 		const deprecations = [];
 
