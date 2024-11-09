@@ -9,7 +9,8 @@ Versioning].
 
 ## [Unreleased]
 
-- _No changes yet_
+- Add `+` to 1-or-more.
+- Let `*` properly match 0-or-more (i.e. match the dependency itself too).
 
 ## [0.3.1] - 2024-11-04
 

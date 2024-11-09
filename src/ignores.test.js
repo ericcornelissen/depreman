@@ -21,8 +21,8 @@ import {
 
 test("ignore.js", async (t) => {
 	await t.test("removeIgnored", async (t) => {
-		const goodTestCases = [
-			{
+		const goodTestCases = {
+			"ignore a direct dependency": {
 				config: {
 					"package@1.0.0": {
 						"#ignore": "Hello world!",
@@ -57,11 +57,11 @@ test("ignore.js", async (t) => {
 					},
 				],
 			},
-			{
+			"ignore a transitive dependency": {
 				config: {
 					"foo@1.0.0": {
 						"bar@2.0.0": {
-							"#ignore": true
+							"#ignore": "Hello world!",
 						}
 					},
 				},
@@ -112,19 +112,18 @@ test("ignore.js", async (t) => {
 									{ name: "foo", version: "1.0.0" },
 									{ name: "bar", version: "2.0.0" },
 								],
-								reason: null,
+								reason: "Hello world!",
 							},
 						],
 						kept: [],
 					},
 				],
 			},
-			{
+			"ignore a direct but not a transitive dependency": {
 				config: {
 					"foo@1.0.0": {
-						"#ignore": true,
-						"bar@2.0.0": {
-						}
+						"#ignore": "Hello world!",
+						"bar@2.0.0": {}
 					},
 				},
 				deprecations: [
@@ -160,7 +159,7 @@ test("ignore.js", async (t) => {
 								path: [
 									{ name: "foo", version: "1.0.0" },
 								],
-								reason: null,
+								reason: "Hello world!",
 							},
 						],
 						kept: [],
@@ -181,12 +180,12 @@ test("ignore.js", async (t) => {
 					},
 				],
 			},
-			{
+			"ignore a transitive dependency using `*` (matching 1)": {
 				config: {
 					"foo@1.0.0": {
 						"*": {
 							"bar@2.0.0": {
-								"#ignore": "ignored with wildcard",
+								"#ignore": "ignored with `*` wildcard",
 							},
 						},
 					},
@@ -217,19 +216,19 @@ test("ignore.js", async (t) => {
 									{ name: "some-package", version: "3.0.0" },
 									{ name: "bar", version: "2.0.0" },
 								],
-								reason: "ignored with wildcard",
+								reason: "ignored with `*` wildcard",
 							},
 						],
 						kept: [],
 					},
 				],
 			},
-			{
+			"ignore a transitive dependency using `*` (matching 0)": {
 				config: {
 					"foo@1.0.0": {
 						"*": {
 							"bar@2.0.0": {
-								"#ignore": "ignored with wildcard",
+								"#ignore": "ignored with `*` wildcard",
 							},
 						},
 					},
@@ -258,22 +257,115 @@ test("ignore.js", async (t) => {
 									{ name: "foo", version: "1.0.0" },
 									{ name: "bar", version: "2.0.0" },
 								],
-								reason: "ignored with wildcard",
+								reason: "ignored with `*` wildcard",
 							},
 						],
 						kept: [],
 					},
 				],
 			},
-			{
+			"ignore a transitive dependency using `+` (matching 1)": {
+				config: {
+					"foo@1.0.0": {
+						"+": {
+							"bar@2.0.0": {
+								"#ignore": "ignored with `+` wildcard",
+							},
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+								{ name: "some-package", version: "3.0.0" },
+								{ name: "bar", version: "2.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						ignored: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.0" },
+									{ name: "some-package", version: "3.0.0" },
+									{ name: "bar", version: "2.0.0" },
+								],
+								reason: "ignored with `+` wildcard",
+							},
+						],
+						kept: [],
+					},
+				],
+			},
+			"ignore a transitive dependency using `+` (not matching 0)": {
+				config: {
+					"foo@1.0.0": {
+						"+": {
+							"bar@2.0.0": {
+								"#ignore": "ignored with `+` wildcard",
+							},
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+								{ name: "bar", version: "2.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						ignored: [],
+						kept: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.0" },
+									{ name: "bar", version: "2.0.0" },
+								],
+							},
+						],
+					},
+				],
+			},
+			"ignore with the `*` wildcard under a direct dependency": {
 				config: {
 					"foo@1.0.0": {
 						"*": {
-							"#ignore": "ignored with wildcard",
+							"#ignore": "ignored with `+` wildcard",
 						},
 					},
 				},
 				deprecations: [
+					{
+						name: "foo",
+						version: "1.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+							],
+						],
+					},
 					{
 						name: "bar",
 						version: "2.0.0",
@@ -288,6 +380,20 @@ test("ignore.js", async (t) => {
 				],
 				want: [
 					{
+						name: "foo",
+						version: "1.0.0",
+						reason: "foobar",
+						ignored: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.0" },
+								],
+								reason: "ignored with `+` wildcard",
+							},
+						],
+						kept: [],
+					},
+					{
 						name: "bar",
 						version: "2.0.0",
 						reason: "foobar",
@@ -297,18 +403,86 @@ test("ignore.js", async (t) => {
 									{ name: "foo", version: "1.0.0" },
 									{ name: "bar", version: "2.0.0" },
 								],
-								reason: "ignored with wildcard",
+								reason: "ignored with `+` wildcard",
 							},
 						],
 						kept: [],
 					},
 				],
 			},
-			{
+			"ignore with the `+` wildcard under a direct dependency": {
+				config: {
+					"foo@1.0.0": {
+						"+": {
+							"#ignore": "ignored with `+` wildcard",
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "foo",
+						version: "1.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+							],
+						],
+					},
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+								{ name: "bar", version: "2.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "foo",
+						version: "1.0.0",
+						reason: "foobar",
+						ignored: [],
+						kept: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.0" },
+								],
+							},
+						],
+					},
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						ignored: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.0" },
+									{ name: "bar", version: "2.0.0" },
+								],
+								reason: "ignored with `+` wildcard",
+							},
+						],
+						kept: [],
+					},
+				],
+			},
+			"ignore with `#expire` that did expired": {
 				config: {
 					"package@1.0.0": {
 						"#ignore": "expired",
-						"#expire": "2024-01-01",
+						"#expire": (() => {
+							const date = new Date();
+							const year = date.getFullYear();
+							const month = date.getMonth() + 1;
+							const day = date.getDate();
+							return `${year - 1}-${month}-${day}`;
+						})(),
 					},
 				},
 				deprecations: [
@@ -339,7 +513,7 @@ test("ignore.js", async (t) => {
 					},
 				],
 			},
-			{
+			"ignore with `#expire` that has not expired": {
 				config: {
 					"package@1.0.0": {
 						"#ignore": "not expired",
@@ -348,7 +522,7 @@ test("ignore.js", async (t) => {
 							const year = date.getFullYear();
 							const month = date.getMonth() + 1;
 							const day = date.getDate();
-							return `${year}-${month}-${day + 1}`;
+							return `${year + 1}-${month}-${day}`;
 						})(),
 					},
 				},
@@ -381,17 +555,17 @@ test("ignore.js", async (t) => {
 					},
 				],
 			},
-			{
+			"ignore directive after `*` wildcard matches": {
 				config: {
 					"foo@1.0.0": {
 						"*": {
 							"baz@3.0.0": {
-								"#ignore": "ignored with wildcard",
+								"#ignore": "ignored with `*` wildcard",
 							}
 						},
 						"bar@2.0.0": {
-							"#ignore": "ignored with wildcard",
-						}
+							"#ignore": "ignored without wildcard",
+						},
 					},
 				},
 				deprecations: [
@@ -418,25 +592,201 @@ test("ignore.js", async (t) => {
 									{ name: "foo", version: "1.0.0" },
 									{ name: "bar", version: "2.0.0" },
 								],
-								reason: "ignored with wildcard",
+								reason: "ignored without wildcard",
 							},
 						],
 						kept: [],
 					},
 				],
 			},
-		];
+			"ignore directive after `+` wildcard matches": {
+				config: {
+					"foo@1.0.0": {
+						"+": {
+							"baz@3.0.0": {
+								"#ignore": "ignored with `+` wildcard",
+							}
+						},
+						"bar@2.0.0": {
+							"#ignore": "ignored without wildcard",
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+								{ name: "bar", version: "2.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						ignored: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.0" },
+									{ name: "bar", version: "2.0.0" },
+								],
+								reason: "ignored without wildcard",
+							},
+						],
+						kept: [],
+					},
+				],
+			},
+			"ignore all transitive dependencies": {
+				config: {
+					"+": {
+						"+": {
+							"#ignore": "ignored transitive dependencies",
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "foo",
+						version: "1.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+							],
+						],
+					},
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+								{ name: "bar", version: "2.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "foo",
+						version: "1.0.0",
+						reason: "foobar",
+						ignored: [],
+						kept: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.0" },
+								],
+							},
+						],
+					},
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "foobar",
+						ignored: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.0" },
+									{ name: "bar", version: "2.0.0" },
+								],
+								reason: "ignored transitive dependencies",
+							},
+						],
+						kept: [],
+					},
+				],
+			},
+			"ignore with boolean true": {
+				config: {
+					"package@1.0.0": {
+						"#ignore": true,
+					},
+				},
+				deprecations: [
+					{
+						name: "package",
+						version: "1.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "package", version: "1.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "package",
+						version: "1.0.0",
+						reason: "foobar",
+						ignored: [
+							{
+								path: [
+									{ name: "package", version: "1.0.0" },
+								],
+								reason: null,
+							},
+						],
+						kept: [],
+					},
+				],
+			},
+			"ignore with empty string": {
+				config: {
+					"package@1.0.0": {
+						"#ignore": "",
+					},
+				},
+				deprecations: [
+					{
+						name: "package",
+						version: "1.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "package", version: "1.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "package",
+						version: "1.0.0",
+						reason: "foobar",
+						ignored: [
+							{
+								path: [
+									{ name: "package", version: "1.0.0" },
+								],
+								reason: null,
+							},
+						],
+						kept: [],
+					},
+				],
+			},
+		};
 
-		for (const i in goodTestCases) {
-			const { config, deprecations, want } = goodTestCases[i]
-			await t.test(`${i}`, () => {
+		for (const [name, testCase] of Object.entries(goodTestCases)) {
+			const { config, deprecations, want } = testCase;
+			await t.test(name, () => {
 				const got = removeIgnored(config, deprecations);
 				assert.deepEqual(got, want);
 			});
 		}
 
-		const badTestCases = [
-			{
+		const badTestCases = {
+			"invalid rule identifier, no version": {
 				config: {
 					"package": {
 						"#ignore": "Hello world!",
@@ -456,11 +806,31 @@ test("ignore.js", async (t) => {
 				],
 				want: /^Error: invalid rule name 'package'$/,
 			},
-		];
+			"invalid rule identifier, no package name": {
+				config: {
+					"3.1.4": {
+						"#ignore": "Hello world!",
+					},
+				},
+				deprecations: [
+					{
+						name: "package",
+						version: "3.1.4",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "package", version: "3.1.4" },
+							],
+						],
+					},
+				],
+				want: /^Error: invalid rule name '3.1.4'$/,
+			},
+		};
 
-		for (const i in badTestCases) {
-			const { config, deprecations, want } = badTestCases[i]
-			await t.test(`${i}`, () => {
+		for (const [name, testCase] of Object.entries(badTestCases)) {
+			const { config, deprecations, want } = testCase;
+			await t.test(name, () => {
 				assert.throws(
 					() => {
 						removeIgnored(config, deprecations);

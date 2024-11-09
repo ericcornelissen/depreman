@@ -75,15 +75,20 @@ For example:
     }
   },
 
-  "also-not-ignored@v4": {
+  "ignored-it@v4": {
     "*": {
-      "#ignore": "ignore all deprecations under also-not-ignored@v4"
+      "#ignore": "ignore deprecations in ignore-it@v4 and dependencies with '*'"
+    }
+  },
+  "also-not-ignored@v5": {
+    "+": {
+      "#ignore": "ignore deprecations *under* do-not-ignore@v4 with '+'"
     }
   },
 
   "*": {
-    "ignored@v5": {
-      "#ignore": "ignore deprecations in ignored@v5 anywhere in the tree"
+    "ignored@v6": {
+      "#ignore": "ignore deprecations in ignored@v6 anywhere in the tree"
     }
   }
 }
