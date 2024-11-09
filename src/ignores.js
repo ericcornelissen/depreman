@@ -46,8 +46,11 @@ export function removeIgnored(config, deprecations) {
 
 function isIgnored(config, path) {
 	if (path.length === 0) {
-		const decision = config["#ignore"];
-		if (!!decision) {
+		const got = config["#ignore"] ?? config["*"]?.["#ignore"];
+		const decision = typeof got === "string"
+			? (got.length === 0 ? true : got)
+			: !!got;
+		if (decision) {
 			const expire = config["#expire"];
 			if (expire !== undefined) {
 				const expires = date.parse(expire);
@@ -57,7 +60,7 @@ function isIgnored(config, path) {
 				}
 			}
 
-			return typeof decision === "string" ? decision : true;
+			return decision;
 		} else {
 			return false;
 		}
@@ -69,17 +72,27 @@ function isIgnored(config, path) {
 			continue;
 		}
 
+		// match 0-or-more
 		if (rule === "*") {
-			const reason = isIgnored(config, remaining)
-				|| isIgnored(config[rule], remaining)
-				|| isIgnored(config[rule], path);
+			const reason = isIgnored(config, remaining) || isIgnored(config[rule], path);
 			if (!!reason) {
 				return reason;
-			} else {
-				continue;
 			}
+
+			continue;
 		}
 
+		// match 1-or-more
+		if (rule === "+") {
+			const reason = isIgnored(config, remaining) || isIgnored(config[rule], remaining);
+			if (!!reason) {
+				return reason;
+			}
+
+			continue;
+		}
+
+		// match name+semver
 		const [name, version] = parseRule(rule);
 		if (name === current.name && semverSatisfies(current.version, version)) {
 			const reason = isIgnored(config[rule], remaining);
