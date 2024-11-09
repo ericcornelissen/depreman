@@ -57,7 +57,7 @@ found in this document.
    ```shell
    git checkout -b release-$(sha1sum package.json | head -c 7)
    git add CHANGELOG.md package.json package-lock.json
-   git commit --message "Version bump"
+   git commit --signoff --message "Version bump"
    git push origin release-$(sha1sum package.json | head -c 7)
    ```
 
