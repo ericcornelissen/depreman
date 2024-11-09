@@ -1,4 +1,4 @@
-# Configuration file for git (https://git-scm.com/docs/gitignore)
+# Ignore file for git (https://git-scm.com/docs/gitignore)
 
 ## ESLint
 .eslintcache
