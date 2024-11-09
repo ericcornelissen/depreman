@@ -9,7 +9,11 @@ Versioning].
 
 ## [Unreleased]
 
-- Add `+` to 1-or-more.
+- _No changes yet_
+
+## [0.3.2] - 2024-11-09
+
+- Add `+` to match 1-or-more dependencies.
 - Let `*` properly match 0-or-more (i.e. match the dependency itself too).
 
 ## [0.3.1] - 2024-11-04
