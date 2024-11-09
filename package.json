@@ -30,7 +30,7 @@
     "licenses": "licensee --errors-only",
     "test": "node --test 'src/*.test.js'",
     "verify": "npm run test && npm run vet && npm run licenses && npm run dogfeed",
-    "vet": "lockfile-lint && ls-engines && publint --strict"
+    "vet": "lockfile-lint && ls-engines && publint --strict && node check-runtime-deps.js"
   },
   "dependencies": {
     "chalk": "^5.0.0",
