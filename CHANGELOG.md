@@ -9,7 +9,7 @@ Versioning].
 
 ## [Unreleased]
 
-- _No changes yet_
+- Type check the `#ignore` value.
 
 ## [0.3.2] - 2024-11-09
 

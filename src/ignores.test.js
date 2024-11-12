@@ -740,41 +740,6 @@ test("ignore.js", async (t) => {
 					},
 				],
 			},
-			"ignore with empty string": {
-				config: {
-					"package@1.0.0": {
-						"#ignore": "",
-					},
-				},
-				deprecations: [
-					{
-						name: "package",
-						version: "1.0.0",
-						reason: "foobar",
-						paths: [
-							[
-								{ name: "package", version: "1.0.0" },
-							],
-						],
-					},
-				],
-				want: [
-					{
-						name: "package",
-						version: "1.0.0",
-						reason: "foobar",
-						ignored: [
-							{
-								path: [
-									{ name: "package", version: "1.0.0" },
-								],
-								reason: null,
-							},
-						],
-						kept: [],
-					},
-				],
-			},
 		};
 
 		for (const [name, testCase] of Object.entries(goodTestCases)) {
@@ -825,6 +790,66 @@ test("ignore.js", async (t) => {
 					},
 				],
 				want: /^Error: invalid rule name '3.1.4'$/,
+			},
+			"invalid '#ignore' value, empty string": {
+				config: {
+					"package@1.0.0": {
+						"#ignore": "",
+					},
+				},
+				deprecations: [
+					{
+						name: "package",
+						version: "1.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "package", version: "1.0.0" },
+							],
+						],
+					},
+				],
+				want: /^Error: cannot use empty string for '#ignore', use 'true' instead$/,
+			},
+			"invalid '#ignore' value, array": {
+				config: {
+					"package@3.1.4": {
+						"#ignore": [],
+					},
+				},
+				deprecations: [
+					{
+						name: "package",
+						version: "3.1.4",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "package", version: "3.1.4" },
+							],
+						],
+					},
+				],
+				want: /^Error: invalid '#ignore' value/,
+			},
+			"invalid '#ignore' value, object": {
+				config: {
+					"package@3.1.4": {
+						"#ignore": {},
+					},
+				},
+				deprecations: [
+					{
+						name: "package",
+						version: "3.1.4",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "package", version: "3.1.4" },
+							],
+						],
+					},
+				],
+				want: /^Error: invalid '#ignore' value/,
 			},
 		};
 

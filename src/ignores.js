@@ -46,24 +46,7 @@ export function removeIgnored(config, deprecations) {
 
 function isIgnored(config, path) {
 	if (path.length === 0) {
-		const got = config["#ignore"] ?? config["*"]?.["#ignore"];
-		const decision = typeof got === "string"
-			? (got.length === 0 ? true : got)
-			: !!got;
-		if (decision) {
-			const expire = config["#expire"];
-			if (expire !== undefined) {
-				const expires = date.parse(expire);
-				const today = date.today();
-				if (expires.isBefore(today) || expires.is(today)) {
-					return false;
-				}
-			}
-
-			return decision;
-		} else {
-			return false;
-		}
+		return getDecision(config);
 	}
 
 	const [current, ...remaining] = path;
@@ -100,6 +83,44 @@ function isIgnored(config, path) {
 				return reason;
 			}
 		}
+	}
+
+	return false;
+}
+
+function getDecision(config) {
+	const decision = parseDecision(config);
+	if (!!decision && !isExpired(config)) {
+		return decision;
+	} else {
+		return false;
+	}
+}
+
+function parseDecision(config) {
+	const ignore = config["#ignore"] ?? config["*"]?.["#ignore"];
+	switch (typeof ignore) {
+		case "undefined":
+			return false;
+		case "string":
+			if (ignore.length === 0) {
+				throw new Error(`cannot use empty string for '#ignore', use 'true' instead`);
+			} else {
+				return ignore;
+			}
+		case "boolean":
+			return ignore;
+		default:
+			throw new Error(`invalid '#ignore' value: ${ignore}`);
+	}
+}
+
+function isExpired(config) {
+	const expire = config["#expire"];
+	if (expire !== undefined) {
+		const expires = date.parse(expire);
+		const today = date.today();
+		return expires.isBefore(today) || expires.is(today);
 	}
 
 	return false;
