@@ -24,30 +24,29 @@ import {
 test("date.js", async (t) => {
 	await t.test("DepremanDate", async (t) => {
 		await t.test("is", async (t) => {
-			const trueCases = [
-				{
+			const trueCases = {
+				"sample, 2025-01-01": {
 					year: 2025,
 					month: 1,
 					day: 1,
 				},
-				{
+				"sample, 2024-12-31": {
 					year: 2024,
 					month: 12,
 					day: 31,
 				},
-			];
+			};
 
-			for (const i in trueCases) {
-				const testCase = trueCases[i];
-				await t.test(`true: ${i}`, () => {
+			for (const [name, testCase] of Object.entries(trueCases)) {
+				await t.test(name, () => {
 					const a = new DepremanDate(testCase);
 					const b = new DepremanDate(testCase);
 					assert.ok(a.is(b));
 				});
 			}
 
-			const falseCases = [
-				{
+			const falseCases = {
+				"different year, month, day": {
 					a: {
 						year: 2025,
 						month: 1,
@@ -59,31 +58,43 @@ test("date.js", async (t) => {
 						day: 31,
 					},
 				},
-				{
+				"different year, month (same day)": {
 					a: {
 						year: 2025,
 						month: 1,
 						day: 1,
 					},
 					b: {
-						year: 2025,
+						year: 2024,
 						month: 2,
 						day: 1,
 					},
 				},
-				{
+				"different year, day (same month)": {
 					a: {
 						year: 2025,
 						month: 1,
 						day: 1,
 					},
 					b: {
-						year: 2025,
+						year: 2024,
 						month: 1,
 						day: 2,
 					},
 				},
-				{
+				"different month, day (same year)": {
+					a: {
+						year: 2024,
+						month: 1,
+						day: 1,
+					},
+					b: {
+						year: 2024,
+						month: 2,
+						day: 2,
+					},
+				},
+				"different year (same month, day)": {
 					a: {
 						year: 2025,
 						month: 1,
@@ -95,28 +106,51 @@ test("date.js", async (t) => {
 						day: 1,
 					},
 				},
-			];
+				"different month (same year, day)": {
+					a: {
+						year: 2024,
+						month: 1,
+						day: 1,
+					},
+					b: {
+						year: 2024,
+						month: 12,
+						day: 1,
+					},
+				},
+				"different day (same year, month)": {
+					a: {
+						year: 2024,
+						month: 1,
+						day: 1,
+					},
+					b: {
+						year: 2024,
+						month: 1,
+						day: 31,
+					},
+				},
+			};
 
-			for (const i in falseCases) {
-				const testCase = falseCases[i];
-				await t.test(`false: ${i}`, () => {
+			for (const [name, testCase] of Object.entries(falseCases)) {
+				await t.test(name, () => {
 					const a = new DepremanDate(testCase.a);
 					const b = new DepremanDate(testCase.b);
 					assert.ok(!a.is(b));
 				});
 			}
 
-			const badCases = [
-				{
+			const badCases = {
+				"other is not a date": {
 					a: new DepremanDate({ year: 2024, month: 11, day: 3 }),
 					b: "foobar",
 					want: /^Error: not a date 'foobar'$/,
 				},
-			];
+			};
 
-			for (const i in badCases) {
-				const { a, b, want }= badCases[i];
-				await t.test(`bad: ${i}`, () => {
+			for (const [name, testCase] of Object.entries(badCases)) {
+				const { a, b, want } = testCase;
+				await t.test(name, () => {
 					assert.throws(
 						() => a.is(b),
 						want,
@@ -126,8 +160,8 @@ test("date.js", async (t) => {
 		});
 
 		await t.test("isBefore", async (t) => {
-			const trueCases = [
-				{
+			const trueCases = {
+				"previous year": {
 					a: {
 						year: 2024,
 						month: 11,
@@ -139,7 +173,7 @@ test("date.js", async (t) => {
 						day: 1,
 					}
 				},
-				{
+				"previous month (same year)": {
 					a: {
 						year: 2024,
 						month: 11,
@@ -151,7 +185,7 @@ test("date.js", async (t) => {
 						day: 1,
 					}
 				},
-				{
+				"previous day (same year, month)": {
 					a: {
 						year: 2024,
 						month: 11,
@@ -163,19 +197,18 @@ test("date.js", async (t) => {
 						day: 2,
 					}
 				},
-			];
+			};
 
-			for (const i in trueCases) {
-				const testCase = trueCases[i];
-				await t.test(`true: ${i}`, () => {
+			for (const [name, testCase] of Object.entries(trueCases)) {
+				await t.test(name, () => {
 					const a = new DepremanDate(testCase.a);
 					const b = new DepremanDate(testCase.b);
 					assert.ok(a.isBefore(b));
 				});
 			}
 
-			const falseCases = [
-				{
+			const falseCases = {
+				"next year": {
 					a: {
 						year: 2024,
 						month: 11,
@@ -187,7 +220,7 @@ test("date.js", async (t) => {
 						day: 1,
 					}
 				},
-				{
+				"next month": {
 					a: {
 						year: 2024,
 						month: 11,
@@ -199,7 +232,7 @@ test("date.js", async (t) => {
 						day: 1,
 					}
 				},
-				{
+				"next day": {
 					a: {
 						year: 2024,
 						month: 11,
@@ -211,7 +244,7 @@ test("date.js", async (t) => {
 						day: 1,
 					}
 				},
-				{
+				"same date": {
 					a: {
 						year: 2024,
 						month: 11,
@@ -223,28 +256,27 @@ test("date.js", async (t) => {
 						day: 2,
 					}
 				},
-			];
+			};
 
-			for (const i in falseCases) {
-				const testCase = falseCases[i];
-				await t.test(`false: ${i}`, () => {
+			for (const [name, testCase] of Object.entries(falseCases)) {
+				await t.test(name, () => {
 					const a = new DepremanDate(testCase.a);
 					const b = new DepremanDate(testCase.b);
 					assert.ok(!a.isBefore(b));
 				});
 			}
 
-			const badCases = [
-				{
+			const badCases = {
+				"other is not a date": {
 					a: new DepremanDate({ year: 2024, month: 11, day: 3 }),
 					b: "foobar",
 					want: /^Error: not a date 'foobar'$/,
 				},
-			];
+			};
 
-			for (const i in badCases) {
-				const { a, b, want } = badCases[i];
-				await t.test(`bad: ${i}`, () => {
+			for (const [name, testCase] of Object.entries(badCases)) {
+				const { a, b, want } = testCase;
+				await t.test(name, () => {
 					assert.throws(
 						() => a.isBefore(b),
 						want,
@@ -293,6 +325,10 @@ test("date.js", async (t) => {
 		}
 
 		const badTestCases = [
+			{
+				str: "foobar",
+				want: /^Error: invalid date 'foobar' \(must be 'yyyy-mm-dd'\)$/,
+			},
 			{
 				str: "25-01-01",
 				want: /^Error: invalid date '25-01-01' \(must be 'yyyy-mm-dd'\)$/,
