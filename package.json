@@ -36,7 +36,7 @@
     "test:unit": "node --test 'src/*.test.js'",
     "test:e2e": "node --test 'test/e2e.test.js'",
     "verify": "npm run test && npm run vet && npm run licenses && npm run dogfeed",
-    "vet": "lockfile-lint && ls-engines && publint --strict && node check-runtime-deps.js"
+    "vet": "lockfile-lint && ls-engines && publint --strict && node script/check-headers.js && node script/check-runtime-deps.js"
   },
   "dependencies": {
     "chalk": "^5.0.0",
