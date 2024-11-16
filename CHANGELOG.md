@@ -9,6 +9,10 @@ Versioning].
 
 ## [Unreleased]
 
+- _No changes yet_
+
+## [0.3.3] - 2024-11-16
+
 - Add support for Node.js v20.
 - Add support for npm v9.
 - Fix support for aliases in `dependencies`.
