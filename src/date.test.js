@@ -333,6 +333,14 @@ test("date.js", async (t) => {
 				str: "25-01-01",
 				want: /^Error: invalid date '25-01-01' \(must be 'yyyy-mm-dd'\)$/,
 			},
+			{
+				str: "prefix2025-01-01",
+				want: /^Error: invalid date 'prefix2025-01-01' \(must be 'yyyy-mm-dd'\)$/,
+			},
+			{
+				str: "2025-01-01suffix",
+				want: /^Error: invalid date '2025-01-01suffix' \(must be 'yyyy-mm-dd'\)$/,
+			},
 		];
 
 		for (const testCase of badTestCases) {

@@ -9,7 +9,7 @@ Versioning].
 
 ## [Unreleased]
 
-- _No changes yet_
+- Disallow expiry dates with prefixes or suffixes.
 
 ## [0.3.3] - 2024-11-16
 
