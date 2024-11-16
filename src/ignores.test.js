@@ -555,6 +555,49 @@ test("ignore.js", async (t) => {
 					},
 				],
 			},
+			"ignore with `#expire` under `*` wildcard": {
+				config: {
+					"package@1.0.0": {
+						"*": {
+							"#ignore": "expired",
+							"#expire": (() => {
+								const date = new Date();
+								const year = date.getFullYear();
+								const month = date.getMonth() + 1;
+								const day = date.getDate();
+								return `${year - 1}-${month}-${day}`;
+							})(),
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "package",
+						version: "1.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "package", version: "1.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "package",
+						version: "1.0.0",
+						reason: "foobar",
+						ignored: [],
+						kept: [
+							{
+								path: [
+									{ name: "package", version: "1.0.0" },
+								],
+							},
+						],
+					},
+				],
+			},
 			"ignore directive after `*` wildcard matches": {
 				config: {
 					"foo@1.0.0": {

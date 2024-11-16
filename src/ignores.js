@@ -116,7 +116,7 @@ function parseDecision(config) {
 }
 
 function isExpired(config) {
-	const expire = config["#expire"];
+	const expire = config["#expire"] ?? config["*"]?.["#expire"];
 	if (expire !== undefined) {
 		const expires = date.parse(expire);
 		const today = date.today();
