@@ -63,11 +63,10 @@ async function obtainAliases() {
 
 	const aliases = new Map();
 	for (const deps of [
-		manifest.dependencies,
-		manifest.devDependencies,
+		manifest.dependencies || {},
+		manifest.devDependencies || {},
 	]) {
-		for (const name in deps) {
-			const rhs = manifest.devDependencies[name];
+		for (const [name, rhs] of Object.entries(deps)) {
 			const aliasMatch = /^npm:(@?.+?)@(.+)$/.exec(rhs);
 			if (aliasMatch) {
 				const [, alias, version] = aliasMatch;

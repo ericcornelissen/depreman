@@ -9,6 +9,10 @@ Versioning].
 
 ## [Unreleased]
 
+- Add support for Node.js v20.
+- Add support for npm v9.
+- Fix support for aliases in `dependencies`.
+- Fix an error if there are no `dependencies` or `devDependencies`.
 - Type check the `#ignore` value.
 
 ## [0.3.2] - 2024-11-09
