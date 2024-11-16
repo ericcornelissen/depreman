@@ -21,17 +21,20 @@
   "bin": "./bin/cli.js",
   "type": "module",
   "engines": {
-    "node": "^22",
-    "npm": "^10"
+    "node": "^20 || ^22",
+    "npm": "^9 || ^10"
   },
   "scripts": {
     "audit": "npm run audit:deprecations && npm run audit:vulnerabilities",
     "audit:deprecations": "npm run dogfeed",
     "audit:vulnerabilities": "better-npm-audit audit",
-    "coverage": "node --test --experimental-test-coverage 'src/*.test.js'",
+    "coverage": "npm run coverage:unit",
+    "coverage:unit": "node --test --experimental-test-coverage 'src/*.test.js'",
     "dogfeed": "node bin/cli.js --errors-only",
     "licenses": "licensee --errors-only",
-    "test": "node --test 'src/*.test.js'",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "node --test 'src/*.test.js'",
+    "test:e2e": "node --test 'test/e2e.test.js'",
     "verify": "npm run test && npm run vet && npm run licenses && npm run dogfeed",
     "vet": "lockfile-lint && ls-engines && publint --strict && node check-runtime-deps.js"
   },

@@ -43,7 +43,7 @@ jobs:
       - name: Check licenses
         run: npm run licenses
   test-unit:
-    name: Unit Test
+    name: Test unit
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
@@ -58,7 +58,44 @@ jobs:
       - name: Install dependencies
         run: npm clean-install
       - name: Test
-        run: npm run coverage
+        run: npm run coverage:unit
+  test-e2e:
+    name: Test end-to-end (Node.js v${{ matrix.node }} with npm v${{ matrix.npm }})
+    runs-on: ubuntu-24.04
+    needs:
+      - test-unit
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - 20.5.0
+          - 22.0.0
+        npm:
+          - 9.0.0
+          - 10.0.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          cache: npm
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies
+        run: npm clean-install
+      - name: Install npm@${{ matrix.npm }}
+        run: npm install --global npm@${{ matrix.npm }}
+      - name: Show versions
+        run: |
+          echo 'node --version'
+          node --version
+
+          echo 'npm --version'
+          npm --version
+      - name: Test
+        run: npm run test:e2e
   vet:
     name: Vet
     runs-on: ubuntu-24.04
