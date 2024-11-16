@@ -10,6 +10,7 @@ Versioning].
 ## [Unreleased]
 
 - Disallow expiry dates with prefixes or suffixes.
+- Fix ignoring of the expiry date when using the `*` wildcard.
 
 ## [0.3.3] - 2024-11-16
 
