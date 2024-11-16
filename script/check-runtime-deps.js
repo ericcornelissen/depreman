@@ -15,10 +15,10 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import cp from "node:child_process";
-import fs from "node:fs";
-import path from "node:path";
-import process from "node:process";
+import * as cp from "node:child_process";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import * as process from "node:process";
 
 const manifestPath = path.resolve(".", "package.json");
 const rawManifest = fs.readFileSync(manifestPath).toString();
