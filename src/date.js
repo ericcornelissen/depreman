@@ -12,7 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-const dateExpr = /(?<yyyy>\d{4})-(?<mm>\d{1,2})-(?<dd>\d{1,2})/;
+const dateExpr = /^(?<yyyy>\d{4})-(?<mm>\d{1,2})-(?<dd>\d{1,2})$/;
 
 export class DepremanDate {
 	constructor({ year, month, day }) {
