@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import * as fs from "node:fs/promises";
 import { argv, exit } from "node:process";
 
 import { readConfig } from "./config.js";
@@ -39,7 +40,7 @@ to ignore npm deprecation warnings for your dependencies.
 
 try {
 	const [config, deprecations] = await Promise.all([
-		readConfig(),
+		readConfig(fs),
 		obtainDeprecations().then(obtainDependencyPaths),
 	]);
 

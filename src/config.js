@@ -12,12 +12,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { readFile } from "node:fs/promises";
-
-export async function readConfig() {
+/**
+ * @param {FileSystem} fs
+ * @returns {Object}
+ */
+export async function readConfig(fs) {
 	let rawConfig;
 	try {
-		rawConfig = await readFile("./.ndmrc", { encoding: "utf-8" });
+		rawConfig = await fs.readFile("./.ndmrc");
 	} catch (_) {
 		throw new Error("Configuration file .ndmrc not found");
 	}
@@ -28,3 +30,12 @@ export async function readConfig() {
 		throw new Error(`Configuration file invalid (${error.message})`);
 	}
 }
+
+/**
+ * @typedef {function(string): Promise<string>} ReadFile
+ */
+
+/**
+ * @typedef FileSystem
+ * @property {ReadFile} readFile
+ */
