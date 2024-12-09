@@ -44,4 +44,4 @@ jobs:
           npm update --omit dev --omit optional --omit peer
           npm install
       - name: Run tests
-        run: npm run test:unit
+        run: npm run test
