@@ -28,15 +28,19 @@
     "audit": "npm run audit:deprecations && npm run audit:vulnerabilities",
     "audit:deprecations": "npm run dogfeed",
     "audit:vulnerabilities": "better-npm-audit audit",
+    "check": "npm run check:dependencies && npm run check:headers && npm run check:licenses && npm run check:lockfile && npm run check:manifest",
+    "check:dependencies": "node script/check-runtime-deps.js",
+    "check:headers": "node script/check-headers.js",
+    "check:licenses": "licensee --errors-only",
+    "check:lockfile": "lockfile-lint",
+    "check:manifest": "publint --strict && ls-engines",
     "coverage": "npm run coverage:unit",
     "coverage:unit": "node --test --experimental-test-coverage 'src/*.test.js'",
     "dogfeed": "node bin/cli.js --errors-only --report-unused",
-    "licenses": "licensee --errors-only",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "node --test 'src/*.test.js'",
     "test:e2e": "node --test 'test/e2e.test.js'",
-    "verify": "npm run test && npm run vet && npm run licenses && npm run dogfeed",
-    "vet": "lockfile-lint && ls-engines && publint --strict && node script/check-headers.js && node script/check-runtime-deps.js"
+    "verify": "npm run check && npm run test"
   },
   "dependencies": {
     "chalk": "^5.0.0",
