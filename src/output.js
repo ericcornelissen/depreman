@@ -16,7 +16,7 @@ import { exit } from "node:process";
 
 import chalk from "chalk";
 
-export function printAndExit(result, options) {
+export function printAndExit(result, unused, options) {
 	let exitCode = 0;
 
 	for (const pkg of result) {
@@ -39,6 +39,14 @@ export function printAndExit(result, options) {
 				const msg = `\t. > ${path.map(pkgToString).join(" > ")}\n\t\t${chalk.italic(prefix)}`;
 				console.log(chalk.dim(msg));
 			}
+		}
+	}
+
+	if (unused?.length > 0) {
+		exitCode = 1;
+		console.log("Unused ignore directives(s):");
+		for (const path of unused) {
+			console.log(`\t. > ${path.join(" > ")}`);
 		}
 	}
 

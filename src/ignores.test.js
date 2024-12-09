@@ -17,6 +17,7 @@ import { test } from "node:test";
 
 import {
 	removeIgnored,
+	unusedIgnores,
 } from "./ignores.js";
 
 test("ignore.js", async (t) => {
@@ -905,6 +906,77 @@ test("ignore.js", async (t) => {
 					},
 					want,
 				);
+			});
+		}
+	});
+
+	await t.test("unusedIgnores", async (t) => {
+		const kUsed = Symbol.for("#used");
+
+		const testCases = {
+			"used ignore directive in a direct dependency": {
+				config: {
+					"package@1.0.0": {
+						"#ignore": "Hello world!",
+						[kUsed]: true,
+					},
+				},
+				want: [],
+			},
+			"used ignore directive in a transitive dependency": {
+				config: {
+					"foo@1.0.0": {
+						"bar@2.0.0": {
+							"#ignore": "Hello world!",
+							[kUsed]: true,
+						},
+					},
+				},
+				want: [],
+			},
+			"unused ignore directive in a direct dependency": {
+				config: {
+					"package@1.0.0": {
+						"#ignore": "Hello world!",
+					},
+				},
+				want: [
+					["package@1.0.0"],
+				],
+			},
+			"unused ignore directive in a transitive dependency": {
+				config: {
+					"foo@1.0.0": {
+						"bar@2.0.0": {
+							"#ignore": "Hello world!",
+						},
+					},
+				},
+				want: [
+					["foo@1.0.0", "bar@2.0.0"],
+				],
+			},
+			"1 used and 1 unused ignore directive": {
+				config: {
+					"foo@1.0.0": {
+						"#ignore": "Hello world!",
+						[kUsed]: true,
+					},
+					"bar@2.0.0": {
+						"#ignore": "Hola mundo!",
+					},
+				},
+				want: [
+					["bar@2.0.0"],
+				],
+			},
+		};
+
+		for (const [name, testCase] of Object.entries(testCases)) {
+			const { config, want } = testCase;
+			await t.test(name, () => {
+				const got = unusedIgnores(config);
+				assert.deepEqual(got, want);
 			});
 		}
 	});

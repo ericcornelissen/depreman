@@ -16,6 +16,10 @@ import semverSatisfies from "semver/functions/satisfies.js";
 
 import * as date from "./date.js";
 
+const kUsed = Symbol.for("#used");
+const kIgnore = "#ignore";
+const kExpire = "#expire";
+
 export function removeIgnored(config, deprecations) {
 	const result = [];
 	for (const pkg of deprecations) {
@@ -44,6 +48,23 @@ export function removeIgnored(config, deprecations) {
 	return result;
 }
 
+export function unusedIgnores(config, path=[]) {
+	const unused = [];
+	if (Object.hasOwn(config, kIgnore) && !config[kUsed]) {
+		unused.push(path);
+	}
+
+	for (const rule in config) {
+		if (rule.startsWith("#") || rule === kUsed) {
+			continue;
+		}
+
+		unused.push(...unusedIgnores(config[rule], path.concat([rule])));
+	}
+
+	return unused;
+}
+
 function isIgnored(config, path) {
 	if (path.length === 0) {
 		return getDecision(config);
@@ -51,7 +72,7 @@ function isIgnored(config, path) {
 
 	const [current, ...remaining] = path;
 	for (const rule in config) {
-		if (rule.startsWith("#")) {
+		if (rule.startsWith("#") || rule === kUsed) {
 			continue;
 		}
 
@@ -98,25 +119,33 @@ function getDecision(config) {
 }
 
 function parseDecision(config) {
-	const ignore = config["#ignore"] ?? config["*"]?.["#ignore"];
+	let ignore;
+	if (Object.hasOwn(config, kIgnore)) {
+		ignore = config[kIgnore];
+		config[kUsed] = true;
+	} else if (Object.hasOwn(config["*"] || {}, kIgnore)) {
+		ignore = config["*"][kIgnore];
+		config["*"][kUsed] = true;
+	} else {
+		return false;
+	}
+
 	switch (typeof ignore) {
-		case "undefined":
-			return false;
 		case "string":
 			if (ignore.length === 0) {
-				throw new Error(`cannot use empty string for '#ignore', use 'true' instead`);
+				throw new Error(`cannot use empty string for '${kIgnore}', use 'true' instead`);
 			} else {
 				return ignore;
 			}
 		case "boolean":
 			return ignore;
 		default:
-			throw new Error(`invalid '#ignore' value: ${ignore}`);
+			throw new Error(`invalid '${kIgnore}' value: ${ignore}`);
 	}
 }
 
 function isExpired(config) {
-	const expire = config["#expire"] ?? config["*"]?.["#expire"];
+	const expire = config[kExpire] ?? config["*"]?.[kExpire];
 	if (expire !== undefined) {
 		const expires = date.parse(expire);
 		const today = date.today();

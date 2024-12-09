@@ -30,7 +30,7 @@
     "audit:vulnerabilities": "better-npm-audit audit",
     "coverage": "npm run coverage:unit",
     "coverage:unit": "node --test --experimental-test-coverage 'src/*.test.js'",
-    "dogfeed": "node bin/cli.js --errors-only",
+    "dogfeed": "node bin/cli.js --errors-only --report-unused",
     "licenses": "licensee --errors-only",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "node --test 'src/*.test.js'",
