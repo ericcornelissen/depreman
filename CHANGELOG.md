@@ -9,6 +9,7 @@ Versioning].
 
 ## [Unreleased]
 
+- Add `--report-unused` flag to report on unnecessary ignore directives.
 - Disallow expiry dates with prefixes or suffixes.
 - Fix ignoring of the expiry date when using the `*` wildcard.
 
