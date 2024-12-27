@@ -15,6 +15,8 @@
 import * as fs from "node:fs/promises";
 import { argv, exit } from "node:process";
 
+import chalk from "chalk";
+
 import { readConfig } from "./config.js";
 import { obtainDeprecations } from "./deprecations.js";
 import { obtainDependencyPaths } from "./hierarchy.js";
@@ -49,7 +51,9 @@ try {
 
 	const result = removeIgnored(config, deprecations);
 	const unused = reportUnused ? unusedIgnores(config) : [];
-	printAndExit(result, unused, { everything });
+	const { exitCode, report } = printAndExit(result, unused, { everything }, chalk);
+	if (report) console.log(report);
+	exit(exitCode);
 } catch (error) {
 	console.error("error:", error.message);
 	exit(2);
