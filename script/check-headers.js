@@ -1,6 +1,6 @@
 // MIT No Attribution
 //
-// Copyright 2024 Eric Cornelissen
+// Copyright 2024-2025 Eric Cornelissen
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
 // software and associated documentation files (the "Software"), to deal in the Software
@@ -27,7 +27,7 @@ const ignore = [
 ];
 
 const header = `
-// Copyright (C) 2024  Eric Cornelissen
+// Copyright (C) <YEAR>  <AUTHORS>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -40,7 +40,7 @@ const header = `
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-`;
+`.trimStart();
 
 let hasViolation = false;
 for await (const entry of jsFiles(".", ignore)) {
@@ -58,7 +58,9 @@ else console.log("No problems detected");
 
 async function hasLicenseHeader(entry) {
 	const content = await fs.readFile(entry, { encoding: "utf-8" });
-	return content.startsWith(`${header.trimStart()}\n`);
+	return content
+		.replace(/^\/\/ Copyright \(C\) \d+(-\d+)?  .+$/m, "// Copyright (C) <YEAR>  <AUTHORS>")
+		.startsWith(`${header}\n`);
 }
 
 async function* jsFiles(dir, exclude) {
