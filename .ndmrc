@@ -2,14 +2,14 @@
   "publint@^0.2.12": {
     "npm-packlist@^5.0.0": {
       "*": {
-        "#expire": "2025-01-01",
+        "#expire": "2025-03-01",
         "#ignore": "tracked in https://github.com/bluwy/publint/issues/11"
       }
     }
   },
   "ls-engines@^0.9.3": {
     "*": {
-      "#expire": "2025-01-01",
+      "#expire": "2026-01-01",
       "#ignore": "tracked in https://github.com/ljharb/ls-engines/pull/31"
     }
   }
