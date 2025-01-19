@@ -1,6 +1,6 @@
 # MIT No Attribution
 #
-# Copyright 2024 Eric Cornelissen
+# Copyright 2025 Eric Cornelissen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this
 # software and associated documentation files (the "Software"), to deal in the Software
@@ -54,10 +54,16 @@ jobs:
         env:
           WHAT: ${{ matrix.what }}
   codeql:
-    name: CodeQL
+    name: CodeQL (${{ matrix.what }})
     runs-on: ubuntu-24.04
     permissions:
       security-events: write # To upload CodeQL results
+    strategy:
+      fail-fast: false
+      matrix:
+        what:
+          - actions
+          - javascript
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -67,7 +73,7 @@ jobs:
         uses: github/codeql-action/init@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c # v3.28.1
         with:
           config-file: ./.github/codeql.yml
-          languages: javascript
+          languages: ${{ matrix.what }}
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c # v3.28.1
   odgen:
