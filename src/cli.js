@@ -1,4 +1,4 @@
-// Copyright (C) 2024  Eric Cornelissen
+// Copyright (C) 2024-2025  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -25,10 +25,14 @@ import { printAndExit } from "./output.js";
 
 const help = argv.includes("--help") || argv.includes("-h");
 const everything = !(argv.includes("--errors-only"));
+const omitDev = argv.includes("--omit=dev");
+const omitOptional = argv.includes("--omit=optional");
+const omitPeer = argv.includes("--omit=peer");
 const reportUnused = argv.includes("--report-unused");
 
 if (help) {
 	console.log(`depreman [-h|--help] [--errors-only] [--report-unused]
+         [--omit=<dev|optional|peer> ...]
 
 Manage npm deprecation.  Create an '.ndmrc' file with a JSON-based configuration
 to ignore npm deprecation warnings for your dependencies.
@@ -37,6 +41,8 @@ to ignore npm deprecation warnings for your dependencies.
       Show this help message.
    --errors-only
       Only output deprecations that are not ignored.
+   --omit=<dev|optional|peer>
+      Omit deprecations for development, optional, or peer dependencies.
    --report-unused
       Report and fail for unused ignore directives.
 `);
@@ -44,9 +50,10 @@ to ignore npm deprecation warnings for your dependencies.
 }
 
 try {
+	const npmCliOptions = { omitDev, omitOptional, omitPeer };
 	const [config, deprecations] = await Promise.all([
 		readConfig(fs),
-		obtainDeprecations().then(obtainDependencyPaths),
+		obtainDeprecations(npmCliOptions).then(obtainDependencyPaths(npmCliOptions)),
 	]);
 
 	const result = removeIgnored(config, deprecations);
