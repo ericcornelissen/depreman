@@ -9,7 +9,8 @@ Versioning].
 
 ## [Unreleased]
 
-- _No changes yet_
+- Add `--omit=<dev|optional|peer>` flag to control the review scope.
+- Fix an unexpected runtime error if there are no dependencies.
 
 ## [0.3.4] - 2024-12-09
 

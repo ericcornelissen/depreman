@@ -1,4 +1,4 @@
-// Copyright (C) 2024  Eric Cornelissen
+// Copyright (C) 2024-2025  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -15,21 +15,30 @@
 import { exec } from "node:child_process";
 import { readFile } from "node:fs/promises";
 
-export async function obtainDependencyPaths(packages) {
-	const [hierarchy, aliases] = await Promise.all([
-		obtainHierarchy(),
-		obtainAliases(),
-	]);
+/**
+ * Enhance deprecation information with the dependency paths for the current
+ * project.
+ *
+ * @param {NpmCliOptions} options The configuration for the npm CLI.
+ * @returns {function(Package[]): Promise<Deprecation[]>} A function to map {@link Package}s to {@link Deprecation}s.
+ */
+export function obtainDependencyPaths(options) {
+	return async function obtainDependencyPaths(packages) {
+		const [hierarchy, aliases] = await Promise.all([
+			obtainHierarchy(options),
+			obtainAliases(),
+		]);
 
-	const result = [];
-	for (const pkg of packages) {
-		result.push({
-			...pkg,
-			paths: findEach(hierarchy, aliases, pkg),
-		});
+		const result = [];
+		for (const pkg of packages) {
+			result.push({
+				...pkg,
+				paths: findEach(hierarchy, aliases, pkg),
+			});
+		}
+
+		return result;
 	}
-
-	return result;
 }
 
 function findEach(hierarchy, aliases, pkg, path = []) {
@@ -57,6 +66,14 @@ function findEach(hierarchy, aliases, pkg, path = []) {
 	return found;
 }
 
+/**
+ * Obtain a mapping of dependencies to their aliases.
+ *
+ * For example creates a mapping from `foo` to `bar@3.1.4` for `"foo":
+ * "npm:bar@3.1.4"`.
+ *
+ * @returns {Promise<AliasMap>} A mapping of dependencies to their aliases.
+ */
 async function obtainAliases() {
 	const rawManifest = await readFile("./package.json", { encoding: "utf-8" });
 	const manifest = JSON.parse(rawManifest);
@@ -78,20 +95,48 @@ async function obtainAliases() {
 	return aliases;
 }
 
-function obtainHierarchy() {
+/**
+ * Obtain the dependency hierarchy of the current project.
+ *
+ * @param {NpmCliOptions} options The configuration for the npm CLI.
+ * @returns {Promise<Object>} The dependency hierarchy of the current project.
+ */
+function obtainHierarchy(options) {
+	const optionalArgs = [
+		...(options.omitDev ? ["--omit", "dev"] : []),
+		...(options.omitOptional ? ["--omit", "optional"] : []),
+		...(options.omitPeer ? ["--omit", "peer"] : []),
+	].join(" ");
+
 	return new Promise((resolve, reject) =>
 		exec(
-			"npm list --all --json",
+			`npm list --all --json ${optionalArgs}`,
 			{ shell: false },
 			(error, stdout) => {
 				if (error) {
 					reject(error);
 				} else {
 					const hierarchy = JSON.parse(stdout);
-					delete hierarchy.dependencies[hierarchy.name];
+					if (hierarchy.dependencies) {
+						delete hierarchy.dependencies[hierarchy.name];
+					}
 					resolve(hierarchy);
 				}
 			},
 		)
 	);
 }
+
+/** @typedef {import("./deprecations.js").NpmCliOptions} NpmCliOptions */
+/** @typedef {import("./deprecations.js").Deprecation} Package */
+
+/**
+ * @typedef _Deprecation
+ * @property {string[]} paths All paths at which the deprecate dependency is present.
+ *
+ * @typedef {Package & _Deprecation} Deprecation
+ */
+
+/**
+ * @typedef {Map<string, { name: string, version: string }>} AliasMap
+ */

@@ -1,4 +1,4 @@
-// Copyright (C) 2024  Eric Cornelissen
+// Copyright (C) 2024-2025  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -29,6 +29,17 @@ test("end-to-end", async (t) => {
 
 		assert.equal(result.exitCode, 0);
 		assert.notEqual(result.stdout, "");
+		assert.equal(result.stderr, "");
+	});
+
+	await t.test("--omit=dev", () => {
+		const result = cli({
+			args: ["--omit=dev"],
+			project: project("dev-deps-only"),
+		});
+
+		assert.equal(result.exitCode, 0);
+		assert.equal(result.stdout, "");
 		assert.equal(result.stderr, "");
 	});
 
