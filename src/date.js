@@ -1,4 +1,4 @@
-// Copyright (C) 2024  Eric Cornelissen
+// Copyright (C) 2024-2025  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -15,10 +15,14 @@
 const dateExpr = /^(?<yyyy>\d{4})-(?<mm>\d{1,2})-(?<dd>\d{1,2})$/;
 
 export class DepremanDate {
-	constructor({ year, month, day }) {
-		this.year = year;
-		this.month = month;
-		this.day = day;
+	constructor(date) {
+		if (!isValid(date)) {
+			throw new Error(`invalid date '${year}-${month}-${day}'`);
+		}
+
+		this.year = date.year;
+		this.month = date.month;
+		this.day = date.day;
 	}
 
 	is(that) {
@@ -72,3 +76,26 @@ export function today() {
 		day: date.getDate(),
 	});
 }
+
+/**
+ * Determine if a raw (unverified) date is a valid date.
+ *
+ * The year is validated in a way to catch likely mistakes for the purposes of
+ * an expiry date (e.g. a year past 10.000 is probably not intended as an expiry
+ * date). The day is validated approximately, not considering the month.
+ *
+ * @param {RawDate} rawDate A potential date.
+ * @returns {boolean} `true` if the date is valid, `false` otherwise.
+ */
+function isValid({ year, month, day }) {
+	return year >= 2000 && year <= 9999
+		&& month >= 1 && month <= 12
+		&& day >= 1 && day <= 31;
+}
+
+/**
+ * @typedef RawDate
+ * @property {number} year
+ * @property {number} month
+ * @property {number} day
+ */
