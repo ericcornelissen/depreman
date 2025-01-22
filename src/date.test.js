@@ -1,4 +1,4 @@
-// Copyright (C) 2024  Eric Cornelissen
+// Copyright (C) 2024-2025  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -23,6 +23,105 @@ import {
 
 test("date.js", async (t) => {
 	await t.test("DepremanDate", async (t) => {
+		await t.test("constructor", async (t) => {
+			const goodCases = {
+				"earliest month and day": {
+					year: 2025,
+					month: 1,
+					day: 1,
+				},
+				"earliest month": {
+					year: 2025,
+					month: 1,
+					day: 4,
+				},
+				"earliest day": {
+					year: 2025,
+					month: 2,
+					day: 1,
+				},
+				"latest month and day": {
+					year: 2025,
+					month: 12,
+					day: 31,
+				},
+				"latest month": {
+					year: 2025,
+					month: 12,
+					day: 4,
+				},
+				"latest day": {
+					year: 2025,
+					month: 2,
+					day: 31,
+				},
+			};
+
+			for (const [name, testCase] of Object.entries(goodCases)) {
+				await t.test(name, () => {
+					assert.doesNotThrow(() => {
+						new DepremanDate(testCase)
+					});
+				});
+			}
+
+			const badCases = {
+				"month 0": {
+					year: 2025,
+					month: 0,
+					day: 1,
+				},
+				"month 13": {
+					year: 2025,
+					month: 13,
+					day: 1,
+				},
+				"day 32": {
+					year: 2025,
+					month: 1,
+					day: 32,
+				},
+				"day 0": {
+					year: 2025,
+					month: 1,
+					day: 0,
+				},
+				"negative month": {
+					year: 2025,
+					month: -1,
+					day: 1,
+				},
+				"negative day": {
+					year: 2025,
+					month: 1,
+					day: -1,
+				},
+				"negative year (catch likely mistakes in the year)": {
+					year: -2025,
+					month: 1,
+					day: 1,
+				},
+				"too far in the past (catch likely mistakes in the year)": {
+					year: 1025,
+					month: 1,
+					day: 1,
+				},
+				"too far in the future (catch likely mistakes in the year)": {
+					year: 20025,
+					month: 1,
+					day: 1,
+				},
+			};
+
+			for (const [name, testCase] of Object.entries(badCases)) {
+				await t.test(name, () => {
+					assert.throws(() => {
+						new DepremanDate(testCase)
+					});
+				});
+			}
+		});
+
 		await t.test("is", async (t) => {
 			const trueCases = {
 				"sample, 2025-01-01": {
