@@ -2,6 +2,10 @@
 
 name: Depreman CodeQL config
 
+packs:
+  - githubsecuritylab/codeql-javascript-libs@0.2.0
+  - githubsecuritylab/codeql-javascript-queries@0.2.0
+
 queries:
   - uses: security-extended
 
