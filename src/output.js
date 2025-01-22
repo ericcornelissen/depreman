@@ -23,7 +23,7 @@ export function printAndExit(result, unused, options, chalk) {
 	let exitCode = 0;
 	const output = [];
 
-	for (const pkg of result) {
+	for (const pkg of result.sort(byName)) {
 		const id = pkgToString(pkg);
 		if (pkg.kept.length > 0) {
 			exitCode = 1;
@@ -62,7 +62,18 @@ export function printAndExit(result, unused, options, chalk) {
 }
 
 /**
- * @param {Result} pkg
+ * @param {Package} pkgA
+ * @param {Package} pkgB
+ * @returns {-1 | 0 | 1}
+ */
+function byName(pkgA, pkgB) {
+	const a = pkgToString(pkgA);
+	const b = pkgToString(pkgB);
+	return a.localeCompare(b);
+}
+
+/**
+ * @param {Package} pkg
  * @returns {string}
  */
 function pkgToString(pkg) {

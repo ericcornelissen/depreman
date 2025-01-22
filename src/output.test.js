@@ -157,6 +157,72 @@ test("output.js", async (t) => {
 	. > foobar@3.1.4`,
 				}
 			},
+			"two deprecation which are not ignored (in order)": {
+				options: {
+					everything: false,
+				},
+				results: [
+					{
+						name: "bar",
+						version: "3.1.4",
+						reason: "no longer maintained",
+						kept: [
+							{ path: [{ name: "bar", version: "3.1.4" }] }
+						],
+						ignored: [],
+					},
+					{
+						name: "foo",
+						version: "2.7.1",
+						reason: "not maintained anymore",
+						kept: [
+							{ path: [{ name: "foo", version: "2.7.1" }] }
+						],
+						ignored: [],
+					},
+				],
+				unused: [],
+				want: {
+					exitCode: 1,
+					report: `bar@3.1.4 ${styler.italic(`("no longer maintained")`)}:
+	. > bar@3.1.4
+foo@2.7.1 ${styler.italic(`("not maintained anymore")`)}:
+	. > foo@2.7.1`,
+				}
+			},
+			"two deprecation which are not ignored (out of order)": {
+				options: {
+					everything: false,
+				},
+				results: [
+					{
+						name: "foo",
+						version: "2.7.1",
+						reason: "not maintained anymore",
+						kept: [
+							{ path: [{ name: "foo", version: "2.7.1" }] }
+						],
+						ignored: [],
+					},
+					{
+						name: "bar",
+						version: "3.1.4",
+						reason: "no longer maintained",
+						kept: [
+							{ path: [{ name: "bar", version: "3.1.4" }] }
+						],
+						ignored: [],
+					},
+				],
+				unused: [],
+				want: {
+					exitCode: 1,
+					report: `bar@3.1.4 ${styler.italic(`("no longer maintained")`)}:
+	. > bar@3.1.4
+foo@2.7.1 ${styler.italic(`("not maintained anymore")`)}:
+	. > foo@2.7.1`,
+				}
+			},
 			"one unused ignore": {
 				options: {
 					everything: false,
