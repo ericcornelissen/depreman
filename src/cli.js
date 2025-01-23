@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import * as cp from "node:child_process";
 import * as fs from "node:fs/promises";
 import { argv, exit } from "node:process";
 
@@ -49,10 +50,10 @@ to ignore npm deprecation warnings for your dependencies.
 }
 
 try {
-	const npmCliOptions = { omitDev, omitOptional, omitPeer };
+	const options = { omitDev, omitOptional, omitPeer };
 	const [config, deprecations] = await Promise.all([
 		readConfig(fs),
-		getDeprecatedPackages(npmCliOptions),
+		getDeprecatedPackages({ cp, fs, options }),
 	]);
 
 	const result = removeIgnored(config, deprecations);

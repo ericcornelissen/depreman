@@ -12,18 +12,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { exec, spawn } from "node:child_process";
-import { readFile } from "node:fs/promises";
-
 /**
- * @param {Options} options
+ * @param {Object} p
+ * @param {FileSystem} p.fs
+ * @param {ChildProcess} p.cp
+ * @param {Options} p.options
  * @returns {Promise<DeprecatedPackage[]>}
  */
-export async function getDeprecatedPackages(options) {
-	const packages = await obtainDeprecation(options);
+export async function getDeprecatedPackages({ cp, fs, options }) {
+	const packages = await obtainDeprecation({ cp, options });
 	const [hierarchy, aliases] = await Promise.all([
-		obtainHierarchy(options),
-		obtainAliases(),
+		obtainHierarchy({ cp, options }),
+		obtainAliases({ fs }),
 	]);
 
 	for (const pkg of packages) {
@@ -34,12 +34,14 @@ export async function getDeprecatedPackages(options) {
 }
 
 /**
- * @param {Options} options
+ * @param {Object} p
+ * @param {ChildProcess} p.cp
+ * @param {Options} p.options
  * @returns {Promise<DeprecatedPackage[]>}
  */
-async function obtainDeprecation(options) {
+async function obtainDeprecation({ cp, options }) {
 	return new Promise((resolve, reject) => {
-		const process = spawn(
+		const process = cp.spawn(
 			"npm",
 			[
 				"clean-install",
@@ -75,10 +77,12 @@ async function obtainDeprecation(options) {
 }
 
 /**
- * @param {Options} options
+ * @param {Object} p
+ * @param {ChildProcess} p.cp
+ * @param {Options} p.options
  * @returns {Promise<PackageHierarchy>}
  */
-function obtainHierarchy(options) {
+function obtainHierarchy({ cp, options }) {
 	const optionalArgs = [
 		...(options.omitDev ? ["--omit", "dev"] : []),
 		...(options.omitOptional ? ["--omit", "optional"] : []),
@@ -86,7 +90,7 @@ function obtainHierarchy(options) {
 	].join(" ");
 
 	return new Promise((resolve, reject) =>
-		exec(
+		cp.exec(
 			`npm list --all --json ${optionalArgs}`,
 			{ shell: false },
 			(error, stdout) => {
@@ -107,10 +111,12 @@ function obtainHierarchy(options) {
 /**
  * `"foo": "npm:bar@3.1.4"` will result in a mapping from `foo` to `bar@3.1.4`.
  *
+ * @param {Object} p
+ * @param {FileSystem} fs
  * @returns {Promise<Aliases>}
  */
-async function obtainAliases() {
-	const rawManifest = await readFile("./package.json", { encoding: "utf-8" });
+async function obtainAliases({ fs }) {
+	const rawManifest = await fs.readFile("./package.json", { encoding: "utf-8" });
 	const manifest = JSON.parse(rawManifest);
 
 	const aliases = new Map();
@@ -240,5 +246,12 @@ function unique(a, index, array) {
  * @property {string} version
  */
 
+/**
+ * @typedef ChildProcess
+ * @property {Spawn} spawn
+ */
+
 /** @typedef {Map<string, Package>} Aliases */
+/** @typedef {import("./config.js").FileSystem} FileSystem */
 /** @typedef {Package[]} PackagePath */
+/** @typedef {function(string, string[], Object): Object} Spawn */
