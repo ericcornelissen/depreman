@@ -12,15 +12,32 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { spawn } from "node:child_process";
+import { exec, spawn } from "node:child_process";
+import { readFile } from "node:fs/promises";
 
 /**
- * Obtain all deprecation warnings for the current project.
- *
- * @param {NpmCliOptions} options The configuration for deprecations to get.
- * @returns {Promise<Deprecation[]>} A list of deprecation warnings.
+ * @param {Options} options
+ * @returns {Promise<DeprecatedPackage[]>}
  */
-export async function obtainDeprecations(options) {
+export async function getDeprecatedPackages(options) {
+	const packages = await obtainDeprecation(options);
+	const [hierarchy, aliases] = await Promise.all([
+		obtainHierarchy(options),
+		obtainAliases(),
+	]);
+
+	for (const pkg of packages) {
+		pkg.paths = findPackagePaths(pkg, hierarchy, aliases);
+	}
+
+	return packages;
+}
+
+/**
+ * @param {Options} options
+ * @returns {Promise<DeprecatedPackage[]>}
+ */
+async function obtainDeprecation(options) {
 	return new Promise((resolve, reject) => {
 		const process = spawn(
 			"npm",
@@ -42,9 +59,8 @@ export async function obtainDeprecations(options) {
 
 		process.stderr.on("data", (line) => {
 			if (isDeprecationWarning(line)) {
-				const deprecated = extractDeprecation(line);
-				const details = parseDeprecation(deprecated);
-				deprecations.push(details);
+				const deprecation = parseDeprecationWarning(line);
+				deprecations.push(deprecation);
 			}
 		});
 
@@ -58,74 +74,171 @@ export async function obtainDeprecations(options) {
 	});
 }
 
+/**
+ * @param {Options} options
+ * @returns {Promise<PackageHierarchy>}
+ */
+function obtainHierarchy(options) {
+	const optionalArgs = [
+		...(options.omitDev ? ["--omit", "dev"] : []),
+		...(options.omitOptional ? ["--omit", "optional"] : []),
+		...(options.omitPeer ? ["--omit", "peer"] : []),
+	].join(" ");
+
+	return new Promise((resolve, reject) =>
+		exec(
+			`npm list --all --json ${optionalArgs}`,
+			{ shell: false },
+			(error, stdout) => {
+				if (error) {
+					reject(error);
+				} else {
+					const hierarchy = JSON.parse(stdout);
+					if (hierarchy.dependencies) {
+						delete hierarchy.dependencies[hierarchy.name];
+					}
+					resolve(hierarchy);
+				}
+			},
+		)
+	);
+}
+
+/**
+ * `"foo": "npm:bar@3.1.4"` will result in a mapping from `foo` to `bar@3.1.4`.
+ *
+ * @returns {Promise<Aliases>}
+ */
+async function obtainAliases() {
+	const rawManifest = await readFile("./package.json", { encoding: "utf-8" });
+	const manifest = JSON.parse(rawManifest);
+
+	const aliases = new Map();
+	for (const deps of [
+		manifest.dependencies || {},
+		manifest.devDependencies || {},
+	]) {
+		for (const [name, rhs] of Object.entries(deps)) {
+			const aliasMatch = /^npm:(@?.+?)@(.+)$/.exec(rhs);
+			if (aliasMatch) {
+				const [, alias, version] = aliasMatch;
+				aliases.set(name, { name: alias, version });
+			}
+		}
+	}
+
+	return aliases;
+}
+
+/**
+ * @param {Package} pkg
+ * @param {PackageHierarchy} hierarchy
+ * @param {Aliases} aliases
+ * @param {Package[]} path
+ * @returns {PackagePath[]}
+ */
+function findPackagePaths(pkg, hierarchy, aliases, path = []) {
+	const dependencies = hierarchy.dependencies;
+	if (!dependencies) {
+		return [];
+	}
+
+	const paths = [];
+	for (const [name_, info] of Object.entries(dependencies)) {
+		const alias = aliases.get(name_);
+
+		const name = alias === undefined ? name_ : alias.name;
+		const version = info.version;
+		const path_ = [...path, { name, version }];
+
+		if (name === pkg.name && version === pkg.version) {
+			paths.push(path_);
+		} else {
+			paths.push(...findPackagePaths(pkg, info, aliases, path_));
+		}
+	}
+
+	return paths;
+}
+
 const prefix = Buffer.from("npm warn deprecated ");
 
 /**
- * Determine if a line from the npm CLI is a deprecation warning.
- *
- * @param {string} line A line from the npm CLI.
- * @returns {boolean} `true` if the line is a deprecation warning.
+ * @param {string} line
+ * @returns {boolean}
  */
 function isDeprecationWarning(line) {
 	return line.slice(0, prefix.length).equals(prefix);
 }
 
 /**
- * Extract the deprecation warning content from a line outputted by the npm CLI.
- *
- * @param {string} line The raw line outputted by the npm CLI.
- * @returns {string} The line without the deprecation warning prefix.
+ * @param {string} line
+ * @returns {DeprecatedPackage}
  */
-function extractDeprecation(line) {
-	return line.slice(prefix.length, line.length).toString();
-}
-
-/**
- * Parse a raw deprecation warning outputted by the npm CLI.
- *
- * @param {string} str The deprecation warning.
- * @returns {Deprecation} The parsed deprecation.
- */
-function parseDeprecation(str) {
+function parseDeprecationWarning(line) {
+	const str = line.slice(prefix.length, line.length).toString();
 	let pkg, reason, name, version;
 
 	{
 		const i = str.indexOf(":");
 		pkg = str.substring(0, i);
-		reason = str.substring(i+1, /* end */).trim();
+		reason = str.substring(i + 1, /* end */).trim();
 	}
 
 	{
 		const i = pkg.lastIndexOf("@");
 		name = pkg.substring(0, i);
-		version = pkg.substring(i+1, /* end */);
+		version = pkg.substring(i + 1, /* end */);
 	}
 
 	return { name, version, reason };
 }
 
 /**
- * A filter function to remove duplicate {@link Deprecation} objects.
- *
- * @param {Deprecation} a An element of `array`.
- * @param {number} index The index of element `a` in `array`.
- * @param {Deprecation[]} array The full array to filter.
- * @returns {boolean} `true` if `a` is the first occurrence in `array`.
+ * @param {DeprecatedPackage} a
+ * @param {number} index
+ * @param {DeprecatedPackage[]} array
+ * @returns {boolean}
  */
 function unique(a, index, array) {
 	return index === array.findIndex(b => a.name === b.name && a.version === b.version);
 }
 
 /**
- * @typedef NpmCliOptions
- * @property {boolean} omitDev Set `--omit dev`.
- * @property {boolean} omitOptional Set `--omit optional`.
- * @property {boolean} omitPeer Set `--omit peer`.
+ * @typedef Options
+ * @property {boolean} omitDev
+ * @property {boolean} omitOptional
+ * @property {boolean} omitPeer
  */
 
 /**
- * @typedef Deprecation
- * @property {string} name The name of the deprecated package.
- * @property {string} version The version of the deprecated package.
- * @property {string} reason The deprecation message.
+ * @typedef Package
+ * @property {string} name
+ * @property {string} version
  */
+
+/**
+ * @typedef {Package & _Deprecation} DeprecatedPackage
+ *
+ * @typedef _Deprecation
+ * @property {PackagePath[]} paths
+ * @property {string} reason
+ */
+
+/**
+ * @typedef PackageHierarchy
+ * @property {Object<string, HierarchyDependency>} dependencies
+ * @property {string} name
+ * @property {string} version
+ */
+
+/**
+ * @typedef HierarchyDependency
+ * @property {Object<string, HierarchyDependency>} dependencies
+ * @property {bool} overridden
+ * @property {string} resolved
+ * @property {string} version
+ */
+
+/** @typedef {Map<string, Package>} Aliases */
+/** @typedef {Package[]} PackagePath */

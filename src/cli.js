@@ -18,8 +18,7 @@ import { argv, exit } from "node:process";
 import chalk from "chalk";
 
 import { readConfig } from "./config.js";
-import { obtainDeprecations } from "./deprecations.js";
-import { obtainDependencyPaths } from "./hierarchy.js";
+import { getDeprecatedPackages } from "./deprecations.js";
 import { removeIgnored, unusedIgnores } from "./ignores.js";
 import { printAndExit } from "./output.js";
 
@@ -53,7 +52,7 @@ try {
 	const npmCliOptions = { omitDev, omitOptional, omitPeer };
 	const [config, deprecations] = await Promise.all([
 		readConfig(fs),
-		obtainDeprecations(npmCliOptions).then(obtainDependencyPaths(npmCliOptions)),
+		getDeprecatedPackages(npmCliOptions),
 	]);
 
 	const result = removeIgnored(config, deprecations);
