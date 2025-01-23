@@ -9,6 +9,10 @@ Versioning].
 
 ## [Unreleased]
 
+- _No changes yet_
+
+## [0.3.5] - 2025-01-23
+
 - Add `--omit=<dev|optional|peer>` flag to control the review scope.
 - Make the output ordered alphabetically (by package name).
 - Fix an unexpected runtime error if there are no dependencies.
