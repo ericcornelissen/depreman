@@ -28,7 +28,59 @@ test("deprecations.js", async (t) => {
 		};
 
 		const testCases = {
-			"basic sample": {
+			"basic sample, lockfile deprecations": {
+				hierarchy: {
+					dependencies: {
+						bar: {
+							version: "0.4.2",
+						},
+						deadend: {
+							version: "2.7.1",
+						},
+						foo: {
+							version: "3.1.4",
+						},
+					},
+				},
+				lockfile: {
+					name: "example",
+					lockfileVersion: 3,
+					packages: {
+						"": {
+							name: "example",
+						},
+						"node_modules/bar": {
+							version: "0.4.2",
+							deprecated: "This package is no longer supported.",
+							dev: true,
+						},
+						"node_modules/deadend": {
+							version: "2.7.1",
+						},
+						"node_modules/foo": {
+							version: "3.1.4",
+							deprecated: "This package is no longer supported.",
+						},
+					},
+				},
+				options: {
+					...defaultOptions,
+					omitDev: true,
+				},
+				want: [
+					{
+						name: "foo",
+						version: "3.1.4",
+						reason: "This package is no longer supported.",
+						paths: [
+							[
+								{ name: "foo", version: "3.1.4" },
+							]
+						],
+					}
+				],
+			},
+			"basic sample, CLI deprecations": {
 				hierarchy: {
 					dependencies: {
 						foobar: {
@@ -42,13 +94,12 @@ test("deprecations.js", async (t) => {
 				installLog: [
 					"npm warn deprecated foobar@3.1.4: This package is no longer supported.",
 				],
-				manifest: {},
 				options: defaultOptions,
 				want: [
 					{
 						name: "foobar",
 						version: "3.1.4",
-						reason: 'This package is no longer supported.',
+						reason: "This package is no longer supported.",
 						paths: [
 							[
 								{ name: "foobar", version: "3.1.4" },
@@ -78,10 +129,41 @@ test("deprecations.js", async (t) => {
 					{
 						name: "bar",
 						version: "3.1.4",
-						reason: 'This package is no longer supported.',
+						reason: "This package is no longer supported.",
 						paths: [
 							[
 								{ name: "bar", version: "3.1.4" },
+							]
+						],
+					}
+				],
+			},
+			"old lockfile": {
+				hierarchy: {
+					dependencies: {
+						foobar: {
+							version: "3.1.4",
+						},
+						deadend: {
+							version: "2.7.1",
+						},
+					},
+				},
+				installLog: [
+					"npm warn deprecated foobar@3.1.4: This package is no longer supported.",
+				],
+				lockfile: {
+					lockfileVersion: 2
+				},
+				options: defaultOptions,
+				want: [
+					{
+						name: "foobar",
+						version: "3.1.4",
+						reason: "This package is no longer supported.",
+						paths: [
+							[
+								{ name: "foobar", version: "3.1.4" },
 							]
 						],
 					}
@@ -92,13 +174,14 @@ test("deprecations.js", async (t) => {
 		for (const [name, testCase] of Object.entries(testCases)) {
 			await t.test(name, async () => {
 				const fs = createFs({
-					"./package.json": JSON.stringify(testCase.manifest),
+					"./package.json": JSON.stringify(testCase.manifest || {}),
+					"./package-lock.json": JSON.stringify(testCase.lockfile),
 				});
 				const cp = createCp({
 					"npm clean-install": {
 						error: null,
 						stdout: "",
-						stderr: testCase.installLog.join("\n"),
+						stderr: (testCase.installLog || []).join("\n"),
 					},
 					"npm list --all --json": {
 						error: null,

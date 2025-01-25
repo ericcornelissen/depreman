@@ -20,7 +20,7 @@
  * @returns {Promise<DeprecatedPackage[]>}
  */
 export async function getDeprecatedPackages({ cp, fs, options }) {
-	const packages = await obtainDeprecation({ cp, options });
+	const packages = await obtainDeprecation({ cp, fs, options });
 	const [hierarchy, aliases] = await Promise.all([
 		obtainHierarchy({ cp, options }),
 		obtainAliases({ fs }),
@@ -36,10 +36,65 @@ export async function getDeprecatedPackages({ cp, fs, options }) {
 /**
  * @param {Object} p
  * @param {ChildProcess} p.cp
+ * @param {FileSystem} p.fs
  * @param {Options} p.options
  * @returns {Promise<DeprecatedPackage[]>}
  */
-async function obtainDeprecation({ cp, options }) {
+async function obtainDeprecation({ cp, fs, options }) {
+	try {
+		return await obtainDeprecationFromLockfile({ fs, options });
+	} catch {
+		return await obtainDeprecationFromCli({ cp, options });
+	}
+}
+
+/**
+ * @param {Object} p
+ * @param {FileSystem} p.fs
+ * @param {Options} p.options
+ * @returns {Promise<DeprecatedPackage[]>}
+ */
+async function obtainDeprecationFromLockfile({ fs, options }) {
+	const rawLockfile = await fs.readFile("./package-lock.json", { encoding: "utf-8" });
+	const lockfile = JSON.parse(rawLockfile);
+
+	if (lockfile.lockfileVersion !== 3) {
+		throw new Error("lockfile must be version 3");
+	}
+
+	const result = [];
+	for (const [id, pkg] of Object.entries(lockfile.packages)) {
+		if (!pkg.deprecated) {
+			continue;
+		}
+
+		if (
+			(options.omitDev && pkg.dev)
+			||
+			(options.omitOptional && pkg.optional)
+			||
+			(options.omitPeer && pkg.peer)
+		) {
+			continue;
+		}
+
+		result.push({
+			name: id.split("node_modules/").pop(),
+			version: pkg.version,
+			reason: pkg.deprecated,
+		});
+	}
+
+	return result;
+}
+
+/**
+ * @param {Object} p
+ * @param {ChildProcess} p.cp
+ * @param {Options} p.options
+ * @returns {Promise<DeprecatedPackage[]>}
+ */
+async function obtainDeprecationFromCli({ cp, options }) {
 	return new Promise((resolve, reject) => {
 		const process = cp.spawn(
 			"npm",
