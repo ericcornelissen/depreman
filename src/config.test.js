@@ -67,9 +67,7 @@ test("config.js", async (t) => {
 			const fs = createFs({ "./.ndmrc": "I'm not valid JSON" });
 
 			await assert.rejects(
-				async () => {
-					await getConfiguration(fs);
-				},
+				() => getConfiguration(fs),
 				(error) => {
 					assert.ok(error instanceof Error);
 					assert.match(
@@ -86,9 +84,7 @@ test("config.js", async (t) => {
 			const fs = createFs({});
 
 			await assert.rejects(
-				async () => {
-					await getConfiguration(fs);
-				},
+				() => getConfiguration(fs),
 				(error) => {
 					assert.ok(error instanceof Error);
 					assert.equal(
@@ -101,7 +97,26 @@ test("config.js", async (t) => {
 			);
 		});
 	});
+
+	await t.test("createFs", async (t) => {
+		await t.test("readFile", async (t) => {
+			await t.test("file found", async () => {
+				const name = "foo";
+				const content = "bar";
+
+				const fs = createFs({ [name]: content });
+				const got = await fs.readFile(name);
+				assert.equal(got.toString(), content);
+			});
+
+			await t.test("file not found", async () => {
+				const fs = createFs({});
+				await assert.rejects(() => fs.readFile("foobar"));
+			});
+		});
+	});
 });
+
 /**
  * @param {Object<string, string>} files
  * @returns {FileSystem}
