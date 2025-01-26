@@ -14,14 +14,18 @@
 
 import * as cp from "node:child_process";
 import * as fs from "node:fs/promises";
-import { argv, exit } from "node:process";
+import { argv, exit, stdout, stderr } from "node:process";
 
 import chalk from "chalk";
 
-import { readConfig } from "./config.js";
+import { getConfiguration } from "./config.js";
 import { getDeprecatedPackages } from "./deprecations.js";
 import { removeIgnored, unusedIgnores } from "./ignores.js";
 import { printAndExit } from "./output.js";
+
+const EXIT_CODE_SUCCESS = 0;
+const EXIT_CODE_FAILURE = 1;
+const EXIT_CODE_UNEXPECTED = 2;
 
 const help = argv.includes("--help") || argv.includes("-h");
 const everything = !(argv.includes("--errors-only"));
@@ -31,7 +35,7 @@ const omitPeer = argv.includes("--omit=peer");
 const reportUnused = argv.includes("--report-unused");
 
 if (help) {
-	console.log(`depreman [-h|--help] [--errors-only] [--report-unused]
+	stdout.write(`depreman [-h|--help] [--errors-only] [--report-unused]
          [--omit=<dev|optional|peer> ...]
 
 Manage npm deprecation.  Create an '.ndmrc' file with a JSON-based configuration
@@ -46,22 +50,27 @@ to ignore npm deprecation warnings for your dependencies.
    --report-unused
       Report and fail for unused ignore directives.
 `);
-		exit(0);
+	exit(EXIT_CODE_SUCCESS);
 }
 
+let exitCode = EXIT_CODE_SUCCESS;
 try {
 	const options = { omitDev, omitOptional, omitPeer };
 	const [config, deprecations] = await Promise.all([
-		readConfig(fs),
+		getConfiguration(fs),
 		getDeprecatedPackages({ cp, fs, options }),
 	]);
 
 	const result = removeIgnored(config, deprecations);
 	const unused = reportUnused ? unusedIgnores(config) : [];
-	const { exitCode, report } = printAndExit(result, unused, { everything }, chalk);
-	if (report) console.log(report);
-	exit(exitCode);
+	const { ok, report } = printAndExit(result, unused, { everything }, chalk);
+	if (!ok) {
+		stdout.write(`${report}\n`);
+		exitCode = EXIT_CODE_FAILURE;
+	}
 } catch (error) {
-	console.error("error:", error.message);
-	exit(2);
+	stderr.write(`error: ${error.message}\n`);
+	exitCode = EXIT_CODE_UNEXPECTED;
 }
+
+exit(exitCode);

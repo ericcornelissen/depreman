@@ -1,4 +1,4 @@
-// Copyright (C) 2024  Eric Cornelissen
+// Copyright (C) 2024-2025  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -26,7 +26,7 @@ export function removeIgnored(config, deprecations) {
 		const kept = [], ignored = []
 		for (const path of pkg.paths) {
 			const ignore = isIgnored(config, path);
-			if (!!ignore) {
+			if (ignore) {
 				ignored.push({
 					path,
 					reason: typeof ignore === "string" ? ignore : null,
@@ -76,31 +76,31 @@ function isIgnored(config, path) {
 			continue;
 		}
 
-		// match 0-or-more
+		// Match 0-or-more
 		if (rule === "*") {
 			const reason = isIgnored(config, remaining) || isIgnored(config[rule], path);
-			if (!!reason) {
+			if (reason) {
 				return reason;
 			}
 
 			continue;
 		}
 
-		// match 1-or-more
+		// Match 1-or-more
 		if (rule === "+") {
 			const reason = isIgnored(config, remaining) || isIgnored(config[rule], remaining);
-			if (!!reason) {
+			if (reason) {
 				return reason;
 			}
 
 			continue;
 		}
 
-		// match name+semver
+		// Match name+semver
 		const [name, version] = parseRule(rule);
 		if (name === current.name && semverSatisfies(current.version, version)) {
 			const reason = isIgnored(config[rule], remaining);
-			if (!!reason) {
+			if (reason) {
 				return reason;
 			}
 		}
@@ -111,23 +111,21 @@ function isIgnored(config, path) {
 
 function getDecision(config) {
 	const decision = parseDecision(config);
-	if (!!decision && !isExpired(config)) {
+	if (decision && !isExpired(config)) {
 		return decision;
-	} else {
-		return false;
 	}
+
+	return false;
 }
 
 function parseDecision(config) {
-	let ignore;
+	let ignore = false;
 	if (Object.hasOwn(config, kIgnore)) {
 		ignore = config[kIgnore];
 		config[kUsed] = true;
 	} else if (Object.hasOwn(config["*"] || {}, kIgnore)) {
 		ignore = config["*"][kIgnore];
 		config["*"][kUsed] = true;
-	} else {
-		return false;
 	}
 
 	switch (typeof ignore) {
@@ -146,7 +144,7 @@ function parseDecision(config) {
 
 function isExpired(config) {
 	const expire = config[kExpire] ?? config["*"]?.[kExpire];
-	if (expire !== undefined) {
+	if (typeof expire !== "undefined") {
 		const expires = date.parse(expire);
 		const today = date.today();
 		return expires.isBefore(today) || expires.is(today);
@@ -162,6 +160,6 @@ function parseRule(pkg) {
 	}
 
 	const name = pkg.substring(0, i);
-	const version = pkg.substring(i + 1, /* end */);
+	const version = pkg.substring(i + 1, pkg.length);
 	return [name, version];
 }

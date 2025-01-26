@@ -1,4 +1,4 @@
-// Copyright (C) 2024  Eric Cornelissen
+// Copyright (C) 2024-2025  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -813,7 +813,7 @@ test("ignore.js", async (t) => {
 						],
 					},
 				],
-				want: /^Error: invalid rule name 'package'$/,
+				want: /^Error: invalid rule name 'package'$/u,
 			},
 			"invalid rule identifier, no package name": {
 				config: {
@@ -833,7 +833,7 @@ test("ignore.js", async (t) => {
 						],
 					},
 				],
-				want: /^Error: invalid rule name '3.1.4'$/,
+				want: /^Error: invalid rule name '3.1.4'$/u,
 			},
 			"invalid '#ignore' value, empty string": {
 				config: {
@@ -853,7 +853,7 @@ test("ignore.js", async (t) => {
 						],
 					},
 				],
-				want: /^Error: cannot use empty string for '#ignore', use 'true' instead$/,
+				want: /^Error: cannot use empty string for '#ignore', use 'true' instead$/u,
 			},
 			"invalid '#ignore' value, array": {
 				config: {
@@ -873,7 +873,7 @@ test("ignore.js", async (t) => {
 						],
 					},
 				],
-				want: /^Error: invalid '#ignore' value/,
+				want: /^Error: invalid '#ignore' value/u,
 			},
 			"invalid '#ignore' value, object": {
 				config: {
@@ -893,7 +893,7 @@ test("ignore.js", async (t) => {
 						],
 					},
 				],
-				want: /^Error: invalid '#ignore' value/,
+				want: /^Error: invalid '#ignore' value/u,
 			},
 		};
 

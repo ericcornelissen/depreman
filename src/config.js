@@ -1,4 +1,4 @@
-// Copyright (C) 2024  Eric Cornelissen
+// Copyright (C) 2024-2025  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -14,28 +14,54 @@
 
 /**
  * @param {FileSystem} fs
- * @returns {Object}
+ * @returns {Promise<Config>}
  */
-export async function readConfig(fs) {
-	let rawConfig;
+export async function getConfiguration(fs) {
+	const rawConfig = await readConfigFile({ fs, file: "./.ndmrc" });
+	const config = parseRawConfig(rawConfig);
+	return config;
+}
+
+/**
+ * @param {Object} p
+ * @param {string} p.file
+ * @param {FileSystem} p.fs
+ * @returns {Promise<string>}
+ */
+async function readConfigFile({ file, fs }) {
 	try {
-		rawConfig = await fs.readFile("./.ndmrc");
-	} catch (_) {
+		const content = await fs.readFile(file);
+		return content;
+	} catch {
 		throw new Error("Configuration file .ndmrc not found");
 	}
+}
 
+/**
+ * @param {Object} p
+ * @param {string} p.file
+ * @param {FileSystem} p.fs
+ * @returns {Config}
+ */
+function parseRawConfig(raw) {
 	try {
-		return JSON.parse(rawConfig);
+		const parsed = JSON.parse(raw);
+		return parsed;
 	} catch (error) {
 		throw new Error(`Configuration file invalid (${error.message})`);
 	}
 }
 
 /**
- * @typedef {function(string): Promise<string>} ReadFile
+ * @typedef {Object} Config
+ * @property {boolean | string | undefined} '+'
+ * @property {boolean | string | undefined} '*'
+ * @property {Config} [key]
  */
 
 /**
  * @typedef FileSystem
  * @property {ReadFile} readFile
  */
+
+/** @typedef {function(string): Promise<string>} ReadFile */

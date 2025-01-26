@@ -17,16 +17,16 @@
  * @param {Unused} unused
  * @param {Options} options
  * @param {Styler} chalk
- * @returns {[string, number]} The report and exit code.
+ * @returns {{ ok: boolean, result: string }} The report and exit code.
  */
 export function printAndExit(result, unused, options, chalk) {
-	let exitCode = 0;
+	let ok = true;
 	const output = [];
 
 	for (const pkg of result.sort(byName)) {
 		const id = pkgToString(pkg);
 		if (pkg.kept.length > 0) {
-			exitCode = 1;
+			ok = false;
 
 			const msg = `${id} ${chalk.italic(`("${pkg.reason}")`)}:`;
 			output.push(msg);
@@ -48,7 +48,7 @@ export function printAndExit(result, unused, options, chalk) {
 	}
 
 	if (unused?.length > 0) {
-		exitCode = 1;
+		ok = false;
 		output.push("Unused ignore directives(s):");
 		for (const path of unused) {
 			output.push(`\t. > ${path.join(" > ")}`);
@@ -56,7 +56,7 @@ export function printAndExit(result, unused, options, chalk) {
 	}
 
 	return {
-		exitCode,
+		ok,
 		report: output.join("\n"),
 	};
 }

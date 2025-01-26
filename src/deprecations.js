@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { Buffer } from "node:buffer";
+
 /**
  * @param {Object} p
  * @param {FileSystem} p.fs
@@ -39,7 +41,7 @@ export async function getDeprecatedPackages({ cp, fs, options }) {
  * @param {Options} p.options
  * @returns {Promise<DeprecatedPackage[]>}
  */
-async function obtainDeprecation({ cp, options }) {
+function obtainDeprecation({ cp, options }) {
 	return new Promise((resolve, reject) => {
 		const process = cp.spawn(
 			"npm",
@@ -66,11 +68,11 @@ async function obtainDeprecation({ cp, options }) {
 			}
 		});
 
-		process.on("close", (exitCode) => {
+		process.on("close", (exitCode, error) => {
 			if (exitCode === 0) {
 				resolve(deprecations.filter(unique));
 			} else {
-				reject("execution failed");
+				reject(error);
 			}
 		});
 	});
@@ -89,7 +91,7 @@ function obtainHierarchy({ cp, options }) {
 		...(options.omitPeer ? ["--omit", "peer"] : []),
 	].join(" ");
 
-	return new Promise((resolve, reject) =>
+	return new Promise((resolve, reject) => {
 		cp.exec(
 			`npm list --all --json ${optionalArgs}`,
 			{ shell: false },
@@ -105,7 +107,7 @@ function obtainHierarchy({ cp, options }) {
 				}
 			},
 		)
-	);
+	});
 }
 
 /**
@@ -125,9 +127,9 @@ async function obtainAliases({ fs }) {
 		manifest.devDependencies || {},
 	]) {
 		for (const [name, rhs] of Object.entries(deps)) {
-			const aliasMatch = /^npm:(@?.+?)@(.+)$/.exec(rhs);
+			const aliasMatch = /^npm:(?<alias>@?.+?)@(?<version>.+)$/u.exec(rhs);
 			if (aliasMatch) {
-				const [, alias, version] = aliasMatch;
+				const { alias, version } = aliasMatch.groups;
 				aliases.set(name, { name: alias, version });
 			}
 		}
@@ -144,23 +146,22 @@ async function obtainAliases({ fs }) {
  * @returns {PackagePath[]}
  */
 function findPackagePaths(pkg, hierarchy, aliases, path = []) {
-	const dependencies = hierarchy.dependencies;
+	const { dependencies } = hierarchy;
 	if (!dependencies) {
 		return [];
 	}
 
 	const paths = [];
-	for (const [name_, info] of Object.entries(dependencies)) {
-		const alias = aliases.get(name_);
+	for (const [depName, depInfo] of Object.entries(dependencies)) {
+		const { version } = depInfo;
 
-		const name = alias === undefined ? name_ : alias.name;
-		const version = info.version;
-		const path_ = [...path, { name, version }];
+		const name = aliases.has(depName) ? aliases.get(depName).name : depName;
+		const depPath = [...path, { name, version }];
 
 		if (name === pkg.name && version === pkg.version) {
-			paths.push(path_);
+			paths.push(depPath);
 		} else {
-			paths.push(...findPackagePaths(pkg, info, aliases, path_));
+			paths.push(...findPackagePaths(pkg, depInfo, aliases, depPath));
 		}
 	}
 
@@ -183,19 +184,14 @@ function isDeprecationWarning(line) {
  */
 function parseDeprecationWarning(line) {
 	const str = line.slice(prefix.length, line.length).toString();
-	let pkg, reason, name, version;
 
-	{
-		const i = str.indexOf(":");
-		pkg = str.substring(0, i);
-		reason = str.substring(i + 1, /* end */).trim();
-	}
+	let i = str.indexOf(":");
+	const pkg = str.substring(0, i);
+	const reason = str.substring(i + 1, str.length).trim();
 
-	{
-		const i = pkg.lastIndexOf("@");
-		name = pkg.substring(0, i);
-		version = pkg.substring(i + 1, /* end */);
-	}
+	i = pkg.lastIndexOf("@");
+	const name = pkg.substring(0, i);
+	const version = pkg.substring(i + 1, pkg.length);
 
 	return { name, version, reason };
 }
