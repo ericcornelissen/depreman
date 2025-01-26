@@ -1,5 +1,7 @@
 # Ignore file for git (https://git-scm.com/docs/gitignore)
 
+unit.lcov
+
 ## ESLint
 .eslintcache
 
