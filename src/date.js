@@ -12,40 +12,41 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-const dateExpr = /^(?<yyyy>\d{4})-(?<mm>\d{1,2})-(?<dd>\d{1,2})$/;
+const dateExpr = /^(?<yyyy>\d{4})-(?<mm>\d{1,2})-(?<dd>\d{1,2})$/u;
 
 export class DepremanDate {
 	constructor(date) {
+		const { year, month, day } = date;
 		if (!isValid(date)) {
 			throw new Error(`invalid date '${year}-${month}-${day}'`);
 		}
 
-		this.year = date.year;
-		this.month = date.month;
-		this.day = date.day;
+		this.year = year;
+		this.month = month;
+		this.day = day;
 	}
 
-	is(that) {
-		if (!(that instanceof DepremanDate)) {
-			throw new Error(`not a date '${that}'`);
+	is(other) {
+		if (!(other instanceof DepremanDate)) {
+			throw new Error(`not a date '${other}'`);
 		}
 
-		return this.year === that.year
-			&& this.month === that.month
-			&& this.day === that.day;
+		return this.year === other.year
+			&& this.month === other.month
+			&& this.day === other.day;
 	}
 
-	isBefore(that) {
-		if (!(that instanceof DepremanDate)) {
-			throw new Error(`not a date '${that}'`);
+	isBefore(other) {
+		if (!(other instanceof DepremanDate)) {
+			throw new Error(`not a date '${other}'`);
 		}
 
-		if (this.year < that.year) {
+		if (this.year < other.year) {
 			return true;
-		} else if (this.year === that.year) {
-			if (this.month < that.month) {
+		} else if (this.year === other.year) {
+			if (this.month < other.month) {
 				return true;
-			} else if (this.month === that.month && this.day < that.day) {
+			} else if (this.month === other.month && this.day < other.day) {
 				return true;
 			}
 		}
@@ -77,6 +78,10 @@ export function today() {
 	});
 }
 
+const MIN_YEAR = 2000, MAX_YEAR = 9999;
+const MIN_MONTH = 1, MAX_MONTH = 12;
+const MIN_DAY = 1, MAX_DAY = 31;
+
 /**
  * Determine if a raw (unverified) date is a valid date.
  *
@@ -88,9 +93,9 @@ export function today() {
  * @returns {boolean} `true` if the date is valid, `false` otherwise.
  */
 function isValid({ year, month, day }) {
-	return year >= 2000 && year <= 9999
-		&& month >= 1 && month <= 12
-		&& day >= 1 && day <= 31;
+	return year >= MIN_YEAR && year <= MAX_YEAR
+		&& month >= MIN_MONTH && month <= MAX_MONTH
+		&& day >= MIN_DAY && day <= MAX_DAY;
 }
 
 /**

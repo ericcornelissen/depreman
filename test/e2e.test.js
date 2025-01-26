@@ -18,13 +18,13 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as process from "node:process";
 import { test } from "node:test";
-import * as url from "node:url";
+import { fileURLToPath, URL } from "node:url";
 
 test("end-to-end", async (t) => {
 	await t.test("--help", () => {
 		const result = cli({
 			args: ["--help"],
-			project: project("example"),
+			project: fixture("example"),
 		});
 
 		assert.equal(result.exitCode, 0);
@@ -35,7 +35,7 @@ test("end-to-end", async (t) => {
 	await t.test("--omit=dev", () => {
 		const result = cli({
 			args: ["--omit=dev"],
-			project: project("dev-deps-only"),
+			project: fixture("dev-deps-only"),
 		});
 
 		assert.equal(result.exitCode, 0);
@@ -45,7 +45,7 @@ test("end-to-end", async (t) => {
 
 	await t.test("basic example without unexpected error", () => {
 		const result = cli({
-			project: project("example"),
+			project: fixture("example"),
 		});
 
 		assert.notEqual(result.exitCode, 2);
@@ -54,7 +54,7 @@ test("end-to-end", async (t) => {
 	await t.test("ignoring all deprecation warnings with --errors-only", () => {
 		const result = cli({
 			args: ["--errors-only"],
-			project: project("ignore-all"),
+			project: fixture("ignore-all"),
 		});
 
 		assert.equal(result.exitCode, 0);
@@ -64,11 +64,11 @@ test("end-to-end", async (t) => {
 });
 
 const root = path.resolve(
-	path.dirname(url.fileURLToPath(new URL(import.meta.url))),
+	path.dirname(fileURLToPath(new URL(import.meta.url))),
 	"..",
 );
 
-function project(name) {
+function fixture(name) {
 	return path.join(root, "test", "fixtures", name);
 }
 
@@ -95,7 +95,7 @@ function cli({ args, project }) {
 	);
 
 	// Ensure running the command did not fail.
-	assert.equal(result.error, undefined, "Starting depreman failed");
+	assert.ok(!result.error, "Starting depreman failed");
 
 	return {
 		exitCode: result.status,

@@ -13,6 +13,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as assert from "node:assert/strict";
+import { Buffer } from "node:buffer";
 import { mock, test } from "node:test";
 
 import {
@@ -91,6 +92,8 @@ test("deprecations.js", async (t) => {
 
 		for (const [name, testCase] of Object.entries(testCases)) {
 			await t.test(name, async () => {
+				const { options, want } = testCase;
+
 				const fs = createFs({
 					"./package.json": JSON.stringify(testCase.manifest),
 				});
@@ -106,10 +109,8 @@ test("deprecations.js", async (t) => {
 						stderr: "",
 					},
 				});
-				const options = testCase.options;
 
 				const got = await getDeprecatedPackages({ cp, fs, options });
-				const want = testCase.want;
 				assert.deepEqual(got, want);
 			});
 		}
@@ -192,10 +193,12 @@ function createCp(commands) {
 		exec: mock.fn((cmd, _, callback) => {
 			for (const [command, result] of Object.entries(commands)) {
 				if (cmd.includes(command)) {
-					const error = result.error;
-					const stdout = Buffer.from(result.stdout);
-					const stderr = Buffer.from(result.stderr);
-					callback(error, stdout, stderr);
+					const { error, stdout, stderr } = result;
+					callback(
+						error,
+						Buffer.from(stdout),
+						Buffer.from(stderr),
+					);
 
 					break;
 				}
@@ -204,29 +207,27 @@ function createCp(commands) {
 		spawn: mock.fn((cmd, args) => {
 			for (const [command, result] of Object.entries(commands)) {
 				if (`${cmd} ${args.join(" ")}`.includes(command)) {
-					const error = result.error;
-					const stdout = result.stdout.split("\n");
-					const stderr = result.stderr.split("\n");
+					const { error, stdout, stderr } = result;
 
-					let onStdout = () => {};
-					let onStderr = () => {};
-					let onClose = () => {};
+					const outLines = stdout.split("\n");
+					const errLines = stderr.split("\n");
 
+					const handlers = {};
 					const process = {
-						stdout: { on: (_, callback) => onStdout = callback },
-						stderr: { on: (_, callback) => onStderr = callback },
-						on: (_, callback) => onClose = callback,
+						stdout: { on: (_, callback) => { handlers.stdout = callback; } },
+						stderr: { on: (_, callback) => { handlers.stderr = callback; } },
+						on: (_, callback) => { handlers.close = callback; },
 					};
 
 					const id = setInterval(() => {
-						if (stdout.length > 0) {
-							const line = Buffer.from(stdout.shift());
-							onStdout(line);
-						} else if (stderr.length > 0) {
-							const line = Buffer.from(stderr.shift());
-							onStderr(line);
+						if (outLines.length > 0) {
+							const line = Buffer.from(outLines.shift());
+							handlers.stdout?.(line);
+						} else if (errLines.length > 0) {
+							const line = Buffer.from(errLines.shift());
+							handlers.stderr?.(line);
 						} else {
-							onClose(error ? 1 : 0);
+							handlers.close?.(error ? 1 : 0);
 							clearTimeout(id);
 						}
 					}, 1);
@@ -244,14 +245,15 @@ function createCp(commands) {
  */
 function createFs(files) {
 	return {
-		readFile: mock.fn((path, _options) => {
-			if (Object.hasOwn(files, path)) {
-				const content = files[path];
-				const bytes = Buffer.from(content);
-				return Promise.resolve(bytes);
-			} else {
-				return Promise.reject();
+		readFile: mock.fn((path) => {
+			if (!Object.hasOwn(files, path)) {
+				const error = new Error("file not found");
+				return Promise.reject(error);
 			}
+
+			const content = files[path];
+			const bytes = Buffer.from(content);
+			return Promise.resolve(bytes);
 		}),
 	};
 }

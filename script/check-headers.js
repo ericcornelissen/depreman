@@ -24,6 +24,7 @@ const ignore = [
 	"node_modules",
 	"script",
 	"test/fixtures",
+	".eslintrc.js",
 ];
 
 const header = `
@@ -51,25 +52,32 @@ for await (const entry of jsFiles(".", ignore)) {
 	}
 }
 
-if (hasViolation) process.exit(1);
-else console.log("No problems detected");
+if (hasViolation) {
+	process.exit(1);
+} else {
+	console.log("No problems detected");
+}
 
 // -----------------------------------------------------------------------------
 
 async function hasLicenseHeader(entry) {
 	const content = await fs.readFile(entry, { encoding: "utf-8" });
 	return content
-		.replace(/^\/\/ Copyright \(C\) \d+(-\d+)?  .+$/m, "// Copyright (C) <YEAR>  <AUTHORS>")
+		.replace(/^\/\/ Copyright \(C\) \d+(?:-\d+)? {2}.+$/mu, "// Copyright (C) <YEAR>  <AUTHORS>")
 		.startsWith(`${header}\n`);
 }
 
 async function* jsFiles(dir, exclude) {
 	for (let entry of await fs.readdir(dir)) {
 		entry = path.join(dir, entry);
-		if (exclude.includes(entry)) continue;
+		if (exclude.includes(entry)) {
+			continue;
+		}
 
 		if ((await fs.stat(entry)).isFile()) {
-			if (path.extname(entry) === ".js") yield entry;
+			if (path.extname(entry) === ".js") {
+				yield entry;
+			}
 		} else {
 			yield * await jsFiles(entry, exclude);
 		}

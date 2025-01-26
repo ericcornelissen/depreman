@@ -21,7 +21,7 @@ import {
 
 test("output.js", async (t) => {
 	await t.test("printAndExit", async (t) => {
-		const styler = new MockStyler();
+		const styler = MockStyler;
 
 		const testCases = {
 			"no deprecations": {
@@ -31,7 +31,7 @@ test("output.js", async (t) => {
 				results: [],
 				unused: [],
 				want: {
-					exitCode: 0,
+					ok: true,
 					report: ``,
 				}
 			},
@@ -55,7 +55,7 @@ test("output.js", async (t) => {
 				],
 				unused: [],
 				want: {
-					exitCode: 0,
+					ok: true,
 					report: ``,
 				}
 			},
@@ -79,7 +79,7 @@ test("output.js", async (t) => {
 				],
 				unused: [],
 				want: {
-					exitCode: 0,
+					ok: true,
 					report: ``,
 				}
 			},
@@ -103,7 +103,7 @@ test("output.js", async (t) => {
 				],
 				unused: [],
 				want: {
-					exitCode: 0,
+					ok: true,
 					report: `${styler.dim(`foobar@3.1.4`)}
 	${styler.dim(`. > foobar@3.1.4`)}
 		${styler.dim(`(allowed "okay for now")`)}`,
@@ -129,7 +129,7 @@ test("output.js", async (t) => {
 				],
 				unused: [],
 				want: {
-					exitCode: 0,
+					ok: true,
 					report: `${styler.dim(`foobar@3.1.4`)}
 	${styler.dim(`. > foobar@3.1.4`)}
 		${styler.dim(`(allowed "no reason given")`)}`,
@@ -152,7 +152,7 @@ test("output.js", async (t) => {
 				],
 				unused: [],
 				want: {
-					exitCode: 1,
+					ok: false,
 					report: `foobar@3.1.4 ${styler.italic(`("no longer maintained")`)}:
 	. > foobar@3.1.4`,
 				}
@@ -183,7 +183,7 @@ test("output.js", async (t) => {
 				],
 				unused: [],
 				want: {
-					exitCode: 1,
+					ok: false,
 					report: `bar@3.1.4 ${styler.italic(`("no longer maintained")`)}:
 	. > bar@3.1.4
 foo@2.7.1 ${styler.italic(`("not maintained anymore")`)}:
@@ -216,7 +216,7 @@ foo@2.7.1 ${styler.italic(`("not maintained anymore")`)}:
 				],
 				unused: [],
 				want: {
-					exitCode: 1,
+					ok: false,
 					report: `bar@3.1.4 ${styler.italic(`("no longer maintained")`)}:
 	. > bar@3.1.4
 foo@2.7.1 ${styler.italic(`("not maintained anymore")`)}:
@@ -232,7 +232,7 @@ foo@2.7.1 ${styler.italic(`("not maintained anymore")`)}:
 					["foo@3.1.4", "bar@2.7.1"],
 				],
 				want: {
-					exitCode: 1,
+					ok: false,
 					report: `Unused ignore directives(s):
 	. > foo@3.1.4 > bar@2.7.1`,
 				}
@@ -243,18 +243,17 @@ foo@2.7.1 ${styler.italic(`("not maintained anymore")`)}:
 			const { options, results, unused, want } = testCase;
 			await t.test(name, () => {
 				const got = printAndExit(results, unused, options, styler);
-				assert.equal(got.exitCode, want.exitCode);
+				assert.equal(got.ok, want.ok);
 				assert.equal(got.report, want.report);
 			});
 		}
 	});
 });
 
-class MockStyler {
+const MockStyler = {
 	dim(value) {
 		return `/${value}\\`;
-	}
-
+	},
 	italic(value) {
 		return `*${value}*`;
 	}

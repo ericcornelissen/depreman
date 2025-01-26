@@ -60,7 +60,7 @@ test("date.js", async (t) => {
 			for (const [name, testCase] of Object.entries(goodCases)) {
 				await t.test(name, () => {
 					assert.doesNotThrow(() => {
-						new DepremanDate(testCase)
+						new DepremanDate(testCase) // eslint-disable-line no-new
 					});
 				});
 			}
@@ -116,7 +116,7 @@ test("date.js", async (t) => {
 			for (const [name, testCase] of Object.entries(badCases)) {
 				await t.test(name, () => {
 					assert.throws(() => {
-						new DepremanDate(testCase)
+						new DepremanDate(testCase) // eslint-disable-line no-new
 					});
 				});
 			}
@@ -243,7 +243,7 @@ test("date.js", async (t) => {
 				"other is not a date": {
 					a: new DepremanDate({ year: 2024, month: 11, day: 3 }),
 					b: "foobar",
-					want: /^Error: not a date 'foobar'$/,
+					want: /^Error: not a date 'foobar'$/u,
 				},
 			};
 
@@ -369,7 +369,7 @@ test("date.js", async (t) => {
 				"other is not a date": {
 					a: new DepremanDate({ year: 2024, month: 11, day: 3 }),
 					b: "foobar",
-					want: /^Error: not a date 'foobar'$/,
+					want: /^Error: not a date 'foobar'$/u,
 				},
 			};
 
@@ -426,19 +426,19 @@ test("date.js", async (t) => {
 		const badTestCases = [
 			{
 				str: "foobar",
-				want: /^Error: invalid date 'foobar' \(must be 'yyyy-mm-dd'\)$/,
+				want: /^Error: invalid date 'foobar' \(must be 'yyyy-mm-dd'\)$/u,
 			},
 			{
 				str: "25-01-01",
-				want: /^Error: invalid date '25-01-01' \(must be 'yyyy-mm-dd'\)$/,
+				want: /^Error: invalid date '25-01-01' \(must be 'yyyy-mm-dd'\)$/u,
 			},
 			{
 				str: "prefix2025-01-01",
-				want: /^Error: invalid date 'prefix2025-01-01' \(must be 'yyyy-mm-dd'\)$/,
+				want: /^Error: invalid date 'prefix2025-01-01' \(must be 'yyyy-mm-dd'\)$/u,
 			},
 			{
 				str: "2025-01-01suffix",
-				want: /^Error: invalid date '2025-01-01suffix' \(must be 'yyyy-mm-dd'\)$/,
+				want: /^Error: invalid date '2025-01-01suffix' \(must be 'yyyy-mm-dd'\)$/u,
 			},
 		];
 
