@@ -1,5 +1,7 @@
 // Configuration file for ESLint (https://eslint.org/)
 
+import json from "@eslint/json";
+
 export default [
 	{
 		name: "Code",
@@ -251,8 +253,24 @@ export default [
 		},
 	},
 	{
+		name: "JSON",
+		files: ["**/*.json"],
+		language: "json/json",
+		plugins: {
+			json,
+		},
+		rules: {
+			"json/no-duplicate-keys": ["error"],
+			"json/no-empty-keys": ["error"],
+			"json/no-unnormalized-keys": ["error"],
+			"json/no-unsafe-values": ["error"],
+			"json/top-level-interop": ["error"],
+		},
+	},
+	{
 		ignores: [
-			"node_modules/",
+			"**/node_modules/",
+			"**/package-lock.json",
 		],
 	},
 ];

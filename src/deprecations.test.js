@@ -329,9 +329,9 @@ test("deprecations.js", async (t) => {
 					});
 
 					const process = cp.spawn(cmd, []);
-					process.on("close", (exitCode, error) => {
+					process.on("close", (exitCode, actual) => {
 						assert.equal(exitCode, 1);
-						assert.equal(error, error);
+						assert.equal(actual, error);
 						done();
 					});
 				});
