@@ -34,6 +34,8 @@ jobs:
         what:
           - dependencies
           - headers
+          - js
+          - json
           - licenses
           - lockfile
           - manifest
