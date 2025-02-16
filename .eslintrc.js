@@ -11,10 +11,6 @@ export default [
 		languageOptions: {
 			ecmaVersion: "latest",
 			sourceType: "module",
-			globals: {
-				clearTimeout: "readonly",
-				setInterval: "readonly",
-			},
 		},
 		rules: {
 			"accessor-pairs": "error",
