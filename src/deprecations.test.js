@@ -15,6 +15,7 @@
 import * as assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
 import { mock, test } from "node:test";
+import { clearTimeout, setInterval } from "node:timers";
 
 import {
 	getDeprecatedPackages,
