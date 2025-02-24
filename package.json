@@ -53,7 +53,7 @@
   "devDependencies": {
     "@eslint/json": "^0.10.0",
     "better-npm-audit": "3.11.0",
-    "eslint": "9.19.0",
+    "eslint": "9.21.0",
     "lcov-total": "2.1.1",
     "licensee": "11.1.1",
     "lockfile-lint": "4.14.0",
