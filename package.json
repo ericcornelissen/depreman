@@ -29,7 +29,7 @@
     "audit": "npm run audit:deprecations && npm run audit:vulnerabilities",
     "audit:deprecations": "npm run dogfeed",
     "audit:vulnerabilities": "better-npm-audit audit",
-    "check": "npm run check:dependencies && npm run check:headers && npm run check:js && npm run check:json && npm run check:licenses && npm run check:lockfile && npm run check:manifest",
+    "check": "npm run check:dependencies && npm run check:headers && npm run check:js && npm run check:json && npm run check:licenses && npm run check:lockfile && npm run check:manifest && npm run check:md",
     "check:dependencies": "node script/check-runtime-deps.js",
     "check:headers": "node script/check-headers.js",
     "check:js": "npm run _eslint -- '**/*.js'",
@@ -37,6 +37,7 @@
     "check:licenses": "licensee --errors-only",
     "check:lockfile": "lockfile-lint",
     "check:manifest": "publint --strict && ls-engines",
+    "check:md": "npm run _eslint -- '**/*.md'",
     "clean": "git clean --force -X test/fixtures/*/node_modules unit.lcov",
     "coverage": "npm run coverage:unit",
     "coverage:unit": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=unit.lcov 'src/*.test.js' && lcov-total unit.lcov --gte=100",
@@ -51,7 +52,8 @@
     "semver": "^7.0.0"
   },
   "devDependencies": {
-    "@eslint/json": "^0.10.0",
+    "@eslint/json": "0.10.0",
+    "@eslint/markdown": "6.2.2",
     "better-npm-audit": "3.11.0",
     "eslint": "9.21.0",
     "lcov-total": "2.1.1",

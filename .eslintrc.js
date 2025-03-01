@@ -1,6 +1,7 @@
 // Configuration file for ESLint (https://eslint.org/)
 
 import json from "@eslint/json";
+import markdown from "@eslint/markdown";
 
 export default [
 	{
@@ -259,9 +260,15 @@ export default [
 		},
 	},
 	{
+		name: "Documentation snippets",
+		files: ["**/*.md/*.js"],
+	},
+	{
 		ignores: [
 			"**/node_modules/",
 			"**/package-lock.json",
 		],
 	},
+
+	...markdown.configs.processor,
 ];
