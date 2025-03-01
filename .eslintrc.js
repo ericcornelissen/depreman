@@ -24,7 +24,7 @@ export default [
 			"capitalized-comments": ["error", "always",{
 				ignoreConsecutiveComments: true,
 			}],
-			"class-methods-use-this": "error",
+			"class-methods-use-this": "off",
 			"complexity": "off",
 			"consistent-return": "off",
 			"consistent-this": "error",
@@ -47,7 +47,7 @@ export default [
 			"id-match": "error",
 			"init-declarations": "error",
 			"logical-assignment-operators": "error",
-			"max-classes-per-file": "error",
+			"max-classes-per-file": "off",
 			"max-depth": "error",
 			"max-lines": "error",
 			"max-lines-per-function": "error",
