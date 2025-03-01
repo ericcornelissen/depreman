@@ -15,6 +15,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as console from "node:console";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import * as process from "node:process";

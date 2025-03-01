@@ -225,11 +225,6 @@ export default [
 	{
 		name: "Scripts",
 		files: ["script/*.js"],
-		languageOptions: {
-			globals: {
-				console: "readonly",
-			},
-		},
 		rules: {
 			"no-console": "off",
 			"no-await-in-loop": "off",
@@ -256,11 +251,11 @@ export default [
 			json,
 		},
 		rules: {
-			"json/no-duplicate-keys": ["error"],
-			"json/no-empty-keys": ["error"],
-			"json/no-unnormalized-keys": ["error"],
-			"json/no-unsafe-values": ["error"],
-			"json/top-level-interop": ["error"],
+			"json/no-duplicate-keys": "error",
+			"json/no-empty-keys": "error",
+			"json/no-unnormalized-keys": "error",
+			"json/no-unsafe-values": "error",
+			"json/top-level-interop": "error",
 		},
 	},
 	{
