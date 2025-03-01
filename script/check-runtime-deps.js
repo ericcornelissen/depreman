@@ -1,6 +1,6 @@
 // MIT No Attribution
 //
-// Copyright 2024 Eric Cornelissen
+// Copyright 2024-2025 Eric Cornelissen
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
 // software and associated documentation files (the "Software"), to deal in the Software
@@ -16,6 +16,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import * as cp from "node:child_process";
+import * as console from "node:console";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as process from "node:process";
