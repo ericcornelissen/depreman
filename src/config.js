@@ -12,28 +12,39 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { Err, Ok } from "./result.js";
+
 /**
  * @param {FileSystem} fs
  * @returns {Promise<Config>}
+ * @throws {Error}
  */
 export async function getConfiguration(fs) {
 	const rawConfig = await readConfigFile({ fs, file: "./.ndmrc" });
-	const config = parseRawConfig(rawConfig);
-	return config;
+	if (rawConfig.isErr()) {
+		throw new Error(rawConfig.error());
+	}
+
+	const config = parseRawConfig(rawConfig.value());
+	if (config.isErr()) {
+		throw new Error(config.error());
+	}
+
+	return config.value();
 }
 
 /**
  * @param {Object} p
  * @param {string} p.file
  * @param {FileSystem} p.fs
- * @returns {Promise<string>}
+ * @returns {Promise<Result<string, string>>}
  */
 async function readConfigFile({ file, fs }) {
 	try {
 		const content = await fs.readFile(file);
-		return content;
+		return new Ok(content);
 	} catch {
-		throw new Error("Configuration file .ndmrc not found");
+		return new Err("Configuration file .ndmrc not found");
 	}
 }
 
@@ -41,14 +52,14 @@ async function readConfigFile({ file, fs }) {
  * @param {Object} p
  * @param {string} p.file
  * @param {FileSystem} p.fs
- * @returns {Config}
+ * @returns {Result<Config, string>}
  */
 function parseRawConfig(raw) {
 	try {
 		const parsed = JSON.parse(raw);
-		return parsed;
+		return new Ok(parsed);
 	} catch (error) {
-		throw new Error(`Configuration file invalid (${error.message})`);
+		return new Err(`Configuration file invalid (${error.message})`);
 	}
 }
 
@@ -65,3 +76,8 @@ function parseRawConfig(raw) {
  */
 
 /** @typedef {function(string): Promise<string>} ReadFile */
+
+/**
+ * @template O, E
+ * @typedef {import("./result.js").Result<O, E>} Result
+ * */
