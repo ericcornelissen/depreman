@@ -26,6 +26,7 @@ const ignore = [
 	"script",
 	"test/fixtures",
 	".eslintrc.js",
+	".stryker.js",
 ];
 
 const header = `

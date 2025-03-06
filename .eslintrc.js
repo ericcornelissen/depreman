@@ -245,6 +245,16 @@ export default [
 		},
 	},
 	{
+		name: "Config",
+		files: [
+			".eslintrc.js",
+			".stryker.js",
+		],
+		rules: {
+			"no-magic-numbers": "off",
+		},
+	},
+	{
 		name: "JSON",
 		files: ["**/*.json"],
 		language: "json/json",
