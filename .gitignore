@@ -1,5 +1,6 @@
 # Ignore file for git (https://git-scm.com/docs/gitignore)
 
+mutation.html
 unit.lcov
 
 ## ESLint
