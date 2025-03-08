@@ -9,7 +9,7 @@ Versioning].
 
 ## [Unreleased]
 
-- _No changes yet_
+- Add support for projects that do not have a `package-lock.json`.
 
 ## [0.3.5] - 2025-01-23
 

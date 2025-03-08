@@ -53,9 +53,9 @@ test("deprecations.js", async (t) => {
 						paths: [
 							[
 								{ name: "foobar", version: "3.1.4" },
-							]
+							],
 						],
-					}
+					},
 				],
 			},
 			"alias sample": {
@@ -72,7 +72,7 @@ test("deprecations.js", async (t) => {
 				manifest: {
 					dependencies: {
 						"foo": "npm:bar@3.1.4",
-					}
+					},
 				},
 				options: defaultOptions,
 				want: [
@@ -83,9 +83,9 @@ test("deprecations.js", async (t) => {
 						paths: [
 							[
 								{ name: "bar", version: "3.1.4" },
-							]
+							],
 						],
-					}
+					},
 				],
 			},
 		};
@@ -104,6 +104,7 @@ test("deprecations.js", async (t) => {
 				});
 				const fs = createFs({
 					"./package.json": JSON.stringify(testCase.manifest || {}),
+					"./package-lock.json": "{}",
 				});
 
 				const got = await getDeprecatedPackages({ cp, fs, options });
@@ -120,6 +121,7 @@ test("deprecations.js", async (t) => {
 					}),
 					fs: createFs({
 						"./package.json": "{}",
+						"./package-lock.json": "{}",
 					}),
 				};
 			}
@@ -164,6 +166,44 @@ test("deprecations.js", async (t) => {
 			});
 		});
 
+		await t.test("no lockfile", async () => {
+			const options = defaultOptions;
+
+			const cp = createCp({
+				"npm install": {
+					stderr: "npm warn deprecated foobar@3.1.4: This package is no longer supported.",
+				},
+				"npm list --all --json": {
+					stdout: JSON.stringify({
+						dependencies: {
+							foobar: {
+								version: "3.1.4",
+							},
+						},
+					}),
+				},
+			});
+			const fs = createFs({
+				"./package.json": "{}",
+			});
+
+			const want = [
+				{
+					name: "foobar",
+					version: "3.1.4",
+					reason: 'This package is no longer supported.',
+					paths: [
+						[
+							{ name: "foobar", version: "3.1.4" },
+						]
+					],
+				},
+			];
+
+			const got = await getDeprecatedPackages({ cp, fs, options });
+			assert.deepEqual(got, want);
+		});
+
 		await t.test("deprecation warnings cannot be obtained", async () => {
 			const options = defaultOptions;
 
@@ -173,6 +213,7 @@ test("deprecations.js", async (t) => {
 			});
 			const fs = createFs({
 				"./package.json": "{}",
+				"./package-lock.json": "{}",
 			});
 
 			await assert.rejects(
@@ -192,6 +233,7 @@ test("deprecations.js", async (t) => {
 			});
 			const fs = createFs({
 				"./package.json": "{}",
+				"./package-lock.json": "{}",
 			});
 
 			await assert.rejects(
@@ -376,6 +418,20 @@ test("deprecations.js", async (t) => {
 	});
 
 	await t.test("createFs", async (t) => {
+		await t.test("access", async (t) => {
+			await t.test("file found", async () => {
+				const name = "foobar";
+
+				const fs = createFs({ [name]: "Hello world!" });
+				await assert.doesNotReject(() => fs.access(name));
+			});
+
+			await t.test("file not found", async () => {
+				const fs = createFs({});
+				await assert.rejects(() => fs.access("foobar"));
+			});
+		});
+
 		await t.test("readFile", async (t) => {
 			await t.test("file found", async () => {
 				const name = "foo";
@@ -460,6 +516,14 @@ function createCp(commands) {
  */
 function createFs(files) {
 	return {
+		access: mock.fn((path) => {
+			if (!Object.hasOwn(files, path)) {
+				const error = new Error("file not found");
+				return Promise.reject(error);
+			}
+
+			return Promise.resolve();
+		}),
 		readFile: mock.fn((path) => {
 			if (!Object.hasOwn(files, path)) {
 				const error = new Error("file not found");
