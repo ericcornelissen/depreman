@@ -1,0 +1,5 @@
+{
+  "*": {
+    "#ignore": "don't care about the deprecation warnings, just that a lockfile is not required"
+  }
+}

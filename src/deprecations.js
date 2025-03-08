@@ -22,7 +22,7 @@ import { Buffer } from "node:buffer";
  * @returns {Promise<DeprecatedPackage[]>}
  */
 export async function getDeprecatedPackages({ cp, fs, options }) {
-	const packages = await obtainDeprecation({ cp, options });
+	const packages = await obtainDeprecation({ cp, fs, options });
 	const [hierarchy, aliases] = await Promise.all([
 		obtainHierarchy({ cp, options }),
 		obtainAliases({ fs }),
@@ -38,15 +38,17 @@ export async function getDeprecatedPackages({ cp, fs, options }) {
 /**
  * @param {Object} p
  * @param {ChildProcess} p.cp
+ * @param {FileSystem} p.fs
  * @param {Options} p.options
  * @returns {Promise<DeprecatedPackage[]>}
  */
-function obtainDeprecation({ cp, options }) {
+async function obtainDeprecation({ cp, fs, options }) {
+	const cleanInstall = await hasLockfile(fs);
 	return new Promise((resolve, reject) => {
 		const process = cp.spawn(
 			"npm",
 			[
-				"clean-install",
+				(cleanInstall ? "clean-install" : "install"),
 				"--no-audit",
 				"--no-fund",
 				"--no-update-notifier",
@@ -197,6 +199,19 @@ function parseDeprecationWarning(line) {
 }
 
 /**
+ * @param {FileSystem} fs
+ * @returns {Promise<boolean>}
+ */
+async function hasLockfile(fs) {
+	try {
+		await fs.access("./package-lock.json");
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+/**
  * @param {DeprecatedPackage} a
  * @param {number} index
  * @param {DeprecatedPackage[]} array
@@ -247,7 +262,15 @@ function unique(a, index, array) {
  * @property {Spawn} spawn
  */
 
+/**
+ * @typedef FileSystem
+ * @property {Access} access
+ * @property {ReadFile} readFile
+ */
+
+/** @typedef {function(string): Promise<string>} ReadFile */
+/** @typedef {function(string): Promise<boolean>} Access */
+
 /** @typedef {Map<string, Package>} Aliases */
-/** @typedef {import("./config.js").FileSystem} FileSystem */
 /** @typedef {Package[]} PackagePath */
 /** @typedef {function(string, string[], Object): Object} Spawn */

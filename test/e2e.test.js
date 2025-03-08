@@ -61,6 +61,18 @@ test("end-to-end", async (t) => {
 		assert.equal(result.stdout, "");
 		assert.equal(result.stderr, "");
 	});
+
+	await t.test("without a lockfile", () => {
+		const lockfile = path.join(root, "test", "fixtures", "no-lockfile", "package-lock.json");
+		fs.rmSync(lockfile, { force: true });
+
+		const result = cli({
+			args: [],
+			project: fixture("no-lockfile"),
+		});
+
+		assert.equal(result.exitCode, 0);
+	});
 });
 
 const root = path.resolve(
