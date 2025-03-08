@@ -40,7 +40,7 @@ Versioning].
 ## [0.3.1] - 2024-11-04
 
 - Fix bug where rules following a wildcard would not be matched.
-- Fix matching deprecations for `npm:` aliased dependencies.
+- Fix matching deprecation warnings for `npm:` aliased dependencies.
 - Improve matching of aliased dependencies in deprecation paths.
 - Let `*` match 0-or-more instead of 1-or-more.
 
