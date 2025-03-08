@@ -97,7 +97,7 @@ function isIgnored(config, path) {
 
 		// Match name+semver
 		const [name, version] = parseRule(rule);
-		if (name === current.name && semver.satisfies(current.version, version)) {
+		if (name === current.name && semver.satisfies(current.version, version).value()) {
 			const reason = isIgnored(config[rule], remaining);
 			if (reason) {
 				return reason;

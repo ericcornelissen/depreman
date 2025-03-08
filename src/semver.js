@@ -13,12 +13,29 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import semverSatisfies from "semver/functions/satisfies.js";
+import semverValid from "semver/functions/valid.js";
+import semverValidRange from "semver/ranges/valid.js";
+
+import { Err, Ok } from "./result.js";
 
 /**
  * @param {string} version
  * @param {string} range
- * @returns {boolean}
+ * @returns {Result<boolean, string>}
  */
 export function satisfies(version, range) {
-	return semverSatisfies(version, range);
+	if (!semverValid(version)) {
+		return new Err(`'${version}' is not a valid semver version`);
+	}
+
+	if (!semverValidRange(range)) {
+		return new Err(`'${range}' is not a valid semver range`);
+	}
+
+	return new Ok(semverSatisfies(version, range));
 }
+
+/**
+ * @template O, E
+ * @typedef {import("./result.js").Result<O, E>} Result
+ */
