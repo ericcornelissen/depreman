@@ -49,6 +49,20 @@ glob@8.1.0 ("Glob versions prior to v9 are no longer supported"):
 
 ### Configuration
 
+#### CLI
+
+The CLI has a couple of options:
+
+- `--help`/`-h`: show help text.
+- `--errors-only`: output only deprecation warnings that are not ignored.
+- `--report-unused`: report and fail if there is an ignore directive that is
+  unused. This is recommended if you have a lockfile but discouraged if you do
+  not.
+- `--omit=<dev|optional|peer>`: ignore deprecation warnings in development,
+  optional, or peer dependencies. Can be repeated.
+
+#### File
+
 An `.ndmrc` file is just a JSON file with rules for deprecated dependencies to
 ignore. The object hierarchy should reflect the dependency hierarchy with keys
 representing `<package>@<version>` pairs ([semver] version ranges supported).
