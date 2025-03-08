@@ -2,7 +2,7 @@
 
 # npm Deprecation Manager
 
-A manager for npm deprecations.
+A manager for npm deprecation warnings.
 
 Turn:
 
@@ -49,6 +49,20 @@ glob@8.1.0 ("Glob versions prior to v9 are no longer supported"):
 
 ### Configuration
 
+#### CLI
+
+The CLI has a couple of options:
+
+- `--help`/`-h`: show help text.
+- `--errors-only`: output only deprecation warnings that are not ignored.
+- `--report-unused`: report and fail if there is an ignore directive that is
+  unused. This is recommended if you have a lockfile but discouraged if you do
+  not.
+- `--omit=<dev|optional|peer>`: ignore deprecation warnings in development,
+  optional, or peer dependencies. Can be repeated.
+
+#### File
+
 An `.ndmrc` file is just a JSON file with rules for deprecated dependencies to
 ignore. The object hierarchy should reflect the dependency hierarchy with keys
 representing `<package>@<version>` pairs ([semver] version ranges supported).
@@ -66,12 +80,12 @@ For example:
 ```json
 {
   "ignore@v0": {
-    "#ignore": "ignore deprecations for ignore@v0 but not its (grand)children"
+    "#ignore": "ignore deprecation warnings for ignore@v0 but not its children"
   },
 
   "not-ignored@v1": {
     "package-a@v2": {
-      "#ignore": "ignore deprecations for not-ignored@v1 > package-a@v2"
+      "#ignore": "ignore deprecation warnings for not-ignored@v1 > package-a@v2"
     },
     "package-b@v3": {
       "#ignore": "and for package-b@v3 only until December 31, 2024",
@@ -81,18 +95,18 @@ For example:
 
   "ignore-it@v4": {
     "*": {
-      "#ignore": "ignore deprecations in ignore-it@v4 and dependencies with '*'"
+      "#ignore": "ignore direct and transitive deprecation warnings with '*'"
     }
   },
   "also-not-ignored@v5": {
     "+": {
-      "#ignore": "ignore deprecations *under* also-not-ignored@v5 with '+'"
+      "#ignore": "ignore transitive deprecation warnings only with '+'"
     }
   },
 
   "*": {
     "ignored@v6": {
-      "#ignore": "ignore deprecations in ignored@v6 anywhere in the tree"
+      "#ignore": "ignore deprecation warnings anywhere in the tree"
     }
   },
 

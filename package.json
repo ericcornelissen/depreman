@@ -2,7 +2,7 @@
   "name": "depreman",
   "version": "0.3.5",
   "license": "AGPL-3.0-only",
-  "description": "Manage npm deprecations",
+  "description": "Manage npm deprecation warnings",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ericcornelissen/depreman.git"

@@ -44,9 +44,9 @@ to ignore npm deprecation warnings for your dependencies.
    -h, --help
       Show this help message.
    --errors-only
-      Only output deprecations that are not ignored.
+      Only output deprecation warnings that are not ignored.
    --omit=<dev|optional|peer>
-      Omit deprecations for development, optional, or peer dependencies.
+      Omit deprecation warnings for development, optional, or peer dependencies.
    --report-unused
       Report and fail for unused ignore directives.
 `);
