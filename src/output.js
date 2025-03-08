@@ -17,7 +17,7 @@
  * @param {Unused} unused
  * @param {Options} options
  * @param {Styler} chalk
- * @returns {{ ok: boolean, result: string }} The report and exit code.
+ * @returns {{ ok: boolean, result: string }}
  */
 export function printAndExit(result, unused, options, chalk) {
 	let ok = true;
@@ -47,7 +47,7 @@ export function printAndExit(result, unused, options, chalk) {
 		}
 	}
 
-	if (unused?.length > 0) {
+	if (unused.length > 0) {
 		ok = false;
 		output.push("Unused ignore directives(s):");
 		for (const path of unused) {
