@@ -12,9 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import semverSatisfies from "semver/functions/satisfies.js";
-
 import * as date from "./date.js";
+import * as semver from "./semver.js";
 
 const kUsed = Symbol.for("#used");
 const kIgnore = "#ignore";
@@ -98,7 +97,7 @@ function isIgnored(config, path) {
 
 		// Match name+semver
 		const [name, version] = parseRule(rule);
-		if (name === current.name && semverSatisfies(current.version, version)) {
+		if (name === current.name && semver.satisfies(current.version, version)) {
 			const reason = isIgnored(config[rule], remaining);
 			if (reason) {
 				return reason;
