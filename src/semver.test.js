@@ -21,7 +21,7 @@ import {
 
 test("semver.js", async (t) => {
 	await t.test("satisfies", async (t) => {
-		const testCases = {
+		const goodCases = {
 			...{
 				"no range: exact match": {
 					version: "3.1.4",
@@ -424,12 +424,35 @@ test("semver.js", async (t) => {
 			},
 		};
 
-		for (const [name, testCase] of Object.entries(testCases)) {
+		for (const [name, testCase] of Object.entries(goodCases)) {
 			await t.test(name, () => {
 				const { version, range, want } = testCase;
 
 				const got = satisfies(version, range);
-				assert.equal(got, want);
+				assert.equal(got.value(), want);
+			});
+		}
+
+		const badCases = {
+			"version is invalid": {
+				version: "not a version",
+				range: "3.1.4",
+				want: "'not a version' is not a valid semver version",
+			},
+			"range is invalid": {
+				version: "3.1.4",
+				range: "not a range",
+				want: "'not a range' is not a valid semver range",
+			},
+		};
+
+		for (const [name, testCase] of Object.entries(badCases)) {
+			await t.test(name, () => {
+				const { version, range, want } = testCase;
+
+				const got = satisfies(version, range);
+				assert.ok(got.isErr());
+				assert.equal(got.error(), want)
 			});
 		}
 	});
