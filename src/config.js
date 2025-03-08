@@ -80,4 +80,4 @@ function parseRawConfig(raw) {
 /**
  * @template O, E
  * @typedef {import("./result.js").Result<O, E>} Result
- * */
+ */

@@ -123,7 +123,7 @@ test("output.js", async (t) => {
 							{
 								path: [{ name: "foobar", version: "3.1.4" }],
 								reason: true,
-							}
+							},
 						],
 					}
 				],
@@ -132,6 +132,35 @@ test("output.js", async (t) => {
 					ok: true,
 					report: `${styler.dim(`foobar@3.1.4`)}
 	${styler.dim(`. > foobar@3.1.4`)}
+		${styler.dim(`(allowed "no reason given")`)}`,
+				}
+			},
+			"one transitive deprecation which is ignored, everything": {
+				options: {
+					everything: true,
+				},
+				results: [
+					{
+						name: "bar",
+						version: "3.1.4",
+						reason: "no longer maintained",
+						kept: [],
+						ignored: [
+							{
+								path: [
+									{ name: "foo", version: "2.7.1" },
+									{ name: "bar", version: "3.1.4" },
+								],
+								reason: true,
+							}
+						],
+					}
+				],
+				unused: [],
+				want: {
+					ok: true,
+					report: `${styler.dim(`bar@3.1.4`)}
+	${styler.dim(`. > foo@2.7.1 > bar@3.1.4`)}
 		${styler.dim(`(allowed "no reason given")`)}`,
 				}
 			},
@@ -145,7 +174,7 @@ test("output.js", async (t) => {
 						version: "3.1.4",
 						reason: "no longer maintained",
 						kept: [
-							{ path: [{ name: "foobar", version: "3.1.4"}] }
+							{ path: [{ name: "foobar", version: "3.1.4" }] },
 						],
 						ignored: [],
 					}
@@ -155,6 +184,33 @@ test("output.js", async (t) => {
 					ok: false,
 					report: `foobar@3.1.4 ${styler.italic(`("no longer maintained")`)}:
 	. > foobar@3.1.4`,
+				}
+			},
+			"one transitive deprecation which is not ignored": {
+				options: {
+					everything: false,
+				},
+				results: [
+					{
+						name: "bar",
+						version: "3.1.4",
+						reason: "no longer maintained",
+						kept: [
+							{
+								path: [
+									{ name: "foo", version: "2.7.1" },
+									{ name: "bar", version: "3.1.4" },
+								],
+							},
+						],
+						ignored: [],
+					}
+				],
+				unused: [],
+				want: {
+					ok: false,
+					report: `bar@3.1.4 ${styler.italic(`("no longer maintained")`)}:
+	. > foo@2.7.1 > bar@3.1.4`,
 				}
 			},
 			"two deprecation which are not ignored (in order)": {

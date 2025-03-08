@@ -51,7 +51,8 @@ test("result.js", async (t) => {
 			assert.throws(
 				() => err.value(),
 				{
-					name: 'TypeError',
+					name: "TypeError",
+					message: "Err has no value",
 				},
 			);
 		});
@@ -66,7 +67,8 @@ test("result.js", async (t) => {
 			assert.throws(
 				() => ok.error(),
 				{
-					name: 'TypeError',
+					name: "TypeError",
+					message: "Ok has no error",
 				},
 			);
 		});

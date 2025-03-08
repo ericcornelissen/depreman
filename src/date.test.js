@@ -25,6 +25,16 @@ test("date.js", async (t) => {
 	await t.test("DepremanDate", async (t) => {
 		await t.test("constructor", async (t) => {
 			const goodCases = {
+				"earliest valid date": {
+					year: 2000,
+					month: 1,
+					day: 1,
+				},
+				"latest valid date": {
+					year: 9999,
+					month: 12,
+					day: 31,
+				},
 				"earliest month and day": {
 					year: 2025,
 					month: 1,
@@ -115,9 +125,15 @@ test("date.js", async (t) => {
 
 			for (const [name, testCase] of Object.entries(badCases)) {
 				await t.test(name, () => {
-					assert.throws(() => {
-						new DepremanDate(testCase) // eslint-disable-line no-new
-					});
+					assert.throws(
+						() => {
+							new DepremanDate(testCase); // eslint-disable-line no-new
+						},
+						{
+							name: "Error",
+							message: /invalid date '.+?'/u,
+						},
+					);
 				});
 			}
 		});
@@ -310,25 +326,25 @@ test("date.js", async (t) => {
 				"next year": {
 					a: {
 						year: 2024,
-						month: 11,
-						day: 2,
+						month: 1,
+						day: 1,
 					},
 					b: {
 						year: 2023,
-						month: 1,
-						day: 1,
+						month: 11,
+						day: 2,
 					}
 				},
 				"next month": {
 					a: {
 						year: 2024,
 						month: 11,
-						day: 2,
+						day: 1,
 					},
 					b: {
 						year: 2024,
 						month: 10,
-						day: 1,
+						day: 2,
 					}
 				},
 				"next day": {
@@ -455,9 +471,11 @@ test("date.js", async (t) => {
 
 	await t.test("today", () => {
 		const got = today();
+		const want = new Date();
+
 		assert.ok(got instanceof DepremanDate);
-		assert.ok(got.year > 2000);
-		assert.ok(got.month >= 1 && got.month <= 12);
-		assert.ok(got.day >= 1 && got.day <= 31);
+		assert.equal(got.year, want.getFullYear());
+		assert.equal(got.month, want.getMonth() + 1);
+		assert.equal(got.day, want.getDate());
 	});
 });
