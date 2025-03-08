@@ -181,6 +181,66 @@ test("ignore.js", async (t) => {
 					},
 				],
 			},
+			"ignore one out of two deprecation warnings": {
+				config: {
+					"foo@^1.0.0": {
+						"#ignore": "bar",
+					},
+				},
+				deprecations: [
+					{
+						name: "foo",
+						version: "1.0.1",
+						reason: "foobaz",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.1" },
+							],
+						],
+					},
+					{
+						name: "hello",
+						version: "1.2.3",
+						reason: "world",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.1" },
+								{ name: "hello", version: "1.2.3" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "foo",
+						version: "1.0.1",
+						reason: "foobaz",
+						ignored: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.1" },
+								],
+								reason: "bar",
+							},
+						],
+						kept: [],
+					},
+					{
+						name: "hello",
+						version: "1.2.3",
+						reason: "world",
+						ignored: [],
+						kept: [
+							{
+								path: [
+									{ name: "foo", version: "1.0.1" },
+									{ name: "hello", version: "1.2.3" },
+								],
+							},
+						],
+					},
+				],
+			},
 			"ignore a transitive dependency using `*` (matching 1)": {
 				config: {
 					"foo@1.0.0": {
@@ -784,6 +844,129 @@ test("ignore.js", async (t) => {
 					},
 				],
 			},
+			"ignore with boolean false": {
+				config: {
+					"package@1.0.0": {
+						"#ignore": false,
+					},
+				},
+				deprecations: [
+					{
+						name: "package",
+						version: "1.0.0",
+						reason: "foobar",
+						paths: [
+							[
+								{ name: "package", version: "1.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "package",
+						version: "1.0.0",
+						reason: "foobar",
+						ignored: [],
+						kept: [
+							{
+								path: [
+									{ name: "package", version: "1.0.0" },
+								],
+							},
+						],
+					},
+				],
+			},
+			"name mismatch": {
+				config: {
+					"foobaz@1.0.0": {
+						"#ignore": true,
+					},
+				},
+				deprecations: [
+					{
+						name: "foobar",
+						version: "1.0.0",
+						reason: "Hello world!",
+						paths: [
+							[
+								{ name: "foobar", version: "1.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "foobar",
+						version: "1.0.0",
+						reason: "Hello world!",
+						ignored: [],
+						kept: [
+							{
+								path: [
+									{ name: "foobar", version: "1.0.0" },
+								],
+							},
+						],
+					},
+				],
+			},
+			"contradicting ignore directives": {
+				config: {
+					"bar@3.0.0": {
+						"foo@1.0.0": {
+							"#ignore": false,
+						},
+					},
+					"*": {
+						"foo@1.0.0": {
+							"#ignore": true,
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "foo",
+						version: "1.0.0",
+						reason: "Hello world!",
+						paths: [
+							[
+								{ name: "bar", version: "3.0.0" },
+								{ name: "foo", version: "1.0.0" },
+							],
+							[
+								{ name: "baz", version: "4.0.0" },
+								{ name: "foo", version: "1.0.0" },
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "foo",
+						version: "1.0.0",
+						reason: "Hello world!",
+						ignored: [
+							{
+								path: [
+									{ name: "bar", version: "3.0.0" },
+									{ name: "foo", version: "1.0.0" },
+								],
+								reason: null,
+							},
+							{
+								path: [
+									{ name: "baz", version: "4.0.0" },
+									{ name: "foo", version: "1.0.0" },
+								],
+								reason: null,
+							},
+						],
+						kept: [],
+					},
+				],
+			},
 		};
 
 		for (const [name, testCase] of Object.entries(goodTestCases)) {
@@ -791,6 +974,24 @@ test("ignore.js", async (t) => {
 			await t.test(name, () => {
 				const got = removeIgnored(config, deprecations);
 				assert.deepEqual(got, want);
+			});
+
+			await t.test(`${name} - mark used directives`, () => {
+				const kUsed = Symbol.for("#used");
+
+				removeIgnored(config, deprecations);
+
+				const values = Object.values(config);
+				while (values.length > 0) {
+					const value = values.pop();
+					assert.ok(value[kUsed] === true || !Object.hasOwn(value, kUsed));
+
+					values.push(
+						...Object.entries(value)
+							.filter(e => !e[0].startsWith("#"))
+							.map(e => e[1]),
+					);
+				}
 			});
 		}
 

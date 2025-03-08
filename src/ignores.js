@@ -54,7 +54,7 @@ export function unusedIgnores(config, path=[]) {
 	}
 
 	for (const rule in config) {
-		if (rule.startsWith("#") || rule === kUsed) {
+		if (rule.startsWith("#")) {
 			continue;
 		}
 
@@ -71,7 +71,7 @@ function isIgnored(config, path) {
 
 	const [current, ...remaining] = path;
 	for (const rule in config) {
-		if (rule.startsWith("#") || rule === kUsed) {
+		if (rule.startsWith("#")) {
 			continue;
 		}
 
@@ -128,14 +128,13 @@ function parseDecision(config) {
 	}
 
 	switch (typeof ignore) {
+		case "boolean":
 		case "string":
 			if (ignore.length === 0) {
 				throw new Error(`cannot use empty string for '${kIgnore}', use 'true' instead`);
 			} else {
 				return ignore;
 			}
-		case "boolean":
-			return ignore;
 		default:
 			throw new Error(`invalid '${kIgnore}' value: ${ignore}`);
 	}
