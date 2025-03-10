@@ -8,7 +8,7 @@ export default {
 	mutate: [
 		"src/**/*.js",
 		"!src/**/*.test.js",
-		"!src/**/cli.js",
+		"!src/main.js",
 	],
 
 	testRunner: "tap",
