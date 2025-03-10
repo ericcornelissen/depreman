@@ -129,7 +129,7 @@ async function obtainAliases({ fs }) {
 		manifest.devDependencies || {},
 	]) {
 		for (const [name, rhs] of Object.entries(deps)) {
-			const aliasMatch = /^npm:(?<alias>@?.+?)@(?<version>.+)$/u.exec(rhs);
+			const aliasMatch = /^npm:(?<alias>@?[^@]+)@(?<version>.+)$/u.exec(rhs);
 			if (aliasMatch) {
 				const { alias, version } = aliasMatch.groups;
 				aliases.set(name, { name: alias, version });

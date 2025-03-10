@@ -442,19 +442,19 @@ test("date.js", async (t) => {
 		const badTestCases = [
 			{
 				str: "foobar",
-				want: /^Error: invalid date 'foobar' \(must be 'yyyy-mm-dd'\)$/u,
+				want: "invalid date 'foobar' (must be 'yyyy-mm-dd')",
 			},
 			{
 				str: "25-01-01",
-				want: /^Error: invalid date '25-01-01' \(must be 'yyyy-mm-dd'\)$/u,
+				want: "invalid date '25-01-01' (must be 'yyyy-mm-dd')",
 			},
 			{
 				str: "prefix2025-01-01",
-				want: /^Error: invalid date 'prefix2025-01-01' \(must be 'yyyy-mm-dd'\)$/u,
+				want: "invalid date 'prefix2025-01-01' (must be 'yyyy-mm-dd')",
 			},
 			{
 				str: "2025-01-01suffix",
-				want: /^Error: invalid date '2025-01-01suffix' \(must be 'yyyy-mm-dd'\)$/u,
+				want: "invalid date '2025-01-01suffix' (must be 'yyyy-mm-dd')",
 			},
 		];
 
@@ -463,7 +463,10 @@ test("date.js", async (t) => {
 			await t.test(`bad: ${str}`, () => {
 				assert.throws(
 					() => parse(str),
-					want,
+					{
+						name: "Error",
+						message: want,
+					},
 				);
 			});
 		}

@@ -10,6 +10,7 @@ Versioning].
 ## [Unreleased]
 
 - Add support for projects that do not have a `package-lock.json`.
+- Fix potentially poor performance when parsing npm aliases.
 
 ## [0.3.5] - 2025-01-23
 
