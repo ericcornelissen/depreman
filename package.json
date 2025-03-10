@@ -58,7 +58,7 @@
     "@stryker-mutator/core": "8.7.1",
     "@stryker-mutator/tap-runner": "8.7.1",
     "better-npm-audit": "3.11.0",
-    "eslint": "9.21.0",
+    "eslint": "9.22.0",
     "lcov-total": "2.1.1",
     "licensee": "11.1.1",
     "lockfile-lint": "4.14.0",
