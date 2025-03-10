@@ -22,17 +22,21 @@ import { getConfiguration } from "./config.js";
 import { getDeprecatedPackages } from "./deprecations.js";
 import { removeIgnored, unusedIgnores } from "./ignores.js";
 import { printAndExit } from "./output.js";
+import { parseArgv } from "./cli.js";
 
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_FAILURE = 1;
 const EXIT_CODE_UNEXPECTED = 2;
 
-const help = argv.includes("--help") || argv.includes("-h");
-const everything = !(argv.includes("--errors-only"));
-const omitDev = argv.includes("--omit=dev");
-const omitOptional = argv.includes("--omit=optional");
-const omitPeer = argv.includes("--omit=peer");
-const reportUnused = argv.includes("--report-unused");
+const cliConfig = parseArgv(argv);
+const {
+	help,
+	everything,
+	omitDev,
+	omitOptional,
+	omitPeer,
+	reportUnused,
+} = cliConfig.value();
 
 if (help) {
 	stdout.write(`depreman [-h|--help] [--errors-only] [--report-unused]
