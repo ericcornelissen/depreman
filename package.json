@@ -64,6 +64,6 @@
     "licensee": "11.1.1",
     "lockfile-lint": "4.14.0",
     "ls-engines": "0.9.3",
-    "publint": "0.3.7"
+    "publint": "0.3.10"
   }
 }
