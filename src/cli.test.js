@@ -83,5 +83,13 @@ test("cli.js", async (t) => {
 			assert.ok(got.isOk());
 			assert.ok(got.value().reportUnused);
 		});
+
+		await t.test("a flag that the CLI does not know", () => {
+			const arg = "--hello-world";
+			const argv = [...base, arg];
+			const got = parseArgv(argv);
+			assert.ok(got.isErr());
+			assert.equal(got.error(), `unknown flag(s): ${arg}`);
+		});
 	});
 });

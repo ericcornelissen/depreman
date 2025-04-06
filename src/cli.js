@@ -12,19 +12,24 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Ok } from "./result.js";
+import { Err, Ok } from "./result.js";
 
 /**
  * @param {string[]} argv
- * @returns {Result<Config, null>}
+ * @returns {Result<Config, string>}
  */
 export function parseArgv(argv) {
-	const help = argv.includes("--help") || argv.includes("-h");
-	const everything = !(argv.includes("--errors-only"));
-	const omitDev = argv.includes("--omit=dev");
-	const omitOptional = argv.includes("--omit=optional");
-	const omitPeer = argv.includes("--omit=peer");
-	const reportUnused = argv.includes("--report-unused");
+	const help = removeFromList(argv, "--help") || removeFromList(argv, "-h");
+	const everything = !(removeFromList(argv, "--errors-only"));
+	const omitDev = removeFromList(argv, "--omit=dev");
+	const omitOptional = removeFromList(argv, "--omit=optional");
+	const omitPeer = removeFromList(argv, "--omit=peer");
+	const reportUnused = removeFromList(argv, "--report-unused");
+
+	const remaining = argv.filter((arg) => arg.startsWith("--"));
+	if (remaining.length > 0) {
+		return new Err(`unknown flag(s): ${remaining}`);
+	}
 
 	return new Ok({
 		help,
@@ -34,6 +39,21 @@ export function parseArgv(argv) {
 		omitPeer,
 		reportUnused,
 	});
+}
+
+/**
+ * @param {string[]} haystack
+ * @param {string} needle
+ * @returns {boolean}
+ */
+function removeFromList(haystack, needle) {
+	const i = haystack.indexOf(needle);
+	if (i === -1) {
+		return false;
+	}
+
+	haystack.splice(i, 1);
+	return true;
 }
 
 /**

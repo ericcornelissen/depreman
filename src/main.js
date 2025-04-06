@@ -29,6 +29,11 @@ const EXIT_CODE_FAILURE = 1;
 const EXIT_CODE_UNEXPECTED = 2;
 
 const cliConfig = parseArgv(argv);
+if (cliConfig.isErr()) {
+	stderr.write(`${cliConfig.error()}\n`);
+	exit(EXIT_CODE_UNEXPECTED);
+}
+
 const {
 	help,
 	everything,
