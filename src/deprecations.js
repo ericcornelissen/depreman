@@ -45,21 +45,24 @@ export async function getDeprecatedPackages({ cp, fs, options }) {
 async function obtainDeprecation({ cp, fs, options }) {
 	const cleanInstall = await hasLockfile(fs);
 	return new Promise((resolve, reject) => {
-		const process = cp.spawn(
-			"npm",
-			[
-				(cleanInstall ? "clean-install" : "install"),
-				"--no-audit",
-				"--no-fund",
-				"--no-update-notifier",
-				...(options.omitDev ? ["--omit", "dev"] : []),
-				...(options.omitOptional ? ["--omit", "optional"] : []),
-				...(options.omitPeer ? ["--omit", "peer"] : []),
-			],
-			{
-				shell: false,
-			},
-		);
+		const args = [
+			(cleanInstall ? "clean-install" : "install"),
+			"--no-audit",
+			"--no-fund",
+			"--no-update-notifier",
+		];
+
+		if (options.omitDev) {
+			args.push("--omit", "dev");
+		}
+		if (options.omitOptional) {
+			args.push("--omit", "optional");
+		}
+		if (options.omitPeer) {
+			args.push("--omit", "peer");
+		}
+
+		const process = cp.spawn("npm", args);
 
 		const deprecations = [];
 
@@ -87,15 +90,20 @@ async function obtainDeprecation({ cp, fs, options }) {
  * @returns {Promise<PackageHierarchy>}
  */
 function obtainHierarchy({ cp, options }) {
-	const optionalArgs = [
-		...(options.omitDev ? ["--omit", "dev"] : []),
-		...(options.omitOptional ? ["--omit", "optional"] : []),
-		...(options.omitPeer ? ["--omit", "peer"] : []),
-	].join(" ");
+	const optionalArgs = [];
+	if (options.omitDev) {
+		optionalArgs.push("--omit", "dev");
+	}
+	if (options.omitOptional) {
+		optionalArgs.push("--omit", "optional");
+	}
+	if (options.omitPeer) {
+		optionalArgs.push("--omit", "peer");
+	}
 
 	return new Promise((resolve, reject) => {
 		cp.exec(
-			`npm list --all --json ${optionalArgs}`,
+			`npm list --all --json ${optionalArgs.join(" ")}`,
 			{ shell: false },
 			(error, stdout) => {
 				if (error) {
@@ -120,7 +128,7 @@ function obtainHierarchy({ cp, options }) {
  * @returns {Promise<Aliases>}
  */
 async function obtainAliases({ fs }) {
-	const rawManifest = await fs.readFile("./package.json", { encoding: "utf-8" });
+	const rawManifest = await fs.readFile("./package.json");
 	const manifest = JSON.parse(rawManifest);
 
 	const aliases = new Map();

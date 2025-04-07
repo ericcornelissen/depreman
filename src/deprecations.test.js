@@ -112,12 +112,15 @@ test("deprecations.js", async (t) => {
 			});
 		}
 
-		await t.test("options", async (t) => {
+		await t.test("dependency installation", async (t) => {
+			const options = defaultOptions;
+
 			function setup() {
 				return {
 					cp: createCp({
+						"npm install": {},
 						"npm clean-install": {},
-						"npm list --all --json": { stdout: "{}", },
+						"npm list --all --json": { stdout: "{}" },
 					}),
 					fs: createFs({
 						"./package.json": "{}",
@@ -126,43 +129,173 @@ test("deprecations.js", async (t) => {
 				};
 			}
 
-			await t.test("omitDev", async () => {
-				const { cp, fs } = setup();
+			await t.test("with lockfile", async () => {
+				const { cp } = setup();
 
-				const options = {
-					...defaultOptions,
-					omitDev: true,
-				};
+				const fs = createFs({
+					"./package.json": "{}",
+					"./package-lock.json": "{}",
+				});
 
-				await getDeprecatedPackages({ cp, fs, options })
-				assert.ok(cp.spawn.mock.calls[0].arguments[1].join(" ").includes("--omit dev"));
-				assert.ok(cp.exec.mock.calls[0].arguments[0].includes("--omit dev"));
+				await getDeprecatedPackages({ cp, fs, options });
+				assert.equal(cp.spawn.mock.calls[0].arguments[1][0], "clean-install");
 			});
 
-			await t.test("omitOptional", async () => {
-				const { cp, fs } = setup();
+			await t.test("without lockfile", async () => {
+				const { cp } = setup();
 
-				const options = {
-					...defaultOptions,
-					omitOptional: true,
-				};
+				const fs = createFs({
+					"./package.json": "{}",
+				});
 
-				await getDeprecatedPackages({ cp, fs, options })
-				assert.ok(cp.spawn.mock.calls[0].arguments[1].join(" ").includes("--omit optional"));
-				assert.ok(cp.exec.mock.calls[0].arguments[0].includes("--omit optional"));
+				await getDeprecatedPackages({ cp, fs, options });
+				assert.equal(cp.spawn.mock.calls[0].arguments[1][0], "install");
 			});
 
-			await t.test("omitPeer", async () => {
+			await t.test("suppress auditing", async () => {
 				const { cp, fs } = setup();
 
-				const options = {
-					...defaultOptions,
-					omitPeer: true,
-				};
+				await getDeprecatedPackages({ cp, fs, options });
+				assert.ok(cp.spawn.mock.calls[0].arguments[1].includes("--no-audit"));
+			});
 
-				await getDeprecatedPackages({ cp, fs, options })
-				assert.ok(cp.spawn.mock.calls[0].arguments[1].join(" ").includes("--omit peer"));
-				assert.ok(cp.exec.mock.calls[0].arguments[0].includes("--omit peer"));
+			await t.test("suppress funding", async () => {
+				const { cp, fs } = setup();
+
+				await getDeprecatedPackages({ cp, fs, options });
+				assert.ok(cp.spawn.mock.calls[0].arguments[1].includes("--no-fund"));
+			});
+
+			await t.test("suppress update notifier", async () => {
+				const { cp, fs } = setup();
+
+				await getDeprecatedPackages({ cp, fs, options });
+				assert.ok(cp.spawn.mock.calls[0].arguments[1].includes("--no-update-notifier"));
+			});
+		});
+
+		await t.test("dependency hierarchy", async (t) => {
+			const options = defaultOptions;
+
+			function setup() {
+				return {
+					cp: createCp({
+						"npm install": {},
+						"npm clean-install": {},
+						"npm list --all --json": { stdout: "{}" },
+					}),
+					fs: createFs({
+						"./package.json": "{}",
+						"./package-lock.json": "{}",
+					}),
+				};
+			}
+
+			await t.test("with lockfile", async () => {
+				const { cp, fs } = setup();
+
+				await getDeprecatedPackages({ cp, fs, options });
+				assert.equal(cp.exec.mock.calls[0].arguments[0].trim(), "npm list --all --json");
+			});
+
+		});
+
+		await t.test("options", async (t) => {
+			function setup() {
+				return {
+					cp: createCp({
+						"npm clean-install": {},
+						"npm list --all --json": { stdout: "{}" },
+					}),
+					fs: createFs({
+						"./package.json": "{}",
+						"./package-lock.json": "{}",
+					}),
+				};
+			}
+
+			await t.test("omitDev", async (t) => {
+				await t.test("true", async () => {
+					const { cp, fs } = setup();
+
+					const options = {
+						...defaultOptions,
+						omitDev: true,
+					};
+
+					await getDeprecatedPackages({ cp, fs, options });
+					assert.ok(cp.spawn.mock.calls[0].arguments[1].join(" ").includes("--omit dev"));
+					assert.ok(cp.exec.mock.calls[0].arguments[0].includes("--omit dev"));
+				});
+
+				await t.test("false", async () => {
+						const { cp, fs } = setup();
+
+						const options = {
+							...defaultOptions,
+							omitDev: false,
+						};
+
+						await getDeprecatedPackages({ cp, fs, options });
+						assert.ok(!cp.spawn.mock.calls[0].arguments[1].join(" ").includes("--omit dev"));
+						assert.ok(!cp.exec.mock.calls[0].arguments[0].includes("--omit dev"));
+					});
+			});
+
+			await t.test("omitOptional", async (t) => {
+				await t.test("true", async () => {
+					const { cp, fs } = setup();
+
+					const options = {
+						...defaultOptions,
+						omitOptional: true,
+					};
+
+					await getDeprecatedPackages({ cp, fs, options });
+					assert.ok(cp.spawn.mock.calls[0].arguments[1].join(" ").includes("--omit optional"));
+					assert.ok(cp.exec.mock.calls[0].arguments[0].includes("--omit optional"));
+				});
+
+				await t.test("false", async () => {
+					const { cp, fs } = setup();
+
+					const options = {
+						...defaultOptions,
+						omitOptional: false,
+					};
+
+					await getDeprecatedPackages({ cp, fs, options });
+					assert.ok(!cp.spawn.mock.calls[0].arguments[1].join(" ").includes("--omit optional"));
+					assert.ok(!cp.exec.mock.calls[0].arguments[0].includes("--omit optional"));
+				});
+			});
+
+			await t.test("omitPeer", async (t) => {
+				await t.test("true", async () => {
+					const { cp, fs } = setup();
+
+					const options = {
+						...defaultOptions,
+						omitPeer: true,
+					};
+
+					await getDeprecatedPackages({ cp, fs, options });
+					assert.ok(cp.spawn.mock.calls[0].arguments[1].join(" ").includes("--omit peer"));
+					assert.ok(cp.exec.mock.calls[0].arguments[0].includes("--omit peer"));
+				});
+
+				await t.test("false", async () => {
+					const { cp, fs } = setup();
+
+					const options = {
+						...defaultOptions,
+						omitPeer: false,
+					};
+
+					await getDeprecatedPackages({ cp, fs, options });
+					assert.ok(!cp.spawn.mock.calls[0].arguments[1].join(" ").includes("--omit peer"));
+					assert.ok(!cp.exec.mock.calls[0].arguments[0].includes("--omit peer"));
+				});
 			});
 		});
 
@@ -408,6 +541,33 @@ test("deprecations.js", async (t) => {
 						assert.equal(data.toString(), stderr);
 					});
 				});
+
+				await t.test("register unknown process event handler", () => {
+					const cmd = "foobar";
+
+					const cp = createCp({ [cmd]: { } });
+
+					const process = cp.spawn(cmd, []);
+					assert.throws(() => process.on("foobar"));
+				});
+
+				await t.test("register unknown stdout event handler", () => {
+					const cmd = "foobar";
+
+					const cp = createCp({ [cmd]: { } });
+
+					const process = cp.spawn(cmd, []);
+					assert.throws(() => process.stdout.on("foobar"));
+				});
+
+				await t.test("register unknown stderr event handler", () => {
+					const cmd = "foobar";
+
+					const cp = createCp({ [cmd]: { } });
+
+					const process = cp.spawn(cmd, []);
+					assert.throws(() => process.stderr.on("foobar"));
+				});
 			});
 
 			await t.test("command not found", () => {
@@ -480,9 +640,37 @@ function createCp(commands) {
 
 					const handlers = {};
 					const process = {
-						stdout: { on: (_, callback) => { handlers.stdout = callback; } },
-						stderr: { on: (_, callback) => { handlers.stderr = callback; } },
-						on: (_, callback) => { handlers.close = callback; },
+						stdout: {
+							on: (name, callback) => {
+								switch (name) {
+								case "data":
+									handlers.stdout = callback;
+									break;
+								default:
+									throw new Error(`Unknown event '${name}'`);
+								}
+							},
+						},
+						stderr: {
+							on: (name, callback) => {
+								switch (name) {
+								case "data":
+									handlers.stderr = callback;
+									break;
+								default:
+									throw new Error(`Unknown event '${name}'`);
+								}
+							},
+						},
+						on: (name, callback) => {
+							switch (name) {
+							case "close":
+								handlers.close = callback;
+								break;
+							default:
+								throw new Error(`Unknown event '${name}'`);
+							}
+						},
 					};
 
 					const id = setInterval(() => {
