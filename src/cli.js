@@ -26,9 +26,9 @@ export function parseArgv(argv) {
 	const omitPeer = removeFromList(argv, "--omit=peer");
 	const reportUnused = removeFromList(argv, "--report-unused");
 
-	const remaining = argv.filter((arg) => arg.startsWith("--"));
+	const remaining = argv.filter((arg) => arg.startsWith("-"));
 	if (remaining.length > 0) {
-		return new Err(`unknown flag(s): ${remaining}`);
+		return new Err(`spurious flag(s): ${remaining.join(", ")}`);
 	}
 
 	return new Ok({
