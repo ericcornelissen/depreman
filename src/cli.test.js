@@ -84,12 +84,47 @@ test("cli.js", async (t) => {
 			assert.ok(got.value().reportUnused);
 		});
 
-		await t.test("a flag that the CLI does not know", () => {
-			const arg = "--hello-world";
-			const argv = [...base, arg];
+		await t.test("a repeated flag that the CLI does know", () => {
+			const arg = "--report-unused";
+			const argv = [...base, arg, arg];
 			const got = parseArgv(argv);
 			assert.ok(got.isErr());
-			assert.equal(got.error(), `unknown flag(s): ${arg}`);
+			assert.equal(got.error(), `spurious flag(s): ${arg}`);
+		});
+
+		await t.test("flags that the CLI does not know", async (t) => {
+			await t.test("one flag", () => {
+				const arg = "--hello-world";
+				const argv = [...base, arg];
+				const got = parseArgv(argv);
+				assert.ok(got.isErr());
+				assert.equal(got.error(), `spurious flag(s): ${arg}`);
+			});
+
+			await t.test("multiple flags", () => {
+				const arg1 = "--hello";
+				const arg2 = "--world";
+				const argv = [...base, arg1, arg2];
+				const got = parseArgv(argv);
+				assert.ok(got.isErr());
+				assert.equal(got.error(), `spurious flag(s): ${arg1}, ${arg2}`);
+			});
+		});
+
+		await t.test("both -h and --help", async (t) => {
+			await t.test("--help first", () => {
+				const argv = [...base, "--help", "-h"];
+				const got = parseArgv(argv);
+				assert.ok(got.isErr());
+				assert.equal(got.error(), "spurious flag(s): -h");
+			});
+
+			await t.test("-h first", () => {
+				const argv = [...base, "-h", "--help"];
+				const got = parseArgv(argv);
+				assert.ok(got.isErr());
+				assert.equal(got.error(), "spurious flag(s): -h");
+			});
 		});
 	});
 });
