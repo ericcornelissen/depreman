@@ -21,10 +21,10 @@ import {
 
 test("cli.js", async (t) => {
 	await t.test("parseArgv", async (t) => {
-		const base = ["depreman"];
+		const base = ["node", "depreman"];
 
 		await t.test("no flags", () => {
-			const argv = base;
+			const argv = [...base];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
 			assert.ok(!got.value().help);
@@ -124,6 +124,25 @@ test("cli.js", async (t) => {
 				const got = parseArgv(argv);
 				assert.ok(got.isErr());
 				assert.equal(got.error(), "spurious flag(s): -h");
+			});
+		});
+
+		await t.test("argument the CLI does not expect", async (t) => {
+			await t.test("one argument", () => {
+				const arg = "foobar";
+				const argv = [...base, arg];
+				const got = parseArgv(argv);
+				assert.ok(got.isErr());
+				assert.equal(got.error(), `spurious arguments(s): ${arg}`);
+			});
+
+			await t.test("two argument", () => {
+				const arg1 = "foo";
+				const arg2 = "bar";
+				const argv = [...base, arg1, arg2];
+				const got = parseArgv(argv);
+				assert.ok(got.isErr());
+				assert.equal(got.error(), `spurious arguments(s): ${arg1}, ${arg2}`);
 			});
 		});
 	});

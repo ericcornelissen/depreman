@@ -19,6 +19,7 @@ import { Err, Ok } from "./result.js";
  * @returns {Result<Config, string>}
  */
 export function parseArgv(argv) {
+	argv.splice(0, 2); // eslint-disable-line no-magic-numbers
 	const help = removeFromList(argv, "--help") || removeFromList(argv, "-h");
 	const everything = !(removeFromList(argv, "--errors-only"));
 	const omitDev = removeFromList(argv, "--omit=dev");
@@ -29,6 +30,10 @@ export function parseArgv(argv) {
 	const remaining = argv.filter((arg) => arg.startsWith("-"));
 	if (remaining.length > 0) {
 		return new Err(`spurious flag(s): ${remaining.join(", ")}`);
+	}
+
+	if (argv.length > 0) {
+		return new Err(`spurious arguments(s): ${argv.join(", ")}`);
 	}
 
 	return new Ok({
