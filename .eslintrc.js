@@ -2,6 +2,7 @@
 
 import json from "@eslint/json";
 import markdown from "@eslint/markdown";
+import depend from "eslint-plugin-depend";
 import regexp from "eslint-plugin-regexp";
 
 export default [
@@ -17,6 +18,7 @@ export default [
 			sourceType: "module",
 		},
 		plugins: {
+			depend,
 			regexp,
 		},
 		rules: {
@@ -225,6 +227,9 @@ export default [
 			"valid-typeof": "error",
 			"vars-on-top": "error",
 			"yoda": "error",
+
+			// eslint-plugin-depend
+			"depend/ban-dependencies": "error",
 
 			// eslint-plugin-regexp
 			"regexp/confusing-quantifier": "error",
