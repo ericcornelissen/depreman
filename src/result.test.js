@@ -15,86 +15,116 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
+import * as fc from "fast-check";
+
 import { Err, Ok } from "./result.js";
 
 test("result.js", async (t) => {
 	await t.test("Err", async (t) => {
-		const value = "Hello error!";
-
 		await t.test("error", () => {
-			const err = new Err(value);
+			fc.assert(
+				fc.property(fc.anything(), (value) => {
+					const err = new Err(value);
 
-			const got = err.error();
-			const want = value;
-			assert.equal(got, want);
+					const got = err.error();
+					const want = value;
+					assert.equal(got, want);
+				}),
+			);
 		});
 
 		await t.test("isErr", () => {
-			const err = new Err(value);
+			fc.assert(
+				fc.property(fc.anything(), (value) => {
+					const err = new Err(value);
 
-			const got = err.isErr();
-			const want = true;
-			assert.equal(got, want);
+					const got = err.isErr();
+					const want = true;
+					assert.equal(got, want);
+				}),
+			);
 		});
 
 		await t.test("isOk", () => {
-			const err = new Err(value);
+			fc.assert(
+				fc.property(fc.anything(), (value) => {
+					const err = new Err(value);
 
-			const got = err.isOk();
-			const want = false;
-			assert.equal(got, want);
+					const got = err.isOk();
+					const want = false;
+					assert.equal(got, want);
+				}),
+			);
 		});
 
 		await t.test("value", () => {
-			const err = new Err(value);
+			fc.assert(
+				fc.property(fc.anything(), (value) => {
+					const err = new Err(value);
 
-			assert.throws(
-				() => err.value(),
-				{
-					name: "TypeError",
-					message: "Err has no value",
-				},
+					assert.throws(
+						() => err.value(),
+						{
+							name: "TypeError",
+							message: "Err has no value",
+						},
+					);
+				}),
 			);
 		});
 	});
 
 	await t.test("Ok", async (t) => {
-		const value = "Hello value!";
-
 		await t.test("error", () => {
-			const ok = new Ok(value);
+			fc.assert(
+				fc.property(fc.anything(), (value) => {
+					const ok = new Ok(value);
 
-			assert.throws(
-				() => ok.error(),
-				{
-					name: "TypeError",
-					message: "Ok has no error",
-				},
+					assert.throws(
+						() => ok.error(),
+						{
+							name: "TypeError",
+							message: "Ok has no error",
+						},
+					);
+				}),
 			);
 		});
 
 		await t.test("isErr", () => {
-			const ok = new Ok(value);
+			fc.assert(
+				fc.property(fc.anything(), (value) => {
+					const ok = new Ok(value);
 
-			const got = ok.isErr();
-			const want = false;
-			assert.equal(got, want);
+					const got = ok.isErr();
+					const want = false;
+					assert.equal(got, want);
+				}),
+			);
 		});
 
 		await t.test("isOk", () => {
-			const ok = new Ok(value);
+			fc.assert(
+				fc.property(fc.anything(), (value) => {
+					const ok = new Ok(value);
 
-			const got = ok.isOk();
-			const want = true;
-			assert.equal(got, want);
+					const got = ok.isOk();
+					const want = true;
+					assert.equal(got, want);
+				}),
+			);
 		});
 
 		await t.test("value", () => {
-			const ok = new Ok(value);
+			fc.assert(
+				fc.property(fc.anything(), (value) => {
+					const ok = new Ok(value);
 
-			const got = ok.value();
-			const want = value;
-			assert.equal(got, want);
+					const got = ok.value();
+					const want = value;
+					assert.equal(got, want);
+				}),
+			);
 		});
 	});
 });
