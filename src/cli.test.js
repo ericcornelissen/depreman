@@ -133,7 +133,7 @@ test("cli.js", async (t) => {
 				const argv = [...base, arg];
 				const got = parseArgv(argv);
 				assert.ok(got.isErr());
-				assert.equal(got.error(), `spurious arguments(s): ${arg}`);
+				assert.equal(got.error(), `spurious argument(s): ${arg}`);
 			});
 
 			await t.test("two argument", () => {
@@ -142,7 +142,7 @@ test("cli.js", async (t) => {
 				const argv = [...base, arg1, arg2];
 				const got = parseArgv(argv);
 				assert.ok(got.isErr());
-				assert.equal(got.error(), `spurious arguments(s): ${arg1}, ${arg2}`);
+				assert.equal(got.error(), `spurious argument(s): ${arg1}, ${arg2}`);
 			});
 		});
 	});

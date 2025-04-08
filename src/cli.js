@@ -20,30 +20,47 @@ import { Err, Ok } from "./result.js";
  */
 export function parseArgv(argv) {
 	argv.splice(0, 2); // eslint-disable-line no-magic-numbers
-	const help = removeFromList(argv, "--help") || removeFromList(argv, "-h");
-	const everything = !(removeFromList(argv, "--errors-only"));
-	const omitDev = removeFromList(argv, "--omit=dev");
-	const omitOptional = removeFromList(argv, "--omit=optional");
-	const omitPeer = removeFromList(argv, "--omit=peer");
-	const reportUnused = removeFromList(argv, "--report-unused");
-
-	const remaining = argv.filter((arg) => arg.startsWith("-"));
-	if (remaining.length > 0) {
-		return new Err(`spurious flag(s): ${remaining.join(", ")}`);
+	const [config, remaining] = parse(argv);
+	const problem = validate(remaining);
+	if (problem !== null) {
+		return new Err(problem);
 	}
 
-	if (argv.length > 0) {
-		return new Err(`spurious arguments(s): ${argv.join(", ")}`);
+	return new Ok(config);
+}
+
+/**
+ * @param {string[]} argv
+ * @returns {[Config, string[]]}
+ */
+function parse(argv) {
+	const config = {
+		help: removeFromList(argv, "--help") || removeFromList(argv, "-h"),
+		everything: !(removeFromList(argv, "--errors-only")),
+		omitDev: removeFromList(argv, "--omit=dev"),
+		omitOptional: removeFromList(argv, "--omit=optional"),
+		omitPeer: removeFromList(argv, "--omit=peer"),
+		reportUnused: removeFromList(argv, "--report-unused"),
+	};
+
+	return [config, argv];
+}
+
+/**
+ * @param {string[]} args
+ * @returns {string?}
+ */
+function validate(args) {
+	const flags = args.filter((arg) => arg.startsWith("-"));
+	if (flags.length > 0) {
+		return `spurious flag(s): ${flags.join(", ")}`;
 	}
 
-	return new Ok({
-		help,
-		everything,
-		omitDev,
-		omitOptional,
-		omitPeer,
-		reportUnused,
-	});
+	if (args.length > 0) {
+		return `spurious argument(s): ${args.join(", ")}`;
+	}
+
+	return null;
 }
 
 /**
