@@ -52,7 +52,7 @@ export default [
 			"init-declarations": "error",
 			"logical-assignment-operators": "error",
 			"max-classes-per-file": "off",
-			"max-depth": "error",
+			"max-depth": "off",
 			"max-lines": "off",
 			"max-lines-per-function": "error",
 			"max-nested-callbacks": "error",
