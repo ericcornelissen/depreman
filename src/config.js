@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { None, Some } from "./option.js";
 import { Err, Ok } from "./result.js";
 
 /**
@@ -31,8 +32,8 @@ export async function getConfiguration(fs) {
 	}
 
 	const problems = validateConfig(config.value());
-	if (problems !== null) {
-		throw new Error(problems.join("\n"));
+	if (problems.isSome()) {
+		throw new Error(problems.value().join("\n"));
 	}
 
 	return config.value();
@@ -70,11 +71,11 @@ function parseRawConfig(raw) {
 
 /**
  * @param {Config} config
- * @returns {string[]?}
+ * @returns {Option<string[]>}
  */
 function validateConfig(config, root=true) {
 	if (typeOf(config) !== "object") {
-		return ["config must be an object"];
+		return new Some(["config must be an object"]);
 	}
 
 	const problems = [];
@@ -104,19 +105,19 @@ function validateConfig(config, root=true) {
 			}
 		} else {
 			const subProblems = validateConfig(value, false);
-			if (subProblems !== null) {
+			if (subProblems.isSome()) {
 				problems.push(
-					...subProblems.map(problem => `${key}: ${problem}`),
+					...subProblems.value().map(problem => `${key}: ${problem}`),
 				);
 			}
 		}
 	}
 
 	if (problems.length > 0) {
-		return problems;
+		return new Some(problems);
 	}
 
-	return null;
+	return None;
 }
 
 /**
@@ -156,6 +157,11 @@ function isDirective(key) {
  */
 
 /** @typedef {function(string): Promise<string>} ReadFile */
+
+/**
+ * @template T
+ * @typedef {import("./option.js").Option<T>} Option
+ */
 
 /**
  * @template O, E
