@@ -22,27 +22,53 @@ import {
 
 test("config.js", async (t) => {
 	await t.test("getConfiguration", async (t) => {
-		const testCases = {
+		const okCases = {
 			"empty config": {
 				config: {},
 			},
-			"sample config": {
+			"config with ignore (boolean)": {
 				config: {
 					"package@1.0.0": {
 						"#ignore": true,
 					},
 				},
 			},
-			"unexpected config": {
-				config: [
-					"even though it shouldn't be an array",
-					"in this part of the code that is not",
-					"considered a problem",
-				],
+			"config with ignore (string)": {
+				config: {
+					"package@1.0.0": {
+						"#ignore": "we are working on upgrading package@1.0.0",
+					},
+				},
+			},
+			"config with expire": {
+				config: {
+					"package@1.0.0": {
+						"#ignore": "until 2025-01-01",
+						"#expire": "2025-01-01",
+					},
+				},
+			},
+			"config with '*' wildcard": {
+				config: {
+					"package@1.0.0": {
+						"*": {
+							"#ignore": "we are working on upgrading package@1.0.0",
+						}
+					},
+				},
+			},
+			"config with '+' wildcard": {
+				config: {
+					"package@1.0.0": {
+						"+": {
+							"#ignore": "we are working on upgrading package@1.0.0",
+						}
+					},
+				},
 			},
 		};
 
-		for (const [name, testCase] of Object.entries(testCases)) {
+		for (const [name, testCase] of Object.entries(okCases)) {
 			await t.test(name, async () => {
 				const fs = createFs({ "./.ndmrc": JSON.stringify(testCase.config) });
 
@@ -52,8 +78,99 @@ test("config.js", async (t) => {
 			});
 		}
 
+		const errCases = {
+			"directive in the root": {
+				config: {
+					"#ignore": true,
+				},
+				message: "unexpected directive '#ignore' in the root",
+			},
+			"unknown directives": {
+				config: {
+					"package@1.0.0": {
+						"#foo": true,
+						"#bar": false,
+					},
+				},
+				message: "package@1.0.0: unknown directive '#foo'\n"
+					+ "package@1.0.0: unknown directive '#bar'",
+			},
+			"incorrect type for '#ignore'": {
+				config: {
+					"foo@3.0.0": {
+						"bar@1.4.0": {
+							"#ignore": [3, 14],
+						},
+					},
+				},
+				message: "foo@3.0.0: bar@1.4.0: unexpected type for '#ignore': array",
+			},
+			"incorrect type for '#expire'": {
+				config: {
+					"foobar@3.1.4": {
+						"#ignore": true,
+						"#expire": false,
+					},
+				},
+				message: "foobar@3.1.4: unexpected type for '#expire': boolean",
+			},
+			"an '#expire' directive without '#ignore'": {
+				config: {
+					"answer@0.4.2": {
+						"#expire": '2025-04-19',
+					},
+				},
+				message: "answer@0.4.2: has '#expire' without '#ignore'",
+			},
+			"correct followed by incorrect config": {
+				config: {
+					"foo@3.1.4": {
+						"#ignore": true,
+					},
+					"bar@0.4.2": {
+						"#ignore": null,
+					},
+				},
+				message: "bar@0.4.2: unexpected type for '#ignore': null",
+			},
+			"incorrect config type (primitive)": {
+				config: 42,
+				message: "config must be an object",
+			},
+			"incorrect config type (array)": {
+				config: [],
+				message: "config must be an object",
+			},
+			"incorrect config type (null)": {
+				config: null,
+				message: "config must be an object",
+			},
+			"incorrect nested config type": {
+				config: {
+					"wrong@1.0.0": null,
+				},
+				message: "wrong@1.0.0: config must be an object",
+			},
+		};
+
+		for (const [name, testCase] of Object.entries(errCases)) {
+			await t.test(name, async () => {
+				const fs = createFs({ "./.ndmrc": JSON.stringify(testCase.config) });
+
+				await assert.rejects(
+					async () => await getConfiguration(fs),
+					(error) => {
+						assert.ok(error instanceof Error);
+						assert.equal(error.message, testCase.message);
+
+						return true;
+					},
+				)
+			});
+		}
+
 		await t.test("usage of fs.readFile", async () => {
-			const fs = createFs({ "./.ndmrc": JSON.stringify("{}") });
+			const fs = createFs({ "./.ndmrc": JSON.stringify({}) });
 
 			await getConfiguration(fs);
 			assert.equal(fs.readFile.mock.callCount(), 1);

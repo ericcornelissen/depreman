@@ -30,6 +30,11 @@ export async function getConfiguration(fs) {
 		throw new Error(config.error());
 	}
 
+	const problems = validateConfig(config.value());
+	if (problems !== null) {
+		throw new Error(problems.join("\n"));
+	}
+
 	return config.value();
 }
 
@@ -61,6 +66,81 @@ function parseRawConfig(raw) {
 	} catch (error) {
 		return new Err(`Configuration file invalid (${error.message})`);
 	}
+}
+
+/**
+ * @param {Config} config
+ * @returns {string[]?}
+ */
+function validateConfig(config, root=true) {
+	if (typeOf(config) !== "object") {
+		return ["config must be an object"];
+	}
+
+	const problems = [];
+	for (const [key, value] of Object.entries(config)) {
+		if (isDirective(key)) {
+			if (root) {
+				problems.push(`unexpected directive '${key}' in the root`);
+			} else {
+				const type = typeOf(value)
+				switch (key) {
+				case "#expire":
+					if (!Object.hasOwn(config, "#ignore")) {
+						problems.push(`has '#expire' without '#ignore'`);
+					} else if (type !== "string") {
+						problems.push(`unexpected type for '#expire': ${type}`);
+					}
+
+					break;
+				case "#ignore":
+					if (!(type === "boolean" || type === "string")) {
+						problems.push(`unexpected type for '#ignore': ${type}`);
+					}
+					break;
+				default:
+					problems.push(`unknown directive '${key}'`);
+				}
+			}
+		} else {
+			const subProblems = validateConfig(value, false);
+			if (subProblems !== null) {
+				problems.push(
+					...subProblems.map(problem => `${key}: ${problem}`),
+				);
+			}
+		}
+	}
+
+	if (problems.length > 0) {
+		return problems;
+	}
+
+	return null;
+}
+
+/**
+ * @param {any} value
+ * @return {string}
+ */
+function typeOf(value) {
+	if (value === null) {
+		return "null";
+	}
+
+	if (Array.isArray(value)) {
+		return "array";
+	}
+
+	return typeof value;
+}
+
+/**
+ * @param {string} key
+ * @returns {boolean}
+ */
+function isDirective(key) {
+	return key.startsWith("#");
 }
 
 /**

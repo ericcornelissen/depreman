@@ -10,6 +10,7 @@ Versioning].
 ## [Unreleased]
 
 - Add CLI argument validation and error messaging.
+- Add configuration validation and error messaging.
 
 ## [0.3.6] - 2025-03-17
 
