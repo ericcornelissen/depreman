@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { None, Some } from "./option.js";
 import { Err, Ok } from "./result.js";
 
 /**
@@ -22,8 +23,8 @@ export function parseArgv(argv) {
 	argv.splice(0, 2); // eslint-disable-line no-magic-numbers
 	const [config, remaining] = parse(argv);
 	const problem = validate(remaining);
-	if (problem !== null) {
-		return new Err(problem);
+	if (problem.isSome()) {
+		return new Err(problem.value());
 	}
 
 	return new Ok(config);
@@ -48,19 +49,19 @@ function parse(argv) {
 
 /**
  * @param {string[]} args
- * @returns {string?}
+ * @returns {Option<string>}
  */
 function validate(args) {
 	const flags = args.filter((arg) => arg.startsWith("-"));
 	if (flags.length > 0) {
-		return `spurious flag(s): ${flags.join(", ")}`;
+		return new Some(`spurious flag(s): ${flags.join(", ")}`);
 	}
 
 	if (args.length > 0) {
-		return `spurious argument(s): ${args.join(", ")}`;
+		return new Some(`spurious argument(s): ${args.join(", ")}`);
 	}
 
-	return null;
+	return None;
 }
 
 /**
@@ -86,6 +87,11 @@ function removeFromList(haystack, needle) {
  * @property {boolean} omitOptional
  * @property {boolean} omitPeer
  * @property {boolean} reportUnused
+ */
+
+/**
+ * @template T
+ * @typedef {import("./option.js").Option<T>} Option
  */
 
 /**
