@@ -51,6 +51,17 @@ test("end-to-end", async (t) => {
 		assert.notEqual(result.exitCode, 2);
 	});
 
+	await t.test("ignoring all deprecation warnings", () => {
+		const result = cli({
+			args: [],
+			project: fixture("ignore-all"),
+		});
+
+		assert.equal(result.exitCode, 0);
+		assert.notEqual(result.stdout, "");
+		assert.equal(result.stderr, "");
+	});
+
 	await t.test("ignoring all deprecation warnings with --errors-only", () => {
 		const result = cli({
 			args: ["--errors-only"],
