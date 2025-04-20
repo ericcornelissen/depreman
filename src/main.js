@@ -74,8 +74,10 @@ try {
 	const unused = reportUnused ? unusedIgnores(config) : [];
 	const { ok, report } = printAndExit(result, unused, { everything }, chalk);
 	if (!ok) {
-		stdout.write(`${report}\n`);
 		exitCode = EXIT_CODE_FAILURE;
+	}
+	if (report) {
+		stdout.write(`${report}\n`);
 	}
 } catch (error) {
 	stderr.write(`error: ${error.message}\n`);
