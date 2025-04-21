@@ -1,6 +1,6 @@
 {
   "private": true,
   "dependencies": {
-    "semver": "7.0.0"
+    "depreman-deprecated-package": "1.0.0"
   }
 }
