@@ -117,7 +117,7 @@ test("date.js", async (t) => {
 					day: 1,
 				},
 				"too far in the future (catch likely mistakes in the year)": {
-					year: 20025,
+					year: 20_025,
 					month: 1,
 					day: 1,
 				},
@@ -259,7 +259,7 @@ test("date.js", async (t) => {
 				"other is not a date": {
 					a: new DepremanDate({ year: 2024, month: 11, day: 3 }),
 					b: "foobar",
-					want: /^Error: not a date 'foobar'$/u,
+					want: /^TypeError: not a date 'foobar'$/u,
 				},
 			};
 
@@ -385,7 +385,7 @@ test("date.js", async (t) => {
 				"other is not a date": {
 					a: new DepremanDate({ year: 2024, month: 11, day: 3 }),
 					b: "foobar",
-					want: /^Error: not a date 'foobar'$/u,
+					want: /^TypeError: not a date 'foobar'$/u,
 				},
 			};
 

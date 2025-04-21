@@ -437,7 +437,7 @@ test("deprecations.js", async (t) => {
 			await t.test("command found", async (t) => {
 				await t.test("fully specified", () => {
 					const cmd = "foobar";
-					const error = new Error();
+					const error = true;
 					const stdout = ["Hello", "world!"];
 					const stderr = ["foo", "bar"];
 
@@ -470,7 +470,7 @@ test("deprecations.js", async (t) => {
 
 				await t.test("no stdout specified", () => {
 					const cmd = "foo";
-					const error = new Error();
+					const error = true;
 					const stderr = ["bar", "baz"];
 
 					const cp = createCp({
@@ -486,7 +486,7 @@ test("deprecations.js", async (t) => {
 
 				await t.test("no stderr specified", () => {
 					const cmd = "foo";
-					const error = new Error();
+					const error = true;
 					const stdout = ["baz", "bar"];
 
 					const cp = createCp({
@@ -502,7 +502,7 @@ test("deprecations.js", async (t) => {
 
 				await t.test("no stdout nor stderr specified", () => {
 					const cmd = "foobar";
-					const error = new Error();
+					const error = true;
 
 					const cp = createCp({
 						[cmd]: { error },
@@ -541,7 +541,7 @@ test("deprecations.js", async (t) => {
 
 				await t.test("close handler, with error", (_, done) => {
 					const cmd = "foobar";
-					const error = new Error();
+					const error = true;
 
 					const cp = createCp({
 						[cmd]: { error },
@@ -594,7 +594,7 @@ test("deprecations.js", async (t) => {
 				await t.test("register unknown process event handler", () => {
 					const cmd = "foobar";
 
-					const cp = createCp({ [cmd]: { } });
+					const cp = createCp({ [cmd]: {} });
 
 					const process = cp.spawn(cmd, []);
 					assert.throws(() => process.on("foobar"));
@@ -603,7 +603,7 @@ test("deprecations.js", async (t) => {
 				await t.test("register unknown stdout event handler", () => {
 					const cmd = "foobar";
 
-					const cp = createCp({ [cmd]: { } });
+					const cp = createCp({ [cmd]: {} });
 
 					const process = cp.spawn(cmd, []);
 					assert.throws(() => process.stdout.on("foobar"));
@@ -612,7 +612,7 @@ test("deprecations.js", async (t) => {
 				await t.test("register unknown stderr event handler", () => {
 					const cmd = "foobar";
 
-					const cp = createCp({ [cmd]: { } });
+					const cp = createCp({ [cmd]: {} });
 
 					const process = cp.spawn(cmd, []);
 					assert.throws(() => process.stderr.on("foobar"));
@@ -684,8 +684,8 @@ function createCp(commands) {
 				if (`${cmd} ${args.join(" ")}`.includes(command)) {
 					const { error, stdout, stderr } = result;
 
-					const outLines = Array.from(stdout || []);
-					const errLines = Array.from(stderr || []);
+					const outLines = stdout ? [...stdout] : [];
+					const errLines = stderr ? [...stderr] : [];
 
 					const handlers = {};
 					const process = {

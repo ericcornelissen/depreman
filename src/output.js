@@ -41,8 +41,10 @@ export function printAndExit(result, unused, options, chalk) {
 
 		if (options.everything) {
 			for (const { path, reason } of pkg.ignored) {
-				output.push(`\t${chalk.dim(`. > ${path.map(pkgToString).join(" > ")}`)}`);
-				output.push(`\t\t${chalk.dim(`(allowed "${typeof reason === "string" ? reason : "no reason given"}")`)}`);
+				output.push(
+					`\t${chalk.dim(`. > ${path.map(pkgToString).join(" > ")}`)}`,
+					`\t\t${chalk.dim(`(allowed "${typeof reason === "string" ? reason : "no reason given"}")`)}`,
+				);
 			}
 		}
 	}

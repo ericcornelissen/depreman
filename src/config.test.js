@@ -176,7 +176,7 @@ test("config.js", async (t) => {
 			assert.equal(fs.readFile.mock.callCount(), 1);
 
 			const got = fs.readFile.mock.calls[0];
-			assert.ok(got.arguments.length >= 1);
+			assert.ok(got.arguments.length > 0);
 			assert.match(got.arguments[0], /.ndmrc$/u);
 		});
 

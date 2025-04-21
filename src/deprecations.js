@@ -193,15 +193,15 @@ function isDeprecationWarning(line) {
  * @returns {DeprecatedPackage}
  */
 function parseDeprecationWarning(line) {
-	const str = line.slice(prefix.length, line.length);
+	const str = line.slice(prefix.length);
 
 	let i = str.indexOf(":");
-	const pkg = str.substring(0, i);
-	const reason = str.substring(i + 1, str.length).trim();
+	const pkg = str.slice(0, i);
+	const reason = str.slice(i + 1).trim();
 
 	i = pkg.lastIndexOf("@");
-	const name = pkg.substring(0, i);
-	const version = pkg.substring(i + 1, pkg.length);
+	const name = pkg.slice(0, i);
+	const version = pkg.slice(i + 1);
 
 	return { name, version, reason };
 }

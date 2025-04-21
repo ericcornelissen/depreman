@@ -3,7 +3,7 @@
 export default {
 	coverageAnalysis: "perTest",
 	inPlace: false,
-	timeoutMS: 5_000,
+	timeoutMS: 5000,
 
 	mutate: [
 		"src/**/*.js",

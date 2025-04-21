@@ -69,7 +69,9 @@ export function unusedIgnores(config, path=[]) {
 			continue;
 		}
 
-		unused.push(...unusedIgnores(config[rule], path.concat([rule])));
+		const nestedPath = [...path, rule];
+		const nestedUnused = unusedIgnores(config[rule], nestedPath);
+		unused.push(...nestedUnused);
 	}
 
 	return unused;
@@ -173,7 +175,7 @@ function parseDecision(config) {
  */
 function isExpired(config) {
 	const expire = config[kExpire] ?? config["*"]?.[kExpire];
-	if (typeof expire !== "undefined") {
+	if (expire !== undefined) {
 		const expires = date.parse(expire);
 		const today = date.today();
 		return expires.isBefore(today) || expires.is(today);
@@ -192,8 +194,8 @@ function parseRule(pkg) {
 		throw new Error(`invalid rule name '${pkg}'`);
 	}
 
-	const name = pkg.substring(0, i);
-	const version = pkg.substring(i + 1, pkg.length);
+	const name = pkg.slice(0, i);
+	const version = pkg.slice(i + 1);
 	return [name, version];
 }
 
