@@ -63,7 +63,7 @@ if (hasViolation) {
 // -----------------------------------------------------------------------------
 
 async function hasLicenseHeader(entry) {
-	const content = await fs.readFile(entry, { encoding: "utf-8" });
+	const content = await fs.readFile(entry, { encoding: "utf8" });
 	return content
 		.replace(/^\/\/ Copyright \(C\) \d+(?:-\d+)? {2}.+$/mu, "// Copyright (C) <YEAR>  <AUTHORS>")
 		.startsWith(`${header}\n`);
@@ -76,7 +76,8 @@ async function* jsFiles(dir, exclude) {
 			continue;
 		}
 
-		if ((await fs.stat(entry)).isFile()) {
+		const stat = await fs.stat(entry);
+		if (stat.isFile()) {
 			if (path.extname(entry) === ".js") {
 				yield entry;
 			}

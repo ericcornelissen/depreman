@@ -28,7 +28,7 @@ export class DepremanDate {
 
 	is(other) {
 		if (!(other instanceof DepremanDate)) {
-			throw new Error(`not a date '${other}'`);
+			throw new TypeError(`not a date '${other}'`);
 		}
 
 		return this.year === other.year
@@ -38,7 +38,7 @@ export class DepremanDate {
 
 	isBefore(other) {
 		if (!(other instanceof DepremanDate)) {
-			throw new Error(`not a date '${other}'`);
+			throw new TypeError(`not a date '${other}'`);
 		}
 
 		if (this.year < other.year) {
@@ -63,9 +63,9 @@ export function parse(str) {
 
 	const { yyyy, mm, dd } = parsed.groups;
 	return new DepremanDate({
-		year: parseInt(yyyy, 10),
-		month: parseInt(mm, 10),
-		day: parseInt(dd, 10),
+		year: Number.parseInt(yyyy, 10),
+		month: Number.parseInt(mm, 10),
+		day: Number.parseInt(dd, 10),
 	});
 }
 

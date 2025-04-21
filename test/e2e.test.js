@@ -113,7 +113,7 @@ function cli({ args, project }) {
 			cwd: project,
 
 			// Get output as text instead of a buffer.
-			encoding: "utf-8",
+			encoding: "utf8",
 		},
 	);
 
