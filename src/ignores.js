@@ -19,11 +19,17 @@ const kUsed = Symbol.for("#used");
 const kIgnore = "#ignore";
 const kExpire = "#expire";
 
+/**
+ * @param {Config} config
+ * @param {Deprecation[]} deprecations
+ * @returns {DeprecationVerdict[]}
+ * @throws {Error}
+ */
 export function removeIgnored(config, deprecations) {
 	const result = [];
-	for (const pkg of deprecations) {
-		const kept = [], ignored = []
-		for (const path of pkg.paths) {
+	for (const deprecation of deprecations) {
+		const kept = [], ignored = [];
+		for (const path of deprecation.paths) {
 			const ignore = isIgnored(config, path);
 			if (ignore) {
 				ignored.push({
@@ -36,9 +42,9 @@ export function removeIgnored(config, deprecations) {
 		}
 
 		result.push({
-			name: pkg.name,
-			version: pkg.version,
-			reason: pkg.reason,
+			name: deprecation.name,
+			version: deprecation.version,
+			reason: deprecation.reason,
 			ignored,
 			kept,
 		});
@@ -47,6 +53,11 @@ export function removeIgnored(config, deprecations) {
 	return result;
 }
 
+/**
+ * @param {Config} config
+ * @param {string[]} path
+ * @returns {string[][]}
+ */
 export function unusedIgnores(config, path=[]) {
 	const unused = [];
 	if (Object.hasOwn(config, kIgnore) && !config[kUsed]) {
@@ -64,6 +75,12 @@ export function unusedIgnores(config, path=[]) {
 	return unused;
 }
 
+/**
+ * @param {Config} config
+ * @param {string[]} path
+ * @returns {boolean | string}
+ * @throws {Error}
+ */
 function isIgnored(config, path) {
 	if (path.length === 0) {
 		return getDecision(config);
@@ -108,6 +125,11 @@ function isIgnored(config, path) {
 	return false;
 }
 
+/**
+ * @param {Config} config
+ * @returns {boolean | string}
+ * @throws {Error}
+ */
 function getDecision(config) {
 	const decision = parseDecision(config);
 	if (decision && !isExpired(config)) {
@@ -117,6 +139,11 @@ function getDecision(config) {
 	return false;
 }
 
+/**
+ * @param {Config} config
+ * @returns {boolean | string}
+ * @throws {Error}
+ */
 function parseDecision(config) {
 	let ignore = false;
 	if (Object.hasOwn(config, kIgnore)) {
@@ -140,6 +167,10 @@ function parseDecision(config) {
 	}
 }
 
+/**
+ * @param {Config} config
+ * @returns {boolean}
+ */
 function isExpired(config) {
 	const expire = config[kExpire] ?? config["*"]?.[kExpire];
 	if (typeof expire !== "undefined") {
@@ -151,6 +182,10 @@ function isExpired(config) {
 	return false;
 }
 
+/**
+ * @param {string} pkg
+ * @returns {[string, string]}
+ */
 function parseRule(pkg) {
 	const i = pkg.lastIndexOf("@");
 	if (i === -1) {
@@ -161,3 +196,15 @@ function parseRule(pkg) {
 	const version = pkg.substring(i + 1, pkg.length);
 	return [name, version];
 }
+
+/**
+ * @typedef DeprecationVerdict
+ * @property {string} name
+ * @property {string} version
+ * @property {string} reason
+ * @property {{ path: string[], reason: boolean | string }} ignored
+ * @property {{ path: string[] }} kept
+ */
+
+/** @typedef {import("./config.js").Config} Config */
+/** @typedef {import("./deprecations.js").DeprecatedPackage} Deprecation */

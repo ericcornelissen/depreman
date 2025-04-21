@@ -145,10 +145,13 @@ function isDirective(key) {
 }
 
 /**
- * @typedef {Object} Config
- * @property {boolean | string | undefined} '+'
- * @property {boolean | string | undefined} '*'
- * @property {Config} [key]
+ * @typedef {{
+ *   "#ignore": boolean | string,
+ *   "#expire": string,
+ *   "*": Config,
+ *   "+": Config,
+ *   [key: string]: Config,
+ * }} Config
  */
 
 /**
