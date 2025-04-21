@@ -49,7 +49,7 @@ test("deprecations.js", async (t) => {
 					{
 						name: "foobar",
 						version: "3.1.4",
-						reason: 'This package is no longer supported.',
+						reason: "This package is no longer supported.",
 						paths: [
 							[
 								{ name: "foobar", version: "3.1.4" },
@@ -79,10 +79,36 @@ test("deprecations.js", async (t) => {
 					{
 						name: "bar",
 						version: "3.1.4",
-						reason: 'This package is no longer supported.',
+						reason: "This package is no longer supported.",
 						paths: [
 							[
 								{ name: "bar", version: "3.1.4" },
+							],
+						],
+					},
+				],
+			},
+			"deprecation warning split into fragments": {
+				hierarchy: {
+					dependencies: {
+						foobar: {
+							version: "3.1.4",
+						},
+					},
+				},
+				installLog: [
+					"npm warn ",
+					"deprecated foobar@3.1.4: This package is no longer supported.",
+				],
+				options: defaultOptions,
+				want: [
+					{
+						name: "foobar",
+						version: "3.1.4",
+						reason: "This package is no longer supported.",
+						paths: [
+							[
+								{ name: "foobar", version: "3.1.4" },
 							],
 						],
 					},
@@ -96,10 +122,12 @@ test("deprecations.js", async (t) => {
 
 				const cp = createCp({
 					"npm clean-install": {
-						stderr: testCase.installLog.join("\n"),
+						stderr: testCase.installLog,
 					},
 					"npm list --all --json": {
-						stdout: JSON.stringify(testCase.hierarchy),
+						stdout: [
+							JSON.stringify(testCase.hierarchy),
+						],
 					},
 				});
 				const fs = createFs({
@@ -120,7 +148,9 @@ test("deprecations.js", async (t) => {
 					cp: createCp({
 						"npm install": {},
 						"npm clean-install": {},
-						"npm list --all --json": { stdout: "{}" },
+						"npm list --all --json": {
+							stdout: ["{}"],
+						},
 					}),
 					fs: createFs({
 						"./package.json": "{}",
@@ -182,7 +212,9 @@ test("deprecations.js", async (t) => {
 					cp: createCp({
 						"npm install": {},
 						"npm clean-install": {},
-						"npm list --all --json": { stdout: "{}" },
+						"npm list --all --json": {
+							stdout: ["{}"],
+						},
 					}),
 					fs: createFs({
 						"./package.json": "{}",
@@ -197,7 +229,6 @@ test("deprecations.js", async (t) => {
 				await getDeprecatedPackages({ cp, fs, options });
 				assert.equal(cp.exec.mock.calls[0].arguments[0].trim(), "npm list --all --json");
 			});
-
 		});
 
 		await t.test("options", async (t) => {
@@ -205,7 +236,9 @@ test("deprecations.js", async (t) => {
 				return {
 					cp: createCp({
 						"npm clean-install": {},
-						"npm list --all --json": { stdout: "{}" },
+						"npm list --all --json": {
+							stdout: ["{}"],
+						},
 					}),
 					fs: createFs({
 						"./package.json": "{}",
@@ -304,16 +337,20 @@ test("deprecations.js", async (t) => {
 
 			const cp = createCp({
 				"npm install": {
-					stderr: "npm warn deprecated foobar@3.1.4: This package is no longer supported.",
+					stderr: [
+						"npm warn deprecated foobar@3.1.4: This package is no longer supported."
+					],
 				},
 				"npm list --all --json": {
-					stdout: JSON.stringify({
-						dependencies: {
-							foobar: {
-								version: "3.1.4",
+					stdout: [
+						JSON.stringify({
+							dependencies: {
+								foobar: {
+									version: "3.1.4",
+								},
 							},
-						},
-					}),
+						}),
+					],
 				},
 			});
 			const fs = createFs({
@@ -341,8 +378,12 @@ test("deprecations.js", async (t) => {
 			const options = defaultOptions;
 
 			const cp = createCp({
-				"npm clean-install": { error: true },
-				"npm list --all --json": { stdout: "{}" },
+				"npm clean-install": {
+					error: true,
+				},
+				"npm list --all --json": {
+					stdout: ["{}"],
+				},
 			});
 			const fs = createFs({
 				"./package.json": "{}",
@@ -361,7 +402,7 @@ test("deprecations.js", async (t) => {
 				"npm clean-install": {},
 				"npm list --all --json": {
 					error: true,
-					stdout: "{}",
+					stdout: ["{}"],
 				},
 			});
 			const fs = createFs({
@@ -379,7 +420,9 @@ test("deprecations.js", async (t) => {
 
 			const cp = createCp({
 				"npm clean-install": {},
-				"npm list --all --json": { stdout: "{}" },
+				"npm list --all --json": {
+					stdout: ["{}"],
+				},
 			});
 			const fs = createFs({});
 
@@ -395,8 +438,8 @@ test("deprecations.js", async (t) => {
 				await t.test("fully specified", () => {
 					const cmd = "foobar";
 					const error = new Error();
-					const stdout = "Hello";
-					const stderr = "world!";
+					const stdout = ["Hello", "world!"];
+					const stderr = ["foo", "bar"];
 
 					const cp = createCp({
 						[cmd]: { error, stdout, stderr },
@@ -404,15 +447,15 @@ test("deprecations.js", async (t) => {
 
 					cp.exec(cmd, {}, (...got) => {
 						assert.equal(got[0], error);
-						assert.equal(got[1].toString(), stdout);
-						assert.equal(got[2].toString(), stderr);
+						assert.equal(got[1].toString(), stdout.join(""));
+						assert.equal(got[2].toString(), stderr.join(""));
 					});
 				});
 
 				await t.test("no error specified", () => {
 					const cmd = "foobar";
-					const stdout = "Hello";
-					const stderr = "world!";
+					const stdout = ["foo", "bar"];
+					const stderr = ["Hello", "world!"];
 
 					const cp = createCp({
 						[cmd]: { stdout, stderr },
@@ -420,15 +463,15 @@ test("deprecations.js", async (t) => {
 
 					cp.exec(cmd, {}, (...got) => {
 						assert.equal(got[0], null);
-						assert.equal(got[1].toString(), stdout);
-						assert.equal(got[2].toString(), stderr);
+						assert.equal(got[1].toString(), stdout.join(""));
+						assert.equal(got[2].toString(), stderr.join(""));
 					});
 				});
 
 				await t.test("no stdout specified", () => {
 					const cmd = "foo";
 					const error = new Error();
-					const stderr = "bar";
+					const stderr = ["bar", "baz"];
 
 					const cp = createCp({
 						[cmd]: { error, stderr },
@@ -437,14 +480,14 @@ test("deprecations.js", async (t) => {
 					cp.exec(cmd, {}, (...got) => {
 						assert.equal(got[0], error);
 						assert.equal(got[1].toString(), "");
-						assert.equal(got[2].toString(), stderr);
+						assert.equal(got[2].toString(), stderr.join(""));
 					});
 				});
 
 				await t.test("no stderr specified", () => {
 					const cmd = "foo";
 					const error = new Error();
-					const stdout = "bar";
+					const stdout = ["baz", "bar"];
 
 					const cp = createCp({
 						[cmd]: { error, stdout },
@@ -452,7 +495,7 @@ test("deprecations.js", async (t) => {
 
 					cp.exec(cmd, {}, (...got) => {
 						assert.equal(got[0], error);
-						assert.equal(got[1].toString(), stdout);
+						assert.equal(got[1].toString(), stdout.join(""));
 						assert.equal(got[2].toString(), "");
 					});
 				});
@@ -514,7 +557,7 @@ test("deprecations.js", async (t) => {
 
 				await t.test("stdout handler", (_, done) => {
 					const cmd = "foobar";
-					const stdout = "Hello world!";
+					const stdout = ["Hello", "world!"];
 
 					const cp = createCp({
 						[cmd]: { stdout },
@@ -522,14 +565,17 @@ test("deprecations.js", async (t) => {
 
 					const process = cp.spawn(cmd, []);
 					process.on("close", done);
+
+					let i = 0;
 					process.stdout.on("data", (data) => {
-						assert.equal(data.toString(), stdout);
+						assert.equal(data.toString(), stdout[i]);
+						i += 1;
 					});
 				});
 
 				await t.test("stderr handler", (_, done) => {
 					const cmd = "foobar";
-					const stderr = "Hello world!";
+					const stderr = ["Hello", "world!"];
 
 					const cp = createCp({
 						[cmd]: { stderr },
@@ -537,8 +583,11 @@ test("deprecations.js", async (t) => {
 
 					const process = cp.spawn(cmd, []);
 					process.on("close", done);
+
+					let i = 0;
 					process.stderr.on("data", (data) => {
-						assert.equal(data.toString(), stderr);
+						assert.equal(data.toString(), stderr[i]);
+						i += 1;
 					});
 				});
 
@@ -622,8 +671,8 @@ function createCp(commands) {
 					const { error, stdout, stderr } = result;
 					callback(
 						error || null,
-						Buffer.from(stdout || ""),
-						Buffer.from(stderr || ""),
+						Buffer.from((stdout || []).join("")),
+						Buffer.from((stderr || []).join("")),
 					);
 
 					break;
@@ -635,8 +684,8 @@ function createCp(commands) {
 				if (`${cmd} ${args.join(" ")}`.includes(command)) {
 					const { error, stdout, stderr } = result;
 
-					const outLines = (stdout || "").split("\n");
-					const errLines = (stderr || "").split("\n");
+					const outLines = Array.from(stdout || []);
+					const errLines = Array.from(stderr || []);
 
 					const handlers = {};
 					const process = {
@@ -730,7 +779,7 @@ function createFs(files) {
 
 /**
  * @typedef MockCommand
- * @property {any} error
- * @property {string} stdout
- * @property {string} stderr
+ * @property {any} [error]
+ * @property {string[]} [stdout]
+ * @property {string[]} [stderr]
  */

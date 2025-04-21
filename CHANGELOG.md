@@ -12,6 +12,7 @@ Versioning].
 - Add CLI argument validation and error messaging.
 - Add configuration validation and error messaging.
 - Fix missing output when there are no disallowed deprecation warnings.
+- Fix missing deprecation warnings due to npm output parsing.
 
 ## [0.3.6] - 2025-03-17
 
