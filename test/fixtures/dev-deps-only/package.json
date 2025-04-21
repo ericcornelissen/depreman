@@ -1,6 +1,6 @@
 {
   "private": true,
   "devDependencies": {
-    "eslint": "^8.0.0"
+    "depreman-deprecated-package": "^1.0.0"
   }
 }
