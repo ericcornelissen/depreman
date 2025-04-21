@@ -9,6 +9,10 @@ Versioning].
 
 ## [Unreleased]
 
+- _No changes yet_
+
+## [0.3.7] - 2025-04-21
+
 - Add CLI argument validation and error messaging.
 - Add configuration validation and error messaging.
 - Fix missing output when there are no disallowed deprecation warnings.
