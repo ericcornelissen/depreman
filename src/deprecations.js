@@ -12,8 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Buffer } from "node:buffer";
-
 /**
  * @param {Object} p
  * @param {FileSystem} p.fs
@@ -64,17 +62,19 @@ async function obtainDeprecation({ cp, fs, options }) {
 
 		const process = cp.spawn("npm", args);
 
-		const deprecations = [];
-
-		process.stderr.on("data", (line) => {
-			if (isDeprecationWarning(line)) {
-				const deprecation = parseDeprecationWarning(line);
-				deprecations.push(deprecation);
-			}
-		});
+		const log = [];
+		process.stderr.on("data", (fragment) => log.push(fragment));
 
 		process.on("close", (exitCode, error) => {
 			if (exitCode === 0) {
+				const deprecations = [];
+				for (const line of log.join("").split(/\n/u)) {
+					if (isDeprecationWarning(line)) {
+						const deprecation = parseDeprecationWarning(line);
+						deprecations.push(deprecation);
+					}
+				}
+
 				resolve(deprecations.filter(unique));
 			} else {
 				reject(error);
@@ -178,14 +178,14 @@ function findPackagePaths(pkg, hierarchy, aliases, path = []) {
 	return paths;
 }
 
-const prefix = Buffer.from("npm warn deprecated ");
+const prefix = "npm warn deprecated ";
 
 /**
  * @param {string} line
  * @returns {boolean}
  */
 function isDeprecationWarning(line) {
-	return line.slice(0, prefix.length).equals(prefix);
+	return line.slice(0, prefix.length).toLowerCase() === prefix;
 }
 
 /**
@@ -193,7 +193,7 @@ function isDeprecationWarning(line) {
  * @returns {DeprecatedPackage}
  */
 function parseDeprecationWarning(line) {
-	const str = line.slice(prefix.length, line.length).toString();
+	const str = line.slice(prefix.length, line.length);
 
 	let i = str.indexOf(":");
 	const pkg = str.substring(0, i);
