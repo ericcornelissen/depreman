@@ -5,7 +5,7 @@
 If you need to release a new version of the `depreman`, follow the guidelines
 found in this document.
 
-## Manual Releases (Discouraged)
+## Manual Releases
 
 1. Make sure that your local copy of the repository is up-to-date, sync:
 
