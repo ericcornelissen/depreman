@@ -18,7 +18,6 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as process from "node:process";
 import { test } from "node:test";
-import { fileURLToPath, URL } from "node:url";
 
 test("end-to-end", async (t) => {
 	await t.test("--help", () => {
@@ -86,10 +85,7 @@ test("end-to-end", async (t) => {
 	});
 });
 
-const root = path.resolve(
-	path.dirname(fileURLToPath(new URL(import.meta.url))),
-	"..",
-);
+const root = path.resolve(import.meta.dirname, "..");
 
 function fixture(name) {
 	return path.join(root, "test", "fixtures", name);
