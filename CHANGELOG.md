@@ -9,7 +9,7 @@ Versioning].
 
 ## [Unreleased]
 
-- _No changes yet_
+- Add support for Node.js v24.
 
 ## [0.3.7] - 2025-04-21
 
