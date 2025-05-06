@@ -14,7 +14,7 @@
 
 import * as cp from "node:child_process";
 import * as fs from "node:fs/promises";
-import { argv, exit, stdout, stderr } from "node:process";
+import { stdout, stderr } from "node:process";
 
 import chalk from "chalk";
 
@@ -28,22 +28,7 @@ const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_FAILURE = 1;
 const EXIT_CODE_UNEXPECTED = 2;
 
-const cliConfig = parseArgv(argv);
-if (cliConfig.isErr()) {
-	stderr.write(`${cliConfig.error()}\n`);
-	exit(EXIT_CODE_UNEXPECTED);
-}
-
-const {
-	help,
-	everything,
-	omitDev,
-	omitOptional,
-	omitPeer,
-	reportUnused,
-} = cliConfig.value();
-
-if (help) {
+function help() {
 	stdout.write(`depreman [-h|--help] [--errors-only] [--report-unused]
          [--omit=<dev|optional|peer> ...]
 
@@ -59,29 +44,51 @@ to ignore npm deprecation warnings for your dependencies.
    --report-unused
       Report and fail for unused ignore directives.
 `);
-	exit(EXIT_CODE_SUCCESS);
 }
 
-let exitCode = EXIT_CODE_SUCCESS;
-try {
-	const options = { omitDev, omitOptional, omitPeer };
-	const [config, deprecations] = await Promise.all([
-		getConfiguration(fs),
-		getDeprecatedPackages({ cp, fs, options }),
-	]);
+/**
+ * @param {Options} options
+ * @return {Promise<ExitCode>}
+ */
+async function depreman(options) {
+	try {
+		const [config, deprecations] = await Promise.all([
+			getConfiguration(fs),
+			getDeprecatedPackages({ cp, fs, options }),
+		]);
 
-	const result = removeIgnored(config, deprecations);
-	const unused = reportUnused ? unusedIgnores(config) : [];
-	const { ok, report } = printAndExit(result, unused, { everything }, chalk);
-	if (!ok) {
-		exitCode = EXIT_CODE_FAILURE;
+		const result = removeIgnored(config, deprecations);
+		const unused = options.reportUnused ? unusedIgnores(config) : [];
+		const { ok, report } = printAndExit(result, unused, options, chalk);
+		if (report) {
+			stdout.write(`${report}\n`);
+		}
+
+		return ok ? EXIT_CODE_SUCCESS : EXIT_CODE_FAILURE;
+	} catch (error) {
+		stderr.write(`error: ${error.message}\n`);
+		return EXIT_CODE_UNEXPECTED;
 	}
-	if (report) {
-		stdout.write(`${report}\n`);
-	}
-} catch (error) {
-	stderr.write(`error: ${error.message}\n`);
-	exitCode = EXIT_CODE_UNEXPECTED;
 }
 
-exit(exitCode);
+/**
+ * @param {string[]} argv
+ * @return {Promise<ExitCode>}
+ */
+export async function cli(argv) {
+	const options = parseArgv(argv);
+	if (options.isErr()) {
+		stderr.write(`${options.error()}\n`);
+		return EXIT_CODE_UNEXPECTED;
+	}
+
+	if (options.value().help) {
+		help();
+		return EXIT_CODE_SUCCESS;
+	}
+
+	return await depreman(options.value());
+}
+
+/** @typedef {import("./cli.js").Config} Options */
+/** @typedef {0 | 1 | 2} ExitCode */
