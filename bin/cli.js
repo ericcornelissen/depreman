@@ -1,3 +1,8 @@
 #!/usr/bin/env node
 
-import "../src/main.js";
+import { argv, exit } from "node:process";
+
+import { cli } from "../src/main.js";
+
+const exitCode = await cli(argv);
+exit(exitCode);

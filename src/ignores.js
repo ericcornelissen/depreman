@@ -15,7 +15,7 @@
 import * as date from "./date.js";
 import * as semver from "./semver.js";
 
-const kUsed = Symbol.for("#used");
+const kUsed = Symbol.for("#used"); // eslint-disable-line top/no-top-level-side-effects
 const kIgnore = "#ignore";
 const kExpire = "#expire";
 

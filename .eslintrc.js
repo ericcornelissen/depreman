@@ -4,6 +4,7 @@ import json from "@eslint/json";
 import markdown from "@eslint/markdown";
 import depend from "eslint-plugin-depend";
 import regexp from "eslint-plugin-regexp";
+import top from "@ericcornelissen/eslint-plugin-top";
 import unicorn from "eslint-plugin-unicorn";
 
 export default [
@@ -21,6 +22,7 @@ export default [
 		plugins: {
 			depend,
 			regexp,
+			top,
 			unicorn,
 		},
 		rules: {
@@ -434,6 +436,22 @@ export default [
 				"regexp/use-ignore-case": "error",
 			},
 
+			// eslint-plugin-top
+			...{
+				"top/no-top-level-side-effects": ["error", {
+					allowDerived: false,
+					allowedCalls: [],
+					allowedNews: [],
+					allowFunctionProperties: false,
+					allowIIFE: false,
+					allowPropertyAccess: false,
+				}],
+				"top/no-top-level-variables": ["error", {
+					allowed: ["ObjectExpression"],
+					kind: ["const"],
+				}],
+			},
+
 			// eslint-plugin-unicorn
 			...{
 				"unicorn/better-regex": "error",
@@ -570,11 +588,24 @@ export default [
 		},
 	},
 	{
+		name: "bin",
+		files: ["bin/*.js"],
+		rules: {
+			// eslint-plugin-top
+			"top/no-top-level-side-effects": "off",
+			"top/no-top-level-variables": "off",
+		},
+	},
+	{
 		name: "Scripts",
 		files: ["script/*.js"],
 		rules: {
 			"no-console": "off",
 			"no-await-in-loop": "off",
+
+			// eslint-plugin-top
+			"top/no-top-level-side-effects": "off",
+			"top/no-top-level-variables": "off",
 
 			// eslint-plugin-unicorn
 			"unicorn/no-process-exit": "off",
@@ -591,6 +622,10 @@ export default [
 			"no-shadow": ["error", {
 				allow: ["t"],
 			}],
+
+			// eslint-plugin-top
+			"top/no-top-level-side-effects": "off",
+			"top/no-top-level-variables": "off",
 		},
 	},
 	{
