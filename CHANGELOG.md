@@ -10,6 +10,7 @@ Versioning].
 ## [Unreleased]
 
 - Add support for Node.js v24.
+- Add support for npm v11.
 
 ## [0.3.7] - 2025-04-21
 
