@@ -19,21 +19,21 @@ import * as fc from "fast-check";
 
 import { None, Some } from "./option.js";
 
-test("option.js", async (t) => {
-	await t.test("None", async (t) => {
-		await t.test("isNone", () => {
+test("option.js", (t) => {
+	t.test("None", (t) => {
+		t.test("isNone", () => {
 			const got = None.isNone();
 			const want = true;
 			assert.equal(got, want);
 		});
 
-		await t.test("isSome", () => {
+		t.test("isSome", () => {
 			const got = None.isSome();
 			const want = false;
 			assert.equal(got, want);
 		});
 
-		await t.test("value", () => {
+		t.test("value", () => {
 			assert.throws(
 				() => None.value(),
 				{
@@ -44,8 +44,8 @@ test("option.js", async (t) => {
 		});
 	});
 
-	await t.test("Some", async (t) => {
-		await t.test("isNone", () => {
+	t.test("Some", (t) => {
+		t.test("isNone", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const some = new Some(value);
@@ -57,7 +57,7 @@ test("option.js", async (t) => {
 			);
 		});
 
-		await t.test("isSome", () => {
+		t.test("isSome", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const some = new Some(value);
@@ -69,7 +69,7 @@ test("option.js", async (t) => {
 			);
 		});
 
-		await t.test("value", () => {
+		t.test("value", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const some = new Some(value);

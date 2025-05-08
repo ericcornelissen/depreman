@@ -21,8 +21,8 @@ import {
 	getDeprecatedPackages,
 } from "./deprecations.js";
 
-test("deprecations.js", async (t) => {
-	await t.test("getDeprecatedPackages", async (t) => {
+test("deprecations.js", (t) => {
+	t.test("getDeprecatedPackages", (t) => {
 		const defaultOptions = {
 			omitDev: false,
 			omitOptional: false,
@@ -117,7 +117,7 @@ test("deprecations.js", async (t) => {
 		};
 
 		for (const [name, testCase] of Object.entries(testCases)) {
-			await t.test(name, async () => {
+			t.test(name, async () => {
 				const { options, want } = testCase;
 
 				const cp = createCp({
@@ -140,7 +140,7 @@ test("deprecations.js", async (t) => {
 			});
 		}
 
-		await t.test("dependency installation", async (t) => {
+		t.test("dependency installation", (t) => {
 			const options = defaultOptions;
 
 			function setup() {
@@ -159,7 +159,7 @@ test("deprecations.js", async (t) => {
 				};
 			}
 
-			await t.test("with lockfile", async () => {
+			t.test("with lockfile", async () => {
 				const { cp } = setup();
 
 				const fs = createFs({
@@ -171,7 +171,7 @@ test("deprecations.js", async (t) => {
 				assert.equal(cp.spawn.mock.calls[0].arguments[1][0], "clean-install");
 			});
 
-			await t.test("without lockfile", async () => {
+			t.test("without lockfile", async () => {
 				const { cp } = setup();
 
 				const fs = createFs({
@@ -182,21 +182,21 @@ test("deprecations.js", async (t) => {
 				assert.equal(cp.spawn.mock.calls[0].arguments[1][0], "install");
 			});
 
-			await t.test("suppress auditing", async () => {
+			t.test("suppress auditing", async () => {
 				const { cp, fs } = setup();
 
 				await getDeprecatedPackages({ cp, fs, options });
 				assert.ok(cp.spawn.mock.calls[0].arguments[1].includes("--no-audit"));
 			});
 
-			await t.test("suppress funding", async () => {
+			t.test("suppress funding", async () => {
 				const { cp, fs } = setup();
 
 				await getDeprecatedPackages({ cp, fs, options });
 				assert.ok(cp.spawn.mock.calls[0].arguments[1].includes("--no-fund"));
 			});
 
-			await t.test("suppress update notifier", async () => {
+			t.test("suppress update notifier", async () => {
 				const { cp, fs } = setup();
 
 				await getDeprecatedPackages({ cp, fs, options });
@@ -204,7 +204,7 @@ test("deprecations.js", async (t) => {
 			});
 		});
 
-		await t.test("dependency hierarchy", async (t) => {
+		t.test("dependency hierarchy", (t) => {
 			const options = defaultOptions;
 
 			function setup() {
@@ -223,7 +223,7 @@ test("deprecations.js", async (t) => {
 				};
 			}
 
-			await t.test("with lockfile", async () => {
+			t.test("with lockfile", async () => {
 				const { cp, fs } = setup();
 
 				await getDeprecatedPackages({ cp, fs, options });
@@ -231,7 +231,7 @@ test("deprecations.js", async (t) => {
 			});
 		});
 
-		await t.test("options", async (t) => {
+		t.test("options", (t) => {
 			function setup() {
 				return {
 					cp: createCp({
@@ -247,8 +247,8 @@ test("deprecations.js", async (t) => {
 				};
 			}
 
-			await t.test("omitDev", async (t) => {
-				await t.test("true", async () => {
+			t.test("omitDev", (t) => {
+				t.test("true", async () => {
 					const { cp, fs } = setup();
 
 					const options = {
@@ -261,7 +261,7 @@ test("deprecations.js", async (t) => {
 					assert.ok(cp.exec.mock.calls[0].arguments[0].includes("--omit dev"));
 				});
 
-				await t.test("false", async () => {
+				t.test("false", async () => {
 						const { cp, fs } = setup();
 
 						const options = {
@@ -275,8 +275,8 @@ test("deprecations.js", async (t) => {
 					});
 			});
 
-			await t.test("omitOptional", async (t) => {
-				await t.test("true", async () => {
+			t.test("omitOptional", (t) => {
+				t.test("true", async () => {
 					const { cp, fs } = setup();
 
 					const options = {
@@ -289,7 +289,7 @@ test("deprecations.js", async (t) => {
 					assert.ok(cp.exec.mock.calls[0].arguments[0].includes("--omit optional"));
 				});
 
-				await t.test("false", async () => {
+				t.test("false", async () => {
 					const { cp, fs } = setup();
 
 					const options = {
@@ -303,8 +303,8 @@ test("deprecations.js", async (t) => {
 				});
 			});
 
-			await t.test("omitPeer", async (t) => {
-				await t.test("true", async () => {
+			t.test("omitPeer", (t) => {
+				t.test("true", async () => {
 					const { cp, fs } = setup();
 
 					const options = {
@@ -317,7 +317,7 @@ test("deprecations.js", async (t) => {
 					assert.ok(cp.exec.mock.calls[0].arguments[0].includes("--omit peer"));
 				});
 
-				await t.test("false", async () => {
+				t.test("false", async () => {
 					const { cp, fs } = setup();
 
 					const options = {
@@ -332,7 +332,7 @@ test("deprecations.js", async (t) => {
 			});
 		});
 
-		await t.test("no lockfile", async () => {
+		t.test("no lockfile", async () => {
 			const options = defaultOptions;
 
 			const cp = createCp({
@@ -374,7 +374,7 @@ test("deprecations.js", async (t) => {
 			assert.deepEqual(got, want);
 		});
 
-		await t.test("deprecation warnings cannot be obtained", async () => {
+		t.test("deprecation warnings cannot be obtained", async () => {
 			const options = defaultOptions;
 
 			const cp = createCp({
@@ -395,7 +395,7 @@ test("deprecations.js", async (t) => {
 			);
 		});
 
-		await t.test("dependency hierarchy cannot be obtained", async () => {
+		t.test("dependency hierarchy cannot be obtained", async () => {
 			const options = defaultOptions;
 
 			const cp = createCp({
@@ -415,7 +415,7 @@ test("deprecations.js", async (t) => {
 			);
 		});
 
-		await t.test("aliases cannot be obtained", async () => {
+		t.test("aliases cannot be obtained", async () => {
 			const options = defaultOptions;
 
 			const cp = createCp({
@@ -432,10 +432,10 @@ test("deprecations.js", async (t) => {
 		});
 	});
 
-	await t.test("createCp", async (t) => {
-		await t.test("exec", async (t) => {
-			await t.test("command found", async (t) => {
-				await t.test("fully specified", () => {
+	t.test("createCp", (t) => {
+		t.test("exec", (t) => {
+			t.test("command found", (t) => {
+				t.test("fully specified", () => {
 					const cmd = "foobar";
 					const error = true;
 					const stdout = ["Hello", "world!"];
@@ -452,7 +452,7 @@ test("deprecations.js", async (t) => {
 					});
 				});
 
-				await t.test("no error specified", () => {
+				t.test("no error specified", () => {
 					const cmd = "foobar";
 					const stdout = ["foo", "bar"];
 					const stderr = ["Hello", "world!"];
@@ -468,7 +468,7 @@ test("deprecations.js", async (t) => {
 					});
 				});
 
-				await t.test("no stdout specified", () => {
+				t.test("no stdout specified", () => {
 					const cmd = "foo";
 					const error = true;
 					const stderr = ["bar", "baz"];
@@ -484,7 +484,7 @@ test("deprecations.js", async (t) => {
 					});
 				});
 
-				await t.test("no stderr specified", () => {
+				t.test("no stderr specified", () => {
 					const cmd = "foo";
 					const error = true;
 					const stdout = ["baz", "bar"];
@@ -500,7 +500,7 @@ test("deprecations.js", async (t) => {
 					});
 				});
 
-				await t.test("no stdout nor stderr specified", () => {
+				t.test("no stdout nor stderr specified", () => {
 					const cmd = "foobar";
 					const error = true;
 
@@ -516,15 +516,15 @@ test("deprecations.js", async (t) => {
 				});
 			});
 
-			await t.test("command not found", () => {
+			t.test("command not found", () => {
 				const cp = createCp({ foo: {} });
 				assert.ok(!cp.exec("bar"));
 			});
 		});
 
-		await t.test("spawn", async (t) => {
-			await t.test("command found", async (t) => {
-				await t.test("close handler, without error", (_, done) => {
+		t.test("spawn", (t) => {
+			t.test("command found", (t) => {
+				t.test("close handler, without error", (_, done) => {
 					const cmd = "foobar";
 
 					const cp = createCp({
@@ -539,7 +539,7 @@ test("deprecations.js", async (t) => {
 					});
 				});
 
-				await t.test("close handler, with error", (_, done) => {
+				t.test("close handler, with error", (_, done) => {
 					const cmd = "foobar";
 					const error = true;
 
@@ -555,7 +555,7 @@ test("deprecations.js", async (t) => {
 					});
 				});
 
-				await t.test("stdout handler", (_, done) => {
+				t.test("stdout handler", (_, done) => {
 					const cmd = "foobar";
 					const stdout = ["Hello", "world!"];
 
@@ -573,7 +573,7 @@ test("deprecations.js", async (t) => {
 					});
 				});
 
-				await t.test("stderr handler", (_, done) => {
+				t.test("stderr handler", (_, done) => {
 					const cmd = "foobar";
 					const stderr = ["Hello", "world!"];
 
@@ -591,7 +591,7 @@ test("deprecations.js", async (t) => {
 					});
 				});
 
-				await t.test("register unknown process event handler", () => {
+				t.test("register unknown process event handler", () => {
 					const cmd = "foobar";
 
 					const cp = createCp({ [cmd]: {} });
@@ -600,7 +600,7 @@ test("deprecations.js", async (t) => {
 					assert.throws(() => process.on("foobar"));
 				});
 
-				await t.test("register unknown stdout event handler", () => {
+				t.test("register unknown stdout event handler", () => {
 					const cmd = "foobar";
 
 					const cp = createCp({ [cmd]: {} });
@@ -609,7 +609,7 @@ test("deprecations.js", async (t) => {
 					assert.throws(() => process.stdout.on("foobar"));
 				});
 
-				await t.test("register unknown stderr event handler", () => {
+				t.test("register unknown stderr event handler", () => {
 					const cmd = "foobar";
 
 					const cp = createCp({ [cmd]: {} });
@@ -619,30 +619,30 @@ test("deprecations.js", async (t) => {
 				});
 			});
 
-			await t.test("command not found", () => {
+			t.test("command not found", () => {
 				const cp = createCp({ foo: {} });
 				assert.ok(!cp.spawn("bar", ["baz"]));
 			});
 		});
 	});
 
-	await t.test("createFs", async (t) => {
-		await t.test("access", async (t) => {
-			await t.test("file found", async () => {
+	t.test("createFs", (t) => {
+		t.test("access", (t) => {
+			t.test("file found", async () => {
 				const name = "foobar";
 
 				const fs = createFs({ [name]: "Hello world!" });
 				await assert.doesNotReject(() => fs.access(name));
 			});
 
-			await t.test("file not found", async () => {
+			t.test("file not found", async () => {
 				const fs = createFs({});
 				await assert.rejects(() => fs.access("foobar"));
 			});
 		});
 
-		await t.test("readFile", async (t) => {
-			await t.test("file found", async () => {
+		t.test("readFile", (t) => {
+			t.test("file found", async () => {
 				const name = "foo";
 				const content = "bar";
 
@@ -651,7 +651,7 @@ test("deprecations.js", async (t) => {
 				assert.equal(got.toString(), content);
 			});
 
-			await t.test("file not found", async () => {
+			t.test("file not found", async () => {
 				const fs = createFs({});
 				await assert.rejects(() => fs.readFile("foobar"));
 			});
