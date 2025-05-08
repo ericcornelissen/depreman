@@ -19,8 +19,8 @@ import {
 	printAndExit,
 } from "./output.js";
 
-test("output.js", async (t) => {
-	await t.test("printAndExit", async (t) => {
+test("output.js", (t) => {
+	t.test("printAndExit", (t) => {
 		const styler = MockStyler;
 
 		const testCases = {
@@ -297,7 +297,7 @@ foo@2.7.1 ${styler.italic(`("not maintained anymore")`)}:
 
 		for (const [name, testCase] of Object.entries(testCases)) {
 			const { options, results, unused, want } = testCase;
-			await t.test(name, () => {
+			t.test(name, () => {
 				const got = printAndExit(results, unused, options, styler);
 				assert.equal(got.ok, want.ok);
 				assert.equal(got.report, want.report);

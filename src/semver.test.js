@@ -19,8 +19,8 @@ import {
 	satisfies,
 } from "./semver.js";
 
-test("semver.js", async (t) => {
-	await t.test("satisfies", async (t) => {
+test("semver.js", (t) => {
+	t.test("satisfies", (t) => {
 		const goodCases = {
 			...{
 				"no range: exact match": {
@@ -425,7 +425,7 @@ test("semver.js", async (t) => {
 		};
 
 		for (const [name, testCase] of Object.entries(goodCases)) {
-			await t.test(name, () => {
+			t.test(name, () => {
 				const { version, range, want } = testCase;
 
 				const got = satisfies(version, range);
@@ -447,7 +447,7 @@ test("semver.js", async (t) => {
 		};
 
 		for (const [name, testCase] of Object.entries(badCases)) {
-			await t.test(name, () => {
+			t.test(name, () => {
 				const { version, range, want } = testCase;
 
 				const got = satisfies(version, range);

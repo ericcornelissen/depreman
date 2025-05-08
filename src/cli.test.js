@@ -19,11 +19,11 @@ import {
 	parseArgv,
 } from "./cli.js";
 
-test("cli.js", async (t) => {
-	await t.test("parseArgv", async (t) => {
+test("cli.js", (t) => {
+	t.test("parseArgv", (t) => {
 		const base = ["node", "depreman"];
 
-		await t.test("no flags", () => {
+		t.test("no flags", () => {
 			const argv = [...base];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
@@ -35,56 +35,56 @@ test("cli.js", async (t) => {
 			assert.ok(!got.value().reportUnused);
 		});
 
-		await t.test("--help", () => {
+		t.test("--help", () => {
 			const argv = [...base, "--help"];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
 			assert.ok(got.value().help);
 		});
 
-		await t.test("-h", () => {
+		t.test("-h", () => {
 			const argv = [...base, "-h"];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
 			assert.ok(got.value().help);
 		});
 
-		await t.test("--errors-only", () => {
+		t.test("--errors-only", () => {
 			const argv = [...base, "--errors-only"];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
 			assert.ok(!got.value().everything);
 		});
 
-		await t.test("--omit=dev", () => {
+		t.test("--omit=dev", () => {
 			const argv = [...base, "--omit=dev"];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
 			assert.ok(got.value().omitDev);
 		});
 
-		await t.test("--omit=optional", () => {
+		t.test("--omit=optional", () => {
 			const argv = [...base, "--omit=optional"];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
 			assert.ok(got.value().omitOptional);
 		});
 
-		await t.test("--omit=peer", () => {
+		t.test("--omit=peer", () => {
 			const argv = [...base, "--omit=peer"];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
 			assert.ok(got.value().omitPeer);
 		});
 
-		await t.test("--report-unused", () => {
+		t.test("--report-unused", () => {
 			const argv = [...base, "--report-unused"];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
 			assert.ok(got.value().reportUnused);
 		});
 
-		await t.test("a repeated flag that the CLI does know", () => {
+		t.test("a repeated flag that the CLI does know", () => {
 			const arg = "--report-unused";
 			const argv = [...base, arg, arg];
 			const got = parseArgv(argv);
@@ -92,8 +92,8 @@ test("cli.js", async (t) => {
 			assert.equal(got.error(), `spurious flag(s): ${arg}`);
 		});
 
-		await t.test("flags that the CLI does not know", async (t) => {
-			await t.test("one flag", () => {
+		t.test("flags that the CLI does not know", (t) => {
+			t.test("one flag", () => {
 				const arg = "--hello-world";
 				const argv = [...base, arg];
 				const got = parseArgv(argv);
@@ -101,7 +101,7 @@ test("cli.js", async (t) => {
 				assert.equal(got.error(), `spurious flag(s): ${arg}`);
 			});
 
-			await t.test("multiple flags", () => {
+			t.test("multiple flags", () => {
 				const arg1 = "--hello";
 				const arg2 = "--world";
 				const argv = [...base, arg1, arg2];
@@ -111,15 +111,15 @@ test("cli.js", async (t) => {
 			});
 		});
 
-		await t.test("both -h and --help", async (t) => {
-			await t.test("--help first", () => {
+		t.test("both -h and --help", (t) => {
+			t.test("--help first", () => {
 				const argv = [...base, "--help", "-h"];
 				const got = parseArgv(argv);
 				assert.ok(got.isErr());
 				assert.equal(got.error(), "spurious flag(s): -h");
 			});
 
-			await t.test("-h first", () => {
+			t.test("-h first", () => {
 				const argv = [...base, "-h", "--help"];
 				const got = parseArgv(argv);
 				assert.ok(got.isErr());
@@ -127,8 +127,8 @@ test("cli.js", async (t) => {
 			});
 		});
 
-		await t.test("argument the CLI does not expect", async (t) => {
-			await t.test("one argument", () => {
+		t.test("argument the CLI does not expect", (t) => {
+			t.test("one argument", () => {
 				const arg = "foobar";
 				const argv = [...base, arg];
 				const got = parseArgv(argv);
@@ -136,7 +136,7 @@ test("cli.js", async (t) => {
 				assert.equal(got.error(), `spurious argument(s): ${arg}`);
 			});
 
-			await t.test("two argument", () => {
+			t.test("two argument", () => {
 				const arg1 = "foo";
 				const arg2 = "bar";
 				const argv = [...base, arg1, arg2];

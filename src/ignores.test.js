@@ -20,8 +20,8 @@ import {
 	unusedIgnores,
 } from "./ignores.js";
 
-test("ignore.js", async (t) => {
-	await t.test("removeIgnored", async (t) => {
+test("ignore.js", (t) => {
+	t.test("removeIgnored", (t) => {
 		const goodTestCases = {
 			"ignore a direct dependency": {
 				config: {
@@ -971,12 +971,12 @@ test("ignore.js", async (t) => {
 
 		for (const [name, testCase] of Object.entries(goodTestCases)) {
 			const { config, deprecations, want } = testCase;
-			await t.test(name, () => {
+			t.test(name, () => {
 				const got = removeIgnored(config, deprecations);
 				assert.deepEqual(got, want);
 			});
 
-			await t.test(`${name} - mark used directives`, () => {
+			t.test(`${name} - mark used directives`, () => {
 				const kUsed = Symbol.for("#used");
 
 				removeIgnored(config, deprecations);
@@ -1100,7 +1100,7 @@ test("ignore.js", async (t) => {
 
 		for (const [name, testCase] of Object.entries(badTestCases)) {
 			const { config, deprecations, want } = testCase;
-			await t.test(name, () => {
+			t.test(name, () => {
 				assert.throws(
 					() => {
 						removeIgnored(config, deprecations);
@@ -1111,7 +1111,7 @@ test("ignore.js", async (t) => {
 		}
 	});
 
-	await t.test("unusedIgnores", async (t) => {
+	t.test("unusedIgnores", (t) => {
 		const kUsed = Symbol.for("#used");
 
 		const testCases = {
@@ -1175,7 +1175,7 @@ test("ignore.js", async (t) => {
 
 		for (const [name, testCase] of Object.entries(testCases)) {
 			const { config, want } = testCase;
-			await t.test(name, () => {
+			t.test(name, () => {
 				const got = unusedIgnores(config);
 				assert.deepEqual(got, want);
 			});
