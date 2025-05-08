@@ -19,9 +19,9 @@ import * as fc from "fast-check";
 
 import { Err, Ok } from "./result.js";
 
-test("result.js", async (t) => {
-	await t.test("Err", async (t) => {
-		await t.test("error", () => {
+test("result.js", (t) => {
+	t.test("Err", (t) => {
+		t.test("error", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const err = new Err(value);
@@ -33,7 +33,7 @@ test("result.js", async (t) => {
 			);
 		});
 
-		await t.test("isErr", () => {
+		t.test("isErr", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const err = new Err(value);
@@ -45,7 +45,7 @@ test("result.js", async (t) => {
 			);
 		});
 
-		await t.test("isOk", () => {
+		t.test("isOk", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const err = new Err(value);
@@ -57,7 +57,7 @@ test("result.js", async (t) => {
 			);
 		});
 
-		await t.test("value", () => {
+		t.test("value", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const err = new Err(value);
@@ -74,8 +74,8 @@ test("result.js", async (t) => {
 		});
 	});
 
-	await t.test("Ok", async (t) => {
-		await t.test("error", () => {
+	t.test("Ok", (t) => {
+		t.test("error", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const ok = new Ok(value);
@@ -91,7 +91,7 @@ test("result.js", async (t) => {
 			);
 		});
 
-		await t.test("isErr", () => {
+		t.test("isErr", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const ok = new Ok(value);
@@ -103,7 +103,7 @@ test("result.js", async (t) => {
 			);
 		});
 
-		await t.test("isOk", () => {
+		t.test("isOk", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const ok = new Ok(value);
@@ -115,7 +115,7 @@ test("result.js", async (t) => {
 			);
 		});
 
-		await t.test("value", () => {
+		t.test("value", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const ok = new Ok(value);

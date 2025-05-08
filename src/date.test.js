@@ -21,9 +21,9 @@ import {
 	today,
 } from "./date.js";
 
-test("date.js", async (t) => {
-	await t.test("DepremanDate", async (t) => {
-		await t.test("constructor", async (t) => {
+test("date.js", (t) => {
+	t.test("DepremanDate", (t) => {
+		t.test("constructor", (t) => {
 			const goodCases = {
 				"earliest valid date": {
 					year: 2000,
@@ -68,7 +68,7 @@ test("date.js", async (t) => {
 			};
 
 			for (const [name, testCase] of Object.entries(goodCases)) {
-				await t.test(name, () => {
+				t.test(name, () => {
 					assert.doesNotThrow(() => {
 						new DepremanDate(testCase) // eslint-disable-line no-new
 					});
@@ -124,7 +124,7 @@ test("date.js", async (t) => {
 			};
 
 			for (const [name, testCase] of Object.entries(badCases)) {
-				await t.test(name, () => {
+				t.test(name, () => {
 					assert.throws(
 						() => {
 							new DepremanDate(testCase); // eslint-disable-line no-new
@@ -138,7 +138,7 @@ test("date.js", async (t) => {
 			}
 		});
 
-		await t.test("is", async (t) => {
+		t.test("is", (t) => {
 			const trueCases = {
 				"sample, 2025-01-01": {
 					year: 2025,
@@ -153,7 +153,7 @@ test("date.js", async (t) => {
 			};
 
 			for (const [name, testCase] of Object.entries(trueCases)) {
-				await t.test(name, () => {
+				t.test(name, () => {
 					const a = new DepremanDate(testCase);
 					const b = new DepremanDate(testCase);
 					assert.ok(a.is(b));
@@ -248,7 +248,7 @@ test("date.js", async (t) => {
 			};
 
 			for (const [name, testCase] of Object.entries(falseCases)) {
-				await t.test(name, () => {
+				t.test(name, () => {
 					const a = new DepremanDate(testCase.a);
 					const b = new DepremanDate(testCase.b);
 					assert.ok(!a.is(b));
@@ -265,7 +265,7 @@ test("date.js", async (t) => {
 
 			for (const [name, testCase] of Object.entries(badCases)) {
 				const { a, b, want } = testCase;
-				await t.test(name, () => {
+				t.test(name, () => {
 					assert.throws(
 						() => a.is(b),
 						want,
@@ -274,7 +274,7 @@ test("date.js", async (t) => {
 			}
 		});
 
-		await t.test("isBefore", async (t) => {
+		t.test("isBefore", (t) => {
 			const trueCases = {
 				"previous year": {
 					a: {
@@ -315,7 +315,7 @@ test("date.js", async (t) => {
 			};
 
 			for (const [name, testCase] of Object.entries(trueCases)) {
-				await t.test(name, () => {
+				t.test(name, () => {
 					const a = new DepremanDate(testCase.a);
 					const b = new DepremanDate(testCase.b);
 					assert.ok(a.isBefore(b));
@@ -374,7 +374,7 @@ test("date.js", async (t) => {
 			};
 
 			for (const [name, testCase] of Object.entries(falseCases)) {
-				await t.test(name, () => {
+				t.test(name, () => {
 					const a = new DepremanDate(testCase.a);
 					const b = new DepremanDate(testCase.b);
 					assert.ok(!a.isBefore(b));
@@ -391,7 +391,7 @@ test("date.js", async (t) => {
 
 			for (const [name, testCase] of Object.entries(badCases)) {
 				const { a, b, want } = testCase;
-				await t.test(name, () => {
+				t.test(name, () => {
 					assert.throws(
 						() => a.isBefore(b),
 						want,
@@ -401,7 +401,7 @@ test("date.js", async (t) => {
 		});
 	});
 
-	await t.test("parse", async (t) => {
+	t.test("parse", (t) => {
 		const goodTestCases = [
 			{
 				str: "2024-12-31",
@@ -430,7 +430,7 @@ test("date.js", async (t) => {
 		];
 
 		for (const testCase of goodTestCases) {
-			await t.test(`good: ${testCase.str}`, () => {
+			t.test(`good: ${testCase.str}`, () => {
 				const got = parse(testCase.str);
 				assert.ok(got instanceof DepremanDate);
 				assert.equal(got.year, testCase.want.year);
@@ -460,7 +460,7 @@ test("date.js", async (t) => {
 
 		for (const testCase of badTestCases) {
 			const { str, want } = testCase;
-			await t.test(`bad: ${str}`, () => {
+			t.test(`bad: ${str}`, () => {
 				assert.throws(
 					() => parse(str),
 					{
@@ -472,7 +472,7 @@ test("date.js", async (t) => {
 		}
 	});
 
-	await t.test("today", () => {
+	t.test("today", () => {
 		const got = today();
 		const want = new Date();
 
