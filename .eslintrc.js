@@ -238,7 +238,9 @@ export default [
 
 			// eslint-plugin-depend
 			...{
-				"depend/ban-dependencies": "error",
+				"depend/ban-dependencies": ["error", {
+					"allowed": ["eslint-plugin-unicorn"],
+				}],
 			},
 
 			// eslint-plugin-regexp
