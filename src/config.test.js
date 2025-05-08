@@ -20,8 +20,8 @@ import {
 	getConfiguration,
 } from "./config.js";
 
-test("config.js", async (t) => {
-	await t.test("getConfiguration", async (t) => {
+test("config.js", (t) => {
+	t.test("getConfiguration", (t) => {
 		const okCases = {
 			"empty config": {
 				config: {},
@@ -69,7 +69,7 @@ test("config.js", async (t) => {
 		};
 
 		for (const [name, testCase] of Object.entries(okCases)) {
-			await t.test(name, async () => {
+			t.test(name, async () => {
 				const fs = createFs({ "./.ndmrc": JSON.stringify(testCase.config) });
 
 				const got = await getConfiguration(fs);
@@ -154,7 +154,7 @@ test("config.js", async (t) => {
 		};
 
 		for (const [name, testCase] of Object.entries(errCases)) {
-			await t.test(name, async () => {
+			t.test(name, async () => {
 				const fs = createFs({ "./.ndmrc": JSON.stringify(testCase.config) });
 
 				await assert.rejects(
@@ -169,7 +169,7 @@ test("config.js", async (t) => {
 			});
 		}
 
-		await t.test("usage of fs.readFile", async () => {
+		t.test("usage of fs.readFile", async () => {
 			const fs = createFs({ "./.ndmrc": JSON.stringify({}) });
 
 			await getConfiguration(fs);
@@ -180,7 +180,7 @@ test("config.js", async (t) => {
 			assert.match(got.arguments[0], /.ndmrc$/u);
 		});
 
-		await t.test("config not in JSON format", async () => {
+		t.test("config not in JSON format", async () => {
 			const fs = createFs({ "./.ndmrc": "I'm not valid JSON" });
 
 			await assert.rejects(
@@ -197,7 +197,7 @@ test("config.js", async (t) => {
 			);
 		});
 
-		await t.test("file not found", async () => {
+		t.test("file not found", async () => {
 			const fs = createFs({});
 
 			await assert.rejects(
@@ -215,9 +215,9 @@ test("config.js", async (t) => {
 		});
 	});
 
-	await t.test("createFs", async (t) => {
-		await t.test("readFile", async (t) => {
-			await t.test("file found", async () => {
+	t.test("createFs", (t) => {
+		t.test("readFile", (t) => {
+			t.test("file found", async () => {
 				const name = "foo";
 				const content = "bar";
 
@@ -226,7 +226,7 @@ test("config.js", async (t) => {
 				assert.equal(got.toString(), content);
 			});
 
-			await t.test("file not found", async () => {
+			t.test("file not found", async () => {
 				const fs = createFs({});
 				await assert.rejects(() => fs.readFile("foobar"));
 			});

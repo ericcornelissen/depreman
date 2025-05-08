@@ -21,7 +21,7 @@ import {
 	parseArgv,
 } from "./cli.js";
 
-test("cli.js", async (t) => {
+test("cli.js", (t) => {
 	const flags = [
 		"--help", "-h",
 		"--errors-only",
@@ -80,10 +80,10 @@ test("cli.js", async (t) => {
 		},
 	};
 
-	await t.test("parseArgv", async (t) => {
+	t.test("parseArgv", (t) => {
 		const base = ["node", "depreman"];
 
-		await t.test("no flags", () => {
+		t.test("no flags", () => {
 			const argv = [...base];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
@@ -95,7 +95,7 @@ test("cli.js", async (t) => {
 			assert.ok(!got.value().reportUnused);
 		});
 
-		await t.test("--help", () => {
+		t.test("--help", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--help"] }),
@@ -109,7 +109,7 @@ test("cli.js", async (t) => {
 			);
 		});
 
-		await t.test("-h", () => {
+		t.test("-h", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["-h"] }),
@@ -123,7 +123,7 @@ test("cli.js", async (t) => {
 			);
 		});
 
-		await t.test("--errors-only", () => {
+		t.test("--errors-only", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--errors-only"] }),
@@ -137,7 +137,7 @@ test("cli.js", async (t) => {
 			);
 		});
 
-		await t.test("--omit=dev", () => {
+		t.test("--omit=dev", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--omit=dev"] }),
@@ -151,7 +151,7 @@ test("cli.js", async (t) => {
 			);
 		});
 
-		await t.test("--omit=optional", () => {
+		t.test("--omit=optional", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--omit=optional"] }),
@@ -165,7 +165,7 @@ test("cli.js", async (t) => {
 			);
 		});
 
-		await t.test("--omit=peer", () => {
+		t.test("--omit=peer", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--omit=peer"] }),
@@ -179,7 +179,7 @@ test("cli.js", async (t) => {
 			);
 		});
 
-		await t.test("--report-unused", () => {
+		t.test("--report-unused", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--report-unused"] }),
@@ -193,7 +193,7 @@ test("cli.js", async (t) => {
 			);
 		});
 
-		await t.test("a repeated flag that the CLI does know", () => {
+		t.test("a repeated flag that the CLI does know", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flag()
@@ -211,7 +211,7 @@ test("cli.js", async (t) => {
 			);
 		});
 
-		await t.test("both -h and --help", () => {
+		t.test("both -h and --help", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--help", "-h"] }),
@@ -225,7 +225,7 @@ test("cli.js", async (t) => {
 			);
 		});
 
-		await t.test("flags that the CLI does not know", () => {
+		t.test("flags that the CLI does not know", () => {
 			fc.assert(
 				fc.property(
 					fc.array(fc.string(), { minLength: 1 })
@@ -244,7 +244,7 @@ test("cli.js", async (t) => {
 			);
 		});
 
-		await t.test("arguments that the CLI does not expect", () => {
+		t.test("arguments that the CLI does not expect", () => {
 			fc.assert(
 				fc.property(
 					fc.array(fc.string(), { minLength: 1 })
