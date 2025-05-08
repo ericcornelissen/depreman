@@ -16,7 +16,7 @@ import * as cp from "node:child_process";
 import * as fs from "node:fs/promises";
 import { stdout, stderr } from "node:process";
 
-import chalk from "chalk";
+import chalk from "chalk"; // eslint-disable-line depend/ban-dependencies
 
 import { getConfiguration } from "./config.js";
 import { getDeprecatedPackages } from "./deprecations.js";
