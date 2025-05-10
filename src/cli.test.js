@@ -15,11 +15,48 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
+import * as fc from "fast-check";
+
 import {
 	parseArgv,
 } from "./cli.js";
 
 test("cli.js", async (t) => {
+	const flags = [
+		"--help", "-h",
+		"--errors-only",
+		"--omit=dev",
+		"--omit=optional",
+		"--omit=peer",
+		"--report-unused",
+	];
+
+	const arbitrary = {
+		flag: (options) => {
+			const values = options?.exclude
+				? flags.filter(v => options.exclude !== v)
+				: flags;
+
+			return fc.constantFrom(...values);
+		},
+		flags: (options) => {
+			let arb = fc.uniqueArray(arbitrary.flag());
+			if (options.include) {
+				const max = flags.length -2 ;
+				const range = fc.tuple(fc.nat(max), fc.nat(max)).map(([a, b]) => a < b ? [a, b] : [b, a]);
+				arb = range.chain(([index, length]) =>
+					fc.uniqueArray(
+						arbitrary.flag({ exclude: options.include }),
+						{ minLength: length, maxLength: length },
+					)
+					.map(a => a.toSpliced(index, 0, options.include))
+				);
+			}
+
+			return arb.filter(a => !(a.includes("-h") && a.includes("--help")));
+		},
+	};
+
 	await t.test("parseArgv", async (t) => {
 		const base = ["node", "depreman"];
 
@@ -36,52 +73,101 @@ test("cli.js", async (t) => {
 		});
 
 		await t.test("--help", () => {
-			const argv = [...base, "--help"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().help);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: "--help" }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().help);
+					},
+				),
+			);
 		});
 
 		await t.test("-h", () => {
-			const argv = [...base, "-h"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().help);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: "-h" }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().help);
+					},
+				),
+			);
 		});
 
 		await t.test("--errors-only", () => {
-			const argv = [...base, "--errors-only"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(!got.value().everything);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: "--errors-only" }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(!got.value().everything);
+					},
+				),
+			);
 		});
 
 		await t.test("--omit=dev", () => {
-			const argv = [...base, "--omit=dev"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().omitDev);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: "--omit=dev" }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().omitDev);
+					},
+				),
+			);
 		});
 
 		await t.test("--omit=optional", () => {
-			const argv = [...base, "--omit=optional"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().omitOptional);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: "--omit=optional" }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().omitOptional);
+					},
+				),
+			);
 		});
 
 		await t.test("--omit=peer", () => {
-			const argv = [...base, "--omit=peer"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().omitPeer);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: "--omit=peer" }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().omitPeer);
+					},
+				),
+			);
 		});
 
 		await t.test("--report-unused", () => {
-			const argv = [...base, "--report-unused"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().reportUnused);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: "--report-unused" }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().reportUnused);
+					},
+				),
+			);
 		});
 
 		await t.test("a repeated flag that the CLI does know", () => {
