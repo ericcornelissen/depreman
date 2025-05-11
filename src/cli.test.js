@@ -15,11 +15,71 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
+import * as fc from "fast-check";
+
 import {
 	parseArgv,
 } from "./cli.js";
 
 test("cli.js", async (t) => {
+	const flags = [
+		"--help", "-h",
+		"--errors-only",
+		"--omit=dev",
+		"--omit=optional",
+		"--omit=peer",
+		"--report-unused",
+	];
+
+	const arbitrary = {
+		/**
+		 * @param {object} [options]
+		 * @param {string[]} [options.exclude]
+		 */
+		flag: (options) => {
+			const values = options?.exclude
+				? flags.filter(v => !options.exclude.includes(v))
+				: flags;
+
+			return fc.constantFrom(...values);
+		},
+
+		/**
+		 * @param {object} options
+		 * @param {string[]} options.include
+		 */
+		flags: (options) => {
+			const n = options.include.length + 1;
+			const m = options.include.filter(v => flags.includes(v)).length;
+
+			return fc.array(
+				fc.nat({ max: flags.length - m }),
+				{ minLength: n, maxLength: n },
+			).map((numbers) => {
+				numbers.sort();
+				numbers.reverse();
+				return numbers;
+			}).chain(([length, ...indices]) =>
+				fc.uniqueArray(
+					arbitrary.flag({ exclude: options.include }),
+					{ minLength: length, maxLength: length },
+				).map(args => {
+					for (const i in indices) {
+						const index = indices[i];
+						const flag = options.include[i];
+						args.splice(index, 0, flag);
+					}
+
+					return args;
+				})
+			).filter((args) =>
+				(options.include.includes("-h") && options.include.includes("--help"))
+				||
+				!(args.includes("-h") && args.includes("--help"))
+			);
+		},
+	};
+
 	await t.test("parseArgv", async (t) => {
 		const base = ["node", "depreman"];
 
@@ -36,114 +96,170 @@ test("cli.js", async (t) => {
 		});
 
 		await t.test("--help", () => {
-			const argv = [...base, "--help"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().help);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: ["--help"] }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().help);
+					},
+				),
+			);
 		});
 
 		await t.test("-h", () => {
-			const argv = [...base, "-h"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().help);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: ["-h"] }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().help);
+					},
+				),
+			);
 		});
 
 		await t.test("--errors-only", () => {
-			const argv = [...base, "--errors-only"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(!got.value().everything);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: ["--errors-only"] }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(!got.value().everything);
+					},
+				),
+			);
 		});
 
 		await t.test("--omit=dev", () => {
-			const argv = [...base, "--omit=dev"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().omitDev);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: ["--omit=dev"] }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().omitDev);
+					},
+				),
+			);
 		});
 
 		await t.test("--omit=optional", () => {
-			const argv = [...base, "--omit=optional"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().omitOptional);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: ["--omit=optional"] }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().omitOptional);
+					},
+				),
+			);
 		});
 
 		await t.test("--omit=peer", () => {
-			const argv = [...base, "--omit=peer"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().omitPeer);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: ["--omit=peer"] }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().omitPeer);
+					},
+				),
+			);
 		});
 
 		await t.test("--report-unused", () => {
-			const argv = [...base, "--report-unused"];
-			const got = parseArgv(argv);
-			assert.ok(got.isOk());
-			assert.ok(got.value().reportUnused);
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: ["--report-unused"] }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().reportUnused);
+					},
+				),
+			);
 		});
 
 		await t.test("a repeated flag that the CLI does know", () => {
-			const arg = "--report-unused";
-			const argv = [...base, arg, arg];
-			const got = parseArgv(argv);
-			assert.ok(got.isErr());
-			assert.equal(got.error(), `spurious flag(s): ${arg}`);
+			fc.assert(
+				fc.property(
+					arbitrary.flag()
+						.chain((flag) => fc.tuple(
+							fc.constant(flag),
+							arbitrary.flags({ include: [flag, flag] }),
+						)),
+					([flag, args]) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isErr());
+						assert.equal(got.error(), `spurious flag(s): ${flag}`);
+					},
+				),
+			);
 		});
 
-		await t.test("flags that the CLI does not know", async (t) => {
-			await t.test("one flag", () => {
-				const arg = "--hello-world";
-				const argv = [...base, arg];
-				const got = parseArgv(argv);
-				assert.ok(got.isErr());
-				assert.equal(got.error(), `spurious flag(s): ${arg}`);
-			});
-
-			await t.test("multiple flags", () => {
-				const arg1 = "--hello";
-				const arg2 = "--world";
-				const argv = [...base, arg1, arg2];
-				const got = parseArgv(argv);
-				assert.ok(got.isErr());
-				assert.equal(got.error(), `spurious flag(s): ${arg1}, ${arg2}`);
-			});
+		await t.test("both -h and --help", () => {
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: ["--help", "-h"] }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isErr());
+						assert.equal(got.error(), "spurious flag(s): -h");
+					},
+				),
+			);
 		});
 
-		await t.test("both -h and --help", async (t) => {
-			await t.test("--help first", () => {
-				const argv = [...base, "--help", "-h"];
-				const got = parseArgv(argv);
-				assert.ok(got.isErr());
-				assert.equal(got.error(), "spurious flag(s): -h");
-			});
+		await t.test("flags that the CLI does not know", () => {
+			fc.assert(
+				fc.property(
+					fc.array(fc.string(), { minLength: 1 })
+						.map(arr => arr.map(str => `--${str}`))
+						.filter(arr => arr.every(str => !flags.includes(str)))
+						.chain(args => arbitrary.flags({ include: args })),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isErr());
 
-			await t.test("-h first", () => {
-				const argv = [...base, "-h", "--help"];
-				const got = parseArgv(argv);
-				assert.ok(got.isErr());
-				assert.equal(got.error(), "spurious flag(s): -h");
-			});
+						const spurious = args.filter(arg => !flags.includes(arg));
+						assert.equal(got.error(), `spurious flag(s): ${spurious.join(", ")}`);
+					},
+				),
+			);
 		});
 
-		await t.test("argument the CLI does not expect", async (t) => {
-			await t.test("one argument", () => {
-				const arg = "foobar";
-				const argv = [...base, arg];
-				const got = parseArgv(argv);
-				assert.ok(got.isErr());
-				assert.equal(got.error(), `spurious argument(s): ${arg}`);
-			});
+		await t.test("arguments that the CLI does not expect", () => {
+			fc.assert(
+				fc.property(
+					fc.array(fc.string(), { minLength: 1 })
+						.filter(arr => arr.every(str => !str.startsWith("-")))
+						.chain(args => arbitrary.flags({ include: args })),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isErr());
 
-			await t.test("two argument", () => {
-				const arg1 = "foo";
-				const arg2 = "bar";
-				const argv = [...base, arg1, arg2];
-				const got = parseArgv(argv);
-				assert.ok(got.isErr());
-				assert.equal(got.error(), `spurious argument(s): ${arg1}, ${arg2}`);
-			});
+						const spurious = args.filter(arg => !flags.includes(arg));
+						assert.equal(got.error(), `spurious argument(s): ${spurious.join(", ")}`);
+					},
+				),
+			);
 		});
 	});
 });

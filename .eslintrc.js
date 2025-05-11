@@ -617,6 +617,7 @@ export default [
 		name: "Tests",
 		files: ["**/*.test.js"],
 		rules: {
+			"guard-for-in": "off",
 			"max-lines-per-function": "off",
 			"max-lines": "off",
 			"no-await-in-loop": "off",
