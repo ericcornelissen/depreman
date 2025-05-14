@@ -57,7 +57,7 @@
     "@eslint/json": "0.10.0",
     "@eslint/markdown": "6.4.0",
     "@stryker-mutator/core": "8.7.1",
-    "@stryker-mutator/tap-runner": "8.7.1",
+    "@stryker-mutator/tap-runner": "9.0.0",
     "better-npm-audit": "3.11.0",
     "eslint": "9.26.0",
     "eslint-plugin-depend": "1.1.0",
