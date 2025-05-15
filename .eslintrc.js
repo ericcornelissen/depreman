@@ -142,7 +142,7 @@ export default [
 				"no-object-constructor": "error",
 				"no-octal-escape": "error",
 				"no-octal": "error",
-				"no-param-reassign": "error",
+				"no-param-reassign": "off",
 				"no-plusplus": "error",
 				"no-promise-executor-return": "error",
 				"no-proto": "error",
