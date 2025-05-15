@@ -45,6 +45,7 @@
     "mutation": "stryker run .stryker.js",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "node --test 'src/*.test.js'",
+    "test:watch": "node --test --watch 'src/*.test.js'",
     "test:e2e": "node --test 'test/e2e.test.js'",
     "verify": "npm run check && npm run coverage"
   },

@@ -49,30 +49,27 @@ test("cli.js", (t) => {
 		 * @param {string[]} options.include
 		 */
 		flags: (options) => {
-			const n = options.include.length + 1;
-			const m = options.include.filter(v => flags.includes(v)).length;
-
-			return fc.array(
-				fc.nat({ max: flags.length - m }),
-				{ minLength: n, maxLength: n },
-			).map((numbers) => {
-				numbers.sort();
-				numbers.reverse();
-				return numbers;
-			}).chain(([length, ...indices]) =>
-				fc.uniqueArray(
+			const max = flags.length - options.include.filter(v => flags.includes(v)).length;
+			return fc.record({
+				args: fc.uniqueArray(
 					arbitrary.flag({ exclude: options.include }),
-					{ minLength: length, maxLength: length },
-				).map(args => {
-					for (const i in indices) {
-						const index = indices[i];
-						const flag = options.include[i];
-						args.splice(index, 0, flag);
-					}
+					{ minLength: 0, maxLength: max },
+				),
+				indices: fc.tuple(
+					...options.include.map(() => fc.nat({ max })),
+				),
+			}).map(({ args, indices }) => {
+				indices.sort();
+				indices.reverse();
 
-					return args;
-				})
-			).filter((args) =>
+				for (const i in indices) {
+					const index = indices[i] % (args.length + 1);
+					const flag = options.include[i];
+					args = args.toSpliced(index, 0, flag);
+				}
+
+				return args;
+			}).filter((args) =>
 				(options.include.includes("-h") && options.include.includes("--help"))
 				||
 				!(args.includes("-h") && args.includes("--help"))
