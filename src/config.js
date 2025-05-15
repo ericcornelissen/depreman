@@ -16,14 +16,14 @@ import { None, Some } from "./option.js";
 import { Err, Ok } from "./result.js";
 
 /**
- * @param {FileSystem} fs
+ * @param {ReadFS} fs
  * @returns {Promise<Config>}
  * @throws {Error}
  */
 export async function getConfiguration(fs) {
-	const rawConfig = await readConfigFile({ fs, file: "./.ndmrc" });
+	const rawConfig = await fs.readFile("./.ndmrc");
 	if (rawConfig.isErr()) {
-		throw new Error(rawConfig.error());
+		throw new Error(`could not get .ndmrc: ${rawConfig.error()}`);
 	}
 
 	const config = parseRawConfig(rawConfig.value());
@@ -37,21 +37,6 @@ export async function getConfiguration(fs) {
 	}
 
 	return config.value();
-}
-
-/**
- * @param {Object} p
- * @param {string} p.file
- * @param {FileSystem} p.fs
- * @returns {Promise<Result<string, string>>}
- */
-async function readConfigFile({ file, fs }) {
-	try {
-		const content = await fs.readFile(file);
-		return new Ok(content);
-	} catch {
-		return new Err("Configuration file .ndmrc not found");
-	}
 }
 
 /**
@@ -154,12 +139,7 @@ function isDirective(key) {
  * }} Config
  */
 
-/**
- * @typedef FileSystem
- * @property {ReadFile} readFile
- */
-
-/** @typedef {function(string): Promise<string>} ReadFile */
+/** @typedef {import("./fs.js").ReadFS} ReadFS */
 
 /**
  * @template T
