@@ -13,13 +13,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as cp from "node:child_process";
-import * as fs from "node:fs/promises";
+import * as nodeFs from "node:fs/promises";
 import { stdout, stderr } from "node:process";
 
 import chalk from "chalk"; // eslint-disable-line depend/ban-dependencies
 
 import { getConfiguration } from "./config.js";
 import { getDeprecatedPackages } from "./deprecations.js";
+import { FS } from "./fs.js";
 import { removeIgnored, unusedIgnores } from "./ignores.js";
 import { printAndExit } from "./output.js";
 import { parseArgv } from "./cli.js";
@@ -52,6 +53,8 @@ to ignore npm deprecation warnings for your dependencies.
  */
 async function depreman(options) {
 	try {
+		const fs = new FS(nodeFs);
+
 		const [config, deprecations] = await Promise.all([
 			getConfiguration(fs),
 			getDeprecatedPackages({ cp, fs, options }),

@@ -14,7 +14,7 @@
 
 /**
  * @param {Object} p
- * @param {FileSystem} p.fs
+ * @param {ReadFS} p.fs
  * @param {ChildProcess} p.cp
  * @param {Options} p.options
  * @returns {Promise<DeprecatedPackage[]>}
@@ -36,7 +36,7 @@ export async function getDeprecatedPackages({ cp, fs, options }) {
 /**
  * @param {Object} p
  * @param {ChildProcess} p.cp
- * @param {FileSystem} p.fs
+ * @param {ReadFS} p.fs
  * @param {Options} p.options
  * @returns {Promise<DeprecatedPackage[]>}
  */
@@ -124,12 +124,16 @@ function obtainHierarchy({ cp, options }) {
  * `"foo": "npm:bar@3.1.4"` will result in a mapping from `foo` to `bar@3.1.4`.
  *
  * @param {Object} p
- * @param {FileSystem} fs
+ * @param {ReadFS} p.fs
  * @returns {Promise<Aliases>}
  */
 async function obtainAliases({ fs }) {
 	const rawManifest = await fs.readFile("./package.json");
-	const manifest = JSON.parse(rawManifest);
+	if (rawManifest.isErr()) {
+		throw new Error(rawManifest.error());
+	}
+
+	const manifest = JSON.parse(rawManifest.value());
 
 	const aliases = new Map();
 	for (const deps of [
@@ -207,16 +211,11 @@ function parseDeprecationWarning(line) {
 }
 
 /**
- * @param {FileSystem} fs
+ * @param {ReadFS} fs
  * @returns {Promise<boolean>}
  */
 async function hasLockfile(fs) {
-	try {
-		await fs.access("./package-lock.json");
-		return true;
-	} catch {
-		return false;
-	}
+	return await fs.access("./package-lock.json");
 }
 
 /**
@@ -270,15 +269,8 @@ function unique(a, index, array) {
  * @property {Spawn} spawn
  */
 
-/**
- * @typedef FileSystem
- * @property {Access} access
- * @property {ReadFile} readFile
- */
-
-/** @typedef {function(string): Promise<string>} ReadFile */
-/** @typedef {function(string): Promise<boolean>} Access */
-
 /** @typedef {Map<string, Package>} Aliases */
 /** @typedef {Package[]} PackagePath */
 /** @typedef {function(string, string[], Object): Object} Spawn */
+
+/** @typedef {import("./fs.js").ReadFS} ReadFS */

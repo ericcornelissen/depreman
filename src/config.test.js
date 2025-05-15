@@ -13,8 +13,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as assert from "node:assert/strict";
-import { Buffer } from "node:buffer";
-import { mock, test } from "node:test";
+import { test } from "node:test";
+
+import { FS } from "./fs.mock.js";
 
 import {
 	getConfiguration,
@@ -70,7 +71,9 @@ test("config.js", (t) => {
 
 		for (const [name, testCase] of Object.entries(okCases)) {
 			t.test(name, async () => {
-				const fs = createFs({ "./.ndmrc": JSON.stringify(testCase.config) });
+				const fs = new FS({
+					"./.ndmrc": JSON.stringify(testCase.config),
+				});
 
 				const got = await getConfiguration(fs);
 				const want = testCase.config;
@@ -155,7 +158,9 @@ test("config.js", (t) => {
 
 		for (const [name, testCase] of Object.entries(errCases)) {
 			t.test(name, async () => {
-				const fs = createFs({ "./.ndmrc": JSON.stringify(testCase.config) });
+				const fs = new FS({
+					"./.ndmrc": JSON.stringify(testCase.config),
+				});
 
 				await assert.rejects(
 					async () => await getConfiguration(fs),
@@ -170,7 +175,9 @@ test("config.js", (t) => {
 		}
 
 		t.test("usage of fs.readFile", async () => {
-			const fs = createFs({ "./.ndmrc": JSON.stringify({}) });
+			const fs = new FS({
+				"./.ndmrc": JSON.stringify({}),
+			});
 
 			await getConfiguration(fs);
 			assert.equal(fs.readFile.mock.callCount(), 1);
@@ -181,7 +188,9 @@ test("config.js", (t) => {
 		});
 
 		t.test("config not in JSON format", async () => {
-			const fs = createFs({ "./.ndmrc": "I'm not valid JSON" });
+			const fs = new FS({
+				"./.ndmrc": "I'm not valid JSON",
+			});
 
 			await assert.rejects(
 				() => getConfiguration(fs),
@@ -198,7 +207,7 @@ test("config.js", (t) => {
 		});
 
 		t.test("file not found", async () => {
-			const fs = createFs({});
+			const fs = new FS({});
 
 			await assert.rejects(
 				() => getConfiguration(fs),
@@ -206,7 +215,7 @@ test("config.js", (t) => {
 					assert.ok(error instanceof Error);
 					assert.equal(
 						error.message,
-						"Configuration file .ndmrc not found",
+						"could not get .ndmrc: file not found",
 					);
 
 					return true;
@@ -214,43 +223,4 @@ test("config.js", (t) => {
 			);
 		});
 	});
-
-	t.test("createFs", (t) => {
-		t.test("readFile", (t) => {
-			t.test("file found", async () => {
-				const name = "foo";
-				const content = "bar";
-
-				const fs = createFs({ [name]: content });
-				const got = await fs.readFile(name);
-				assert.equal(got.toString(), content);
-			});
-
-			t.test("file not found", async () => {
-				const fs = createFs({});
-				await assert.rejects(() => fs.readFile("foobar"));
-			});
-		});
-	});
 });
-
-/**
- * @param {Object<string, string>} files
- * @returns {FileSystem}
- */
-function createFs(files) {
-	return {
-		readFile: mock.fn((path) => {
-			if (!Object.hasOwn(files, path)) {
-				const error = new Error("file not found");
-				return Promise.reject(error);
-			}
-
-			const content = files[path];
-			const bytes = Buffer.from(content);
-			return Promise.resolve(bytes);
-		}),
-	};
-}
-
-/** @typedef {import("./config.js").FileSystem} FileSystem */

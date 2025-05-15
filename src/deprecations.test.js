@@ -17,6 +17,8 @@ import { Buffer } from "node:buffer";
 import { mock, test } from "node:test";
 import { clearTimeout, setInterval } from "node:timers";
 
+import { FS } from "./fs.mock.js";
+
 import {
 	getDeprecatedPackages,
 } from "./deprecations.js";
@@ -130,7 +132,7 @@ test("deprecations.js", (t) => {
 						],
 					},
 				});
-				const fs = createFs({
+				const fs = new FS({
 					"./package.json": JSON.stringify(testCase.manifest || {}),
 					"./package-lock.json": "{}",
 				});
@@ -152,7 +154,7 @@ test("deprecations.js", (t) => {
 							stdout: ["{}"],
 						},
 					}),
-					fs: createFs({
+					fs: new FS({
 						"./package.json": "{}",
 						"./package-lock.json": "{}",
 					}),
@@ -162,7 +164,7 @@ test("deprecations.js", (t) => {
 			t.test("with lockfile", async () => {
 				const { cp } = setup();
 
-				const fs = createFs({
+				const fs = new FS({
 					"./package.json": "{}",
 					"./package-lock.json": "{}",
 				});
@@ -174,7 +176,7 @@ test("deprecations.js", (t) => {
 			t.test("without lockfile", async () => {
 				const { cp } = setup();
 
-				const fs = createFs({
+				const fs = new FS({
 					"./package.json": "{}",
 				});
 
@@ -216,7 +218,7 @@ test("deprecations.js", (t) => {
 							stdout: ["{}"],
 						},
 					}),
-					fs: createFs({
+					fs: new FS({
 						"./package.json": "{}",
 						"./package-lock.json": "{}",
 					}),
@@ -240,7 +242,7 @@ test("deprecations.js", (t) => {
 							stdout: ["{}"],
 						},
 					}),
-					fs: createFs({
+					fs: new FS({
 						"./package.json": "{}",
 						"./package-lock.json": "{}",
 					}),
@@ -332,6 +334,20 @@ test("deprecations.js", (t) => {
 			});
 		});
 
+		t.test("no manifest", async () => {
+			const options = defaultOptions;
+
+			const cp = createCp({
+				"npm install": {},
+				"npm list --all --json": {},
+			});
+			const fs = new FS({});
+
+			await assert.rejects(
+				async () => await getDeprecatedPackages({ cp, fs, options }),
+			);
+		});
+
 		t.test("no lockfile", async () => {
 			const options = defaultOptions;
 
@@ -353,7 +369,7 @@ test("deprecations.js", (t) => {
 					],
 				},
 			});
-			const fs = createFs({
+			const fs = new FS({
 				"./package.json": "{}",
 			});
 
@@ -385,7 +401,7 @@ test("deprecations.js", (t) => {
 					stdout: ["{}"],
 				},
 			});
-			const fs = createFs({
+			const fs = new FS({
 				"./package.json": "{}",
 				"./package-lock.json": "{}",
 			});
@@ -405,7 +421,7 @@ test("deprecations.js", (t) => {
 					stdout: ["{}"],
 				},
 			});
-			const fs = createFs({
+			const fs = new FS({
 				"./package.json": "{}",
 				"./package-lock.json": "{}",
 			});
@@ -424,7 +440,7 @@ test("deprecations.js", (t) => {
 					stdout: ["{}"],
 				},
 			});
-			const fs = createFs({});
+			const fs = new FS({});
 
 			await assert.rejects(
 				() => getDeprecatedPackages({ cp, fs, options }),
@@ -625,38 +641,6 @@ test("deprecations.js", (t) => {
 			});
 		});
 	});
-
-	t.test("createFs", (t) => {
-		t.test("access", (t) => {
-			t.test("file found", async () => {
-				const name = "foobar";
-
-				const fs = createFs({ [name]: "Hello world!" });
-				await assert.doesNotReject(() => fs.access(name));
-			});
-
-			t.test("file not found", async () => {
-				const fs = createFs({});
-				await assert.rejects(() => fs.access("foobar"));
-			});
-		});
-
-		t.test("readFile", (t) => {
-			t.test("file found", async () => {
-				const name = "foo";
-				const content = "bar";
-
-				const fs = createFs({ [name]: content });
-				const got = await fs.readFile(name);
-				assert.equal(got.toString(), content);
-			});
-
-			t.test("file not found", async () => {
-				const fs = createFs({});
-				await assert.rejects(() => fs.readFile("foobar"));
-			});
-		});
-	});
 });
 
 /**
@@ -747,35 +731,7 @@ function createCp(commands) {
 	};
 }
 
-/**
- * @param {Object<string, string>} files
- * @returns {FileSystem}
- */
-function createFs(files) {
-	return {
-		access: mock.fn((path) => {
-			if (!Object.hasOwn(files, path)) {
-				const error = new Error("file not found");
-				return Promise.reject(error);
-			}
-
-			return Promise.resolve();
-		}),
-		readFile: mock.fn((path) => {
-			if (!Object.hasOwn(files, path)) {
-				const error = new Error("file not found");
-				return Promise.reject(error);
-			}
-
-			const content = files[path];
-			const bytes = Buffer.from(content);
-			return Promise.resolve(bytes);
-		}),
-	};
-}
-
 /** @typedef {import("./deprecations.js").ChildProcess} ChildProcess */
-/** @typedef {import("./deprecations.js").FileSystem} FileSystem */
 
 /**
  * @typedef MockCommand
