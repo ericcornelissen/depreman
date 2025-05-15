@@ -14,7 +14,6 @@ export default {
 	testRunner: "tap",
 	tap: {
 		testFiles: ["src/*.test.js"],
-		nodeArgs: ["-r", "{{hookFile}}", "--test-reporter", "tap", "{{testFile}}"],
 		forceBail: true,
 	},
 
