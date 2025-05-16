@@ -25,6 +25,7 @@ test("cli.js", (t) => {
 	const flags = [
 		"--help", "-h",
 		"--errors-only",
+		"--offline",
 		"--omit=dev",
 		"--omit=optional",
 		"--omit=peer",
@@ -89,6 +90,7 @@ test("cli.js", (t) => {
 			assert.ok(got.isOk());
 			assert.ok(!got.value().help);
 			assert.ok(got.value().everything);
+			assert.ok(!got.value().offline);
 			assert.ok(!got.value().omitDev);
 			assert.ok(!got.value().omitOptional);
 			assert.ok(!got.value().omitPeer);
@@ -132,6 +134,20 @@ test("cli.js", (t) => {
 						const got = parseArgv(argv);
 						assert.ok(got.isOk());
 						assert.ok(!got.value().everything);
+					},
+				),
+			);
+		});
+
+		t.test("--offline", () => {
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: ["--offline"] }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().offline);
 					},
 				),
 			);

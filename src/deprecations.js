@@ -41,6 +41,19 @@ export async function getDeprecatedPackages({ cp, fs, options }) {
  * @returns {Promise<DeprecatedPackage[]>}
  */
 async function obtainDeprecation({ cp, fs, options }) {
+	return options.offline
+		? await obtainDeprecationFromLockfile({ fs, options })
+		: await obtainDeprecationFromCli({ cp, fs, options });
+}
+
+/**
+ * @param {Object} p
+ * @param {ChildProcess} p.cp
+ * @param {FileSystem} p.fs
+ * @param {Options} p.options
+ * @returns {Promise<DeprecatedPackage[]>}
+ */
+async function obtainDeprecationFromCli({ cp, fs, options }) {
 	const cleanInstall = await hasLockfile(fs);
 	return new Promise((resolve, reject) => {
 		const args = [
@@ -81,6 +94,48 @@ async function obtainDeprecation({ cp, fs, options }) {
 			}
 		});
 	});
+}
+
+const minimumLockfileVersion = 3;
+
+/**
+ * @param {Object} p
+ * @param {FileSystem} p.fs
+ * @param {Options} p.options
+ * @returns {Promise<DeprecatedPackage[]>}
+ */
+async function obtainDeprecationFromLockfile({ fs, options }) {
+	const rawLockfile = await fs.readFile("./package-lock.json");
+	const lockfile = JSON.parse(rawLockfile);
+
+	if (lockfile.lockfileVersion < minimumLockfileVersion) {
+		throw new Error("lockfile must be version 3");
+	}
+
+	const result = [];
+	for (const [id, pkg] of Object.entries(lockfile.packages)) {
+		if (!pkg.deprecated) {
+			continue;
+		}
+
+		if (
+			(options.omitDev && pkg.dev)
+			||
+			(options.omitOptional && pkg.optional)
+			||
+			(options.omitPeer && pkg.peer)
+		) {
+			continue;
+		}
+
+		result.push({
+			name: id.split("node_modules/").pop(),
+			version: pkg.version,
+			reason: pkg.deprecated,
+		});
+	}
+
+	return result;
 }
 
 /**
@@ -231,6 +286,7 @@ function unique(a, index, array) {
 
 /**
  * @typedef Options
+ * @property {boolean} offline
  * @property {boolean} omitDev
  * @property {boolean} omitOptional
  * @property {boolean} omitPeer

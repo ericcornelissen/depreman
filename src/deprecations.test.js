@@ -24,12 +24,13 @@ import {
 test("deprecations.js", (t) => {
 	t.test("getDeprecatedPackages", (t) => {
 		const defaultOptions = {
+			offline: false,
 			omitDev: false,
 			omitOptional: false,
 			omitPeer: false,
 		};
 
-		const testCases = {
+		const onlineTestCases = {
 			"basic sample": {
 				hierarchy: {
 					dependencies: {
@@ -44,7 +45,6 @@ test("deprecations.js", (t) => {
 				installLog: [
 					"npm warn deprecated foobar@3.1.4: This package is no longer supported.",
 				],
-				options: defaultOptions,
 				want: [
 					{
 						name: "foobar",
@@ -74,7 +74,6 @@ test("deprecations.js", (t) => {
 						"foo": "npm:bar@3.1.4",
 					},
 				},
-				options: defaultOptions,
 				want: [
 					{
 						name: "bar",
@@ -100,7 +99,6 @@ test("deprecations.js", (t) => {
 					"npm warn ",
 					"deprecated foobar@3.1.4: This package is no longer supported.",
 				],
-				options: defaultOptions,
 				want: [
 					{
 						name: "foobar",
@@ -116,27 +114,257 @@ test("deprecations.js", (t) => {
 			},
 		};
 
-		for (const [name, testCase] of Object.entries(testCases)) {
+		for (const [name, testCase] of Object.entries(onlineTestCases)) {
 			t.test(name, async () => {
-				const { options, want } = testCase;
-
 				const cp = createCp({
 					"npm clean-install": {
 						stderr: testCase.installLog,
 					},
 					"npm list --all --json": {
-						stdout: [
-							JSON.stringify(testCase.hierarchy),
-						],
+						stdout: [JSON.stringify(testCase.hierarchy)],
 					},
 				});
 				const fs = createFs({
 					"./package.json": JSON.stringify(testCase.manifest || {}),
 					"./package-lock.json": "{}",
 				});
+				const options = {
+					...defaultOptions,
+					...testCase.options,
+					offline: false,
+				};
 
 				const got = await getDeprecatedPackages({ cp, fs, options });
-				assert.deepEqual(got, want);
+				assert.deepEqual(got, testCase.want);
+			});
+		}
+
+		const offlineTestCases = {
+			"basic sample": {
+				lockfile: {
+					lockfileVersion: 3,
+					packages: {
+						"node_modules/foobar": {
+							deprecated: "This package is no longer supported.",
+							version: "3.1.4",
+						},
+						"node_modules/deadend": {
+							version: "2.7.1",
+						},
+					},
+				},
+				hierarchy: {
+					dependencies: {
+						foobar: {
+							version: "3.1.4",
+						},
+						deadend: {
+							version: "2.7.1",
+						},
+					},
+				},
+				want: [
+					{
+						name: "foobar",
+						version: "3.1.4",
+						reason: "This package is no longer supported.",
+						paths: [
+							[
+								{ name: "foobar", version: "3.1.4" },
+							],
+						],
+					},
+				],
+			},
+			"nested sample": {
+				lockfile: {
+					lockfileVersion: 3,
+					packages: {
+						"node_modules/foo": {
+							version: "1.0.0",
+						},
+						"node_modules/foo/node_modules/bar": {
+							deprecated: "bar@2 is outdated, upgrade to bar@3",
+							version: "2.7.1",
+						},
+						"node_modules/bar": {
+							version: "3.1.4",
+						},
+					},
+				},
+				hierarchy: {
+					dependencies: {
+						foo: {
+							version: "1.0.0",
+							dependencies: {
+								bar: {
+									version: "2.7.1",
+								},
+							},
+						},
+						bar: {
+							version: "3.1.4",
+						},
+					},
+				},
+				want: [
+					{
+						name: "bar",
+						version: "2.7.1",
+						reason: "bar@2 is outdated, upgrade to bar@3",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+								{ name: "bar", version: "2.7.1" },
+							],
+						],
+					},
+				],
+			},
+			"omit development dependencies": {
+				options: {
+					omitDev: true,
+				},
+				lockfile: {
+					lockfileVersion: 3,
+					packages: {
+						"node_modules/foo": {
+							deprecated: "package foo is no longer supported.",
+							dev: true,
+							version: "3.1.4",
+						},
+						"node_modules/bar": {
+							deprecated: "package bar is no longer supported.",
+							version: "2.7.1",
+						},
+					},
+				},
+				hierarchy: {
+					dependencies: {
+						foo: {
+							version: "3.1.4",
+						},
+						bar: {
+							version: "2.7.1",
+						},
+					},
+				},
+				want: [
+					{
+						name: "bar",
+						version: "2.7.1",
+						reason: "package bar is no longer supported.",
+						paths: [
+							[
+								{ name: "bar", version: "2.7.1" },
+							],
+						],
+					},
+				],
+			},
+			"omit optional dependencies": {
+				options: {
+					omitOptional: true,
+				},
+				lockfile: {
+					lockfileVersion: 3,
+					packages: {
+						"node_modules/foo": {
+							deprecated: "package foo is no longer supported.",
+							optional: true,
+							version: "3.1.4",
+						},
+						"node_modules/bar": {
+							deprecated: "package bar is no longer supported.",
+							version: "2.7.1",
+						},
+					},
+				},
+				hierarchy: {
+					dependencies: {
+						foo: {
+							version: "3.1.4",
+						},
+						bar: {
+							version: "2.7.1",
+						},
+					},
+				},
+				want: [
+					{
+						name: "bar",
+						version: "2.7.1",
+						reason: "package bar is no longer supported.",
+						paths: [
+							[
+								{ name: "bar", version: "2.7.1" },
+							],
+						],
+					},
+				],
+			},
+			"omit peer dependencies": {
+				options: {
+					omitPeer: true,
+				},
+				lockfile: {
+					lockfileVersion: 3,
+					packages: {
+						"node_modules/foo": {
+							deprecated: "package foo is no longer supported.",
+							peer: true,
+							version: "3.1.4",
+						},
+						"node_modules/bar": {
+							deprecated: "package bar is no longer supported.",
+							version: "2.7.1",
+						},
+					},
+				},
+				hierarchy: {
+					dependencies: {
+						foo: {
+							version: "3.1.4",
+						},
+						bar: {
+							version: "2.7.1",
+						},
+					},
+				},
+				want: [
+					{
+						name: "bar",
+						version: "2.7.1",
+						reason: "package bar is no longer supported.",
+						paths: [
+							[
+								{ name: "bar", version: "2.7.1" },
+							],
+						],
+					},
+				],
+			},
+		};
+
+		for (const [name, testCase] of Object.entries(offlineTestCases)) {
+			t.test(name, async () => {
+				const cp = createCp({
+					"npm list --all --json": {
+						stdout: [JSON.stringify(testCase.hierarchy)],
+					},
+				});
+				const fs = createFs({
+					"./package.json": JSON.stringify(testCase.manifest || {}),
+					"./package-lock.json": JSON.stringify(testCase.lockfile || {}),
+				});
+				const options = {
+					...defaultOptions,
+					...testCase.options,
+					offline: true,
+				};
+
+				const got = await getDeprecatedPackages({ cp, fs, options });
+				assert.deepEqual(got, testCase.want);
 			});
 		}
 
@@ -332,7 +560,7 @@ test("deprecations.js", (t) => {
 			});
 		});
 
-		t.test("no lockfile", async () => {
+		t.test("online no lockfile", async () => {
 			const options = defaultOptions;
 
 			const cp = createCp({
@@ -372,6 +600,27 @@ test("deprecations.js", (t) => {
 
 			const got = await getDeprecatedPackages({ cp, fs, options });
 			assert.deepEqual(got, want);
+		});
+
+		t.test("offline old lockfile", async () => {
+			const cp = createCp({
+				"npm list --all --json": {
+					stdout: [JSON.stringify({})],
+				},
+			});
+			const fs = createFs({
+				"./package-lock.json": JSON.stringify({
+					lockfileVersion: 2,
+				}),
+			});
+			const options = {
+				...defaultOptions,
+				offline: true,
+			};
+
+			await assert.rejects(
+				() => getDeprecatedPackages({ cp, fs, options }),
+			);
 		});
 
 		t.test("deprecation warnings cannot be obtained", async () => {
