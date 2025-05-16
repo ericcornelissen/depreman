@@ -38,6 +38,7 @@ function parse(argv) {
 	const config = {
 		help: removeFromList(argv, "--help") || removeFromList(argv, "-h"),
 		everything: !(removeFromList(argv, "--errors-only")),
+		offline: removeFromList(argv, "--offline"),
 		omitDev: removeFromList(argv, "--omit=dev"),
 		omitOptional: removeFromList(argv, "--omit=optional"),
 		omitPeer: removeFromList(argv, "--omit=peer"),

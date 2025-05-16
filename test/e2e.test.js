@@ -83,6 +83,15 @@ test("end-to-end", async (t) => {
 
 		assert.equal(result.exitCode, 0);
 	});
+
+	await t.test("offline", () => {
+		const result = cli({
+			args: ["--offline"],
+			project: fixture("offline"),
+		});
+
+		assert.equal(result.exitCode, 0, result.stderr);
+	});
 });
 
 const root = path.resolve(import.meta.dirname, "..");
