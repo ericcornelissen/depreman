@@ -169,6 +169,7 @@ export default [
 				"no-ternary": "off",
 				"no-this-before-super": "error",
 				"no-throw-literal": "error",
+				"no-unassigned-vars": "error",
 				"no-undefined": "off",
 				"no-undef-init": "error",
 				"no-undef": "error",
