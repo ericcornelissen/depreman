@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { None, Some } from "./option.js";
+
 /**
  * @param {Object} p
  * @param {ReadFS} p.fs
@@ -69,9 +71,9 @@ async function obtainDeprecation({ cp, fs, options }) {
 			if (exitCode === 0) {
 				const deprecations = [];
 				for (const line of log.join("").split(/\n/u)) {
-					if (isDeprecationWarning(line)) {
-						const deprecation = parseDeprecationWarning(line);
-						deprecations.push(deprecation);
+					const deprecation = parseDeprecationWarning(line);
+					if (deprecation.isSome()) {
+						deprecations.push(deprecation.value());
 					}
 				}
 
@@ -113,10 +115,11 @@ function obtainHierarchy({ cp, options }) {
 					if (hierarchy.dependencies) {
 						delete hierarchy.dependencies[hierarchy.name];
 					}
+
 					resolve(hierarchy);
 				}
 			},
-		)
+		);
 	});
 }
 
@@ -130,7 +133,7 @@ function obtainHierarchy({ cp, options }) {
 async function obtainAliases({ fs }) {
 	const rawManifest = await fs.readFile("./package.json");
 	if (rawManifest.isErr()) {
-		throw new Error(rawManifest.error());
+		throw new Error(`could not get package.json: ${rawManifest.error()}`);
 	}
 
 	const manifest = JSON.parse(rawManifest.value());
@@ -141,7 +144,7 @@ async function obtainAliases({ fs }) {
 		manifest.devDependencies || {},
 	]) {
 		for (const [name, rhs] of Object.entries(deps)) {
-			const aliasMatch = /^npm:(?<alias>@?[^@]+)@(?<version>.+)$/u.exec(rhs);
+			const aliasMatch = /npm:(?<alias>@?[^@]+)@(?<version>.+)/u.exec(rhs);
 			if (aliasMatch) {
 				const { alias, version } = aliasMatch.groups;
 				aliases.set(name, { name: alias, version });
@@ -167,12 +170,12 @@ function findPackagePaths(pkg, hierarchy, aliases, path = []) {
 
 	const paths = [];
 	for (const [depName, depInfo] of Object.entries(dependencies)) {
-		const { version } = depInfo;
+		const dep = aliases.has(depName)
+			? aliases.get(depName)
+			: { name: depName, version: depInfo.version };
 
-		const name = aliases.has(depName) ? aliases.get(depName).name : depName;
-		const depPath = [...path, { name, version }];
-
-		if (name === pkg.name && version === pkg.version) {
+		const depPath = [...path, dep];
+		if (dep.name === pkg.name && dep.version === pkg.version) {
 			paths.push(depPath);
 		} else {
 			paths.push(...findPackagePaths(pkg, depInfo, aliases, depPath));
@@ -182,21 +185,16 @@ function findPackagePaths(pkg, hierarchy, aliases, path = []) {
 	return paths;
 }
 
-const prefix = "npm warn deprecated ";
-
 /**
  * @param {string} line
- * @returns {boolean}
- */
-function isDeprecationWarning(line) {
-	return line.slice(0, prefix.length).toLowerCase() === prefix;
-}
-
-/**
- * @param {string} line
- * @returns {DeprecatedPackage}
+ * @returns {Option<DeprecatedPackage>}
  */
 function parseDeprecationWarning(line) {
+	const prefix = "npm warn deprecated ";
+	if (!line.toLowerCase().startsWith(prefix)) {
+		return None;
+	}
+
 	const str = line.slice(prefix.length);
 
 	let i = str.indexOf(":");
@@ -207,7 +205,7 @@ function parseDeprecationWarning(line) {
 	const name = pkg.slice(0, i);
 	const version = pkg.slice(i + 1);
 
-	return { name, version, reason };
+	return new Some({ name, version, reason });
 }
 
 /**
@@ -274,3 +272,8 @@ function unique(a, index, array) {
 /** @typedef {function(string, string[], Object): Object} Spawn */
 
 /** @typedef {import("./fs.js").ReadFS} ReadFS */
+
+/**
+ * @template T
+ * @typedef {import("./option.js").Option<T>} Option
+ */
