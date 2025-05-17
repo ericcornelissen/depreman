@@ -44,9 +44,19 @@ test("deprecations.js", (t) => {
 					},
 				},
 				installLog: [
-					"npm warn deprecated foobar@3.1.4: This package is no longer supported.",
+					"npm warn deprecated foobar@3.1.4: This package is no longer supported.\n",
+					"\n",
+					"added 2 packages in 1s\n",
+					"\n",
+					"2 packages are looking for funding\n",
+					"  run `npm fund` for details\n",
 				],
-				options: defaultOptions,
+				manifest: {
+					dependencies: {
+						foo: "3.1.4",
+						deadend: "2.7.1",
+					},
+				},
 				want: [
 					{
 						name: "foobar",
@@ -60,23 +70,89 @@ test("deprecations.js", (t) => {
 					},
 				],
 			},
+			"multiple packages with the same names or versions": {
+				hierarchy: {
+					dependencies: {
+						foo: {
+							version: "1.0.0",
+							dependencies: {
+								bar: {
+									version: "2.7.1",
+								},
+								baz: {
+									version: "1.0.0",
+								},
+							},
+						},
+						bar: {
+							version: "3.1.4",
+						},
+					},
+				},
+				installLog: [
+					"npm warn deprecated bar@2.7.1: This package is no longer supported.\n",
+					"npm warn deprecated baz@1.0.0: This package is not supported anymore.\n",
+					"\n",
+					"added 3 packages in 1s\n",
+					"\n",
+					"2 packages are looking for funding\n",
+					"  run `npm fund` for details\n",
+				],
+				manifest: {
+					dependencies: {
+						bar: "3.1.4",
+						baz: "1.0.0",
+						foo: "1.0.0",
+					},
+				},
+				want: [
+					{
+						name: "bar",
+						version: "2.7.1",
+						reason: "This package is no longer supported.",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+								{ name: "bar", version: "2.7.1" },
+							],
+						],
+					},
+					{
+						name: "baz",
+						version: "1.0.0",
+						reason: "This package is not supported anymore.",
+						paths: [
+							[
+								{ name: "foo", version: "1.0.0" },
+								{ name: "baz", version: "1.0.0" },
+							],
+						],
+					},
+				],
+			},
 			"alias sample": {
 				hierarchy: {
 					dependencies: {
 						foo: {
 							version: "3.1.4",
 						},
+						hello: {
+							version: "2.7.1",
+						},
 					},
 				},
 				installLog: [
-					"npm warn deprecated bar@3.1.4: This package is no longer supported.",
+					"npm warn deprecated bar@3.1.4: This package is no longer supported.\n",
+					"npm warn deprecated world@2.7.1: This package is not supported anymore.\n",
 				],
 				manifest: {
 					dependencies: {
-						"foo": "npm:bar@3.1.4",
+						foo: "npm:bar@3.1.4",
+					},
+					devDependencies: {
+						hello: "npm:world@2.7.1",
 					},
 				},
-				options: defaultOptions,
 				want: [
 					{
 						name: "bar",
@@ -85,6 +161,16 @@ test("deprecations.js", (t) => {
 						paths: [
 							[
 								{ name: "bar", version: "3.1.4" },
+							],
+						],
+					},
+					{
+						name: "world",
+						version: "2.7.1",
+						reason: "This package is not supported anymore.",
+						paths: [
+							[
+								{ name: "world", version: "2.7.1" },
 							],
 						],
 					},
@@ -99,10 +185,13 @@ test("deprecations.js", (t) => {
 					},
 				},
 				installLog: [
-					"npm warn ",
-					"deprecated foobar@3.1.4: This package is no longer supported.",
+					"npm warn ", "deprecated foobar@3.1.4: This package is no longer supported.\n",
 				],
-				options: defaultOptions,
+				manifest: {
+					dependencies: {
+						foobar: "3.1.4",
+					},
+				},
 				want: [
 					{
 						name: "foobar",
@@ -116,11 +205,124 @@ test("deprecations.js", (t) => {
 					},
 				],
 			},
+			"repeated deprecation warning": {
+				hierarchy: {
+					dependencies: {
+						foo: {
+							version: "2.0.0",
+						},
+						bar: {
+							version: "3.1.4",
+							dependencies: {
+								foo: {
+									version: "1.0.0",
+								},
+							},
+						},
+						baz: {
+							version: "1.0.0",
+							dependencies: {
+								foo: {
+									version: "1.0.0",
+								},
+							},
+						},
+					},
+				},
+				installLog: [
+					"npm warn deprecated foo@2.0.0: This package is no longer supported.\n",
+					"npm warn deprecated foo@1.0.0: This package is no longer supported.\n",
+					"npm warn deprecated baz@1.0.0: This package is not supported anymore.\n",
+					"npm warn deprecated foo@1.0.0: This package is no longer supported.\n",
+				],
+				manifest: {
+					dependencies: {
+						bar: "3.1.4",
+						baz: "1.0.0",
+						foo: "2.0.0",
+					},
+				},
+				want: [
+					{
+						name: "foo",
+						version: "2.0.0",
+						reason: "This package is no longer supported.",
+						paths: [
+							[
+								{ name: "foo", version: "2.0.0" },
+							],
+						],
+					},
+					{
+						name: "foo",
+						version: "1.0.0",
+						reason: "This package is no longer supported.",
+						paths: [
+							[
+								{ name: "bar", version: "3.1.4" },
+								{ name: "foo", version: "1.0.0" },
+							],
+							[
+								{ name: "baz", version: "1.0.0" },
+								{ name: "foo", version: "1.0.0" },
+							],
+						],
+					},
+					{
+						name: "baz",
+						version: "1.0.0",
+						reason: "This package is not supported anymore.",
+						paths: [
+							[
+								{ name: "baz", version: "1.0.0" },
+							],
+						],
+					},
+				],
+			},
+			"ignore self as a dependencies": {
+				hierarchy: {
+					name: "foo",
+					dependencies: {
+						foo: {
+							dependencies: {
+								bar: {
+									version: "0.4.2",
+								},
+							},
+						},
+						bar: {
+							version: "0.4.2",
+						},
+					},
+				},
+				installLog: [
+					"npm warn deprecated bar@0.4.2: This package is no longer supported.\n",
+				],
+				manifest: {
+					dependencies: {
+						foo: "file:./",
+						bar: "0.4.2",
+					},
+				},
+				want: [
+					{
+						name: "bar",
+						version: "0.4.2",
+						reason: "This package is no longer supported.",
+						paths: [
+							[
+								{ name: "bar", version: "0.4.2" },
+							],
+						],
+					},
+				],
+			},
 		};
 
 		for (const [name, testCase] of Object.entries(testCases)) {
 			t.test(name, async () => {
-				const { options, want } = testCase;
+				const { want } = testCase;
 
 				const cp = createCp({
 					"npm clean-install": {
@@ -136,6 +338,10 @@ test("deprecations.js", (t) => {
 					"./package.json": JSON.stringify(testCase.manifest || {}),
 					"./package-lock.json": "{}",
 				});
+				const options = {
+					...defaultOptions,
+					...testCase.options,
+				};
 
 				const got = await getDeprecatedPackages({ cp, fs, options });
 				assert.deepEqual(got, want);
@@ -225,11 +431,18 @@ test("deprecations.js", (t) => {
 				};
 			}
 
-			t.test("with lockfile", async () => {
+			t.test("command", async () => {
 				const { cp, fs } = setup();
 
 				await getDeprecatedPackages({ cp, fs, options });
 				assert.equal(cp.exec.mock.calls[0].arguments[0].trim(), "npm list --all --json");
+			});
+
+			t.test("(#security) shell", async () => {
+				const { cp, fs } = setup();
+
+				await getDeprecatedPackages({ cp, fs, options });
+				assert.equal(cp.exec.mock.calls[0].arguments[1].shell, false);
 			});
 		});
 
@@ -339,12 +552,23 @@ test("deprecations.js", (t) => {
 
 			const cp = createCp({
 				"npm install": {},
-				"npm list --all --json": {},
+				"npm list --all --json": {
+					stdout: ["{}"],
+				},
 			});
 			const fs = new FS({});
 
 			await assert.rejects(
 				async () => await getDeprecatedPackages({ cp, fs, options }),
+				(error) => {
+					assert.ok(error instanceof Error);
+					assert.equal(
+						error.message,
+						"could not get package.json: file not found",
+					);
+
+					return true;
+				},
 			);
 		});
 

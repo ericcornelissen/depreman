@@ -27,8 +27,8 @@ export default {
 
 	thresholds: {
 		high: 100,
-		low: 96,
-		break: 96,
+		low: 100,
+		break: 100,
 	},
 
 	tempDirName: "node_modules/.temp/stryker",
