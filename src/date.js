@@ -15,38 +15,53 @@
 const dateExpr = /^(?<yyyy>\d{4})-(?<mm>\d{1,2})-(?<dd>\d{1,2})$/u;
 
 export class DepremanDate {
+	#year; #month; #day;
+
+	/**
+	 * @param {RawDate} date
+	 */
 	constructor(date) {
 		const { year, month, day } = date;
 		if (!isValid(date)) {
 			throw new Error(`invalid date '${year}-${month}-${day}'`);
 		}
 
-		this.year = year;
-		this.month = month;
-		this.day = day;
+		this.#year = year;
+		this.#month = month;
+		this.#day = day;
 	}
 
+	/**
+	 * @param {DepremanDate} other
+	 * @returns {boolean}
+	 * @throws {TypeError}
+	 */
 	is(other) {
 		if (!(other instanceof DepremanDate)) {
-			throw new TypeError(`not a date '${other}'`);
+			throw new TypeError("other is not a date");
 		}
 
-		return this.year === other.year
-			&& this.month === other.month
-			&& this.day === other.day;
+		return this.#year === other.#year
+			&& this.#month === other.#month
+			&& this.#day === other.#day;
 	}
 
+	/**
+	 * @param {DepremanDate} other
+	 * @returns {boolean}
+	 * @throws {TypeError}
+	 */
 	isBefore(other) {
 		if (!(other instanceof DepremanDate)) {
-			throw new TypeError(`not a date '${other}'`);
+			throw new TypeError("other is not a date");
 		}
 
-		if (this.year < other.year) {
+		if (this.#year < other.#year) {
 			return true;
-		} else if (this.year === other.year) {
-			if (this.month < other.month) {
+		} else if (this.#year === other.#year) {
+			if (this.#month < other.#month) {
 				return true;
-			} else if (this.month === other.month && this.day < other.day) {
+			} else if (this.#month === other.#month && this.#day < other.#day) {
 				return true;
 			}
 		}
@@ -55,6 +70,11 @@ export class DepremanDate {
 	}
 }
 
+/**
+ * @param {string} str
+ * @returns {DepremanDate}
+ * @throws {Error}
+ */
 export function parse(str) {
 	const parsed = dateExpr.exec(str);
 	if (parsed === null) {
@@ -69,6 +89,9 @@ export function parse(str) {
 	});
 }
 
+/**
+ * @returns {DepremanDate}
+ */
 export function today() {
 	const date = new Date();
 	return new DepremanDate({
@@ -89,10 +112,11 @@ const MIN_DAY = 1, MAX_DAY = 31;
  * an expiry date (e.g. a year past 10.000 is probably not intended as an expiry
  * date). The day is validated approximately, not considering the month.
  *
- * @param {RawDate} rawDate A potential date.
- * @returns {boolean} `true` if the date is valid, `false` otherwise.
+ * @param {RawDate} date
+ * @returns {boolean}
  */
-function isValid({ year, month, day }) {
+function isValid(date) {
+	const { year, month, day } = date;
 	return year >= MIN_YEAR && year <= MAX_YEAR
 		&& month >= MIN_MONTH && month <= MAX_MONTH
 		&& day >= MIN_DAY && day <= MAX_DAY;

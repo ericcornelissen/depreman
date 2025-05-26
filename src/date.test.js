@@ -15,6 +15,8 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
+import * as fc from "fast-check";
+
 import {
 	DepremanDate,
 	parse,
@@ -23,17 +25,36 @@ import {
 
 test("date.js", (t) => {
 	t.test("DepremanDate", (t) => {
+		const arbitrary = {
+			date: () => fc.record({
+				year: arbitrary.year(),
+				month: arbitrary.month(),
+				day: arbitrary.day(),
+			}),
+			day: () => fc.integer({ min: 1, max: 31 }),
+			month: () => fc.integer({ min: 1, max: 12 }),
+			year: () => fc.integer({ min: 2000, max: 9999 }),
+		};
+
 		t.test("constructor", (t) => {
+			t.test("arbitrary valid date", () => {
+				fc.assert(
+					fc.property(
+						arbitrary.date(),
+						(date) => {
+							assert.doesNotThrow(() => {
+								new DepremanDate(date) // eslint-disable-line no-new
+							});
+						},
+					),
+				);
+			});
+
 			const goodCases = {
 				"earliest valid date": {
 					year: 2000,
 					month: 1,
 					day: 1,
-				},
-				"latest valid date": {
-					year: 9999,
-					month: 12,
-					day: 31,
 				},
 				"earliest month and day": {
 					year: 2025,
@@ -49,6 +70,11 @@ test("date.js", (t) => {
 					year: 2025,
 					month: 2,
 					day: 1,
+				},
+				"latest valid date": {
+					year: 9999,
+					month: 12,
+					day: 31,
 				},
 				"latest month and day": {
 					year: 2025,
@@ -106,7 +132,7 @@ test("date.js", (t) => {
 					month: 1,
 					day: -1,
 				},
-				"negative year (catch likely mistakes in the year)": {
+				"negative year": {
 					year: -2025,
 					month: 1,
 					day: 1,
@@ -139,139 +165,109 @@ test("date.js", (t) => {
 		});
 
 		t.test("is", (t) => {
-			const trueCases = {
-				"sample, 2025-01-01": {
-					year: 2025,
-					month: 1,
-					day: 1,
-				},
-				"sample, 2024-12-31": {
-					year: 2024,
-					month: 12,
-					day: 31,
-				},
-			};
+			t.test("compare to self", () => {
+				fc.assert(
+					fc.property(
+						arbitrary.date(),
+						(raw) => {
+							const date = new DepremanDate(raw);
+							assert.ok(date.is(date));
+						},
+					),
+				);
+			});
 
-			for (const [name, testCase] of Object.entries(trueCases)) {
-				t.test(name, () => {
-					const a = new DepremanDate(testCase);
-					const b = new DepremanDate(testCase);
-					assert.ok(a.is(b));
-				});
-			}
+			t.test("identical date", () => {
+				fc.assert(
+					fc.property(
+						arbitrary.date(),
+						(raw) => {
+							const dateA = new DepremanDate(raw);
+							const dateB = new DepremanDate(raw);
+							assert.ok(dateA.is(dateB));
+							assert.ok(dateB.is(dateA));
+						},
+					),
+				);
+			});
 
-			const falseCases = {
-				"different year, month, day": {
-					a: {
-						year: 2025,
-						month: 1,
-						day: 1,
-					},
-					b: {
-						year: 2024,
-						month: 12,
-						day: 31,
-					},
-				},
-				"different year, month (same day)": {
-					a: {
-						year: 2025,
-						month: 1,
-						day: 1,
-					},
-					b: {
-						year: 2024,
-						month: 2,
-						day: 1,
-					},
-				},
-				"different year, day (same month)": {
-					a: {
-						year: 2025,
-						month: 1,
-						day: 1,
-					},
-					b: {
-						year: 2024,
-						month: 1,
-						day: 2,
-					},
-				},
-				"different month, day (same year)": {
-					a: {
-						year: 2024,
-						month: 1,
-						day: 1,
-					},
-					b: {
-						year: 2024,
-						month: 2,
-						day: 2,
-					},
-				},
-				"different year (same month, day)": {
-					a: {
-						year: 2025,
-						month: 1,
-						day: 1,
-					},
-					b: {
-						year: 2024,
-						month: 1,
-						day: 1,
-					},
-				},
-				"different month (same year, day)": {
-					a: {
-						year: 2024,
-						month: 1,
-						day: 1,
-					},
-					b: {
-						year: 2024,
-						month: 12,
-						day: 1,
-					},
-				},
-				"different day (same year, month)": {
-					a: {
-						year: 2024,
-						month: 1,
-						day: 1,
-					},
-					b: {
-						year: 2024,
-						month: 1,
-						day: 31,
-					},
-				},
-			};
+			t.test("different year", () => {
+				fc.assert(
+					fc.property(
+						fc.record({
+							raw: arbitrary.date(),
+							year: arbitrary.year(),
+						}),
+						({ raw, year }) => {
+							fc.pre(raw.year !== year);
 
-			for (const [name, testCase] of Object.entries(falseCases)) {
-				t.test(name, () => {
-					const a = new DepremanDate(testCase.a);
-					const b = new DepremanDate(testCase.b);
-					assert.ok(!a.is(b));
-				});
-			}
+							const dateA = new DepremanDate({ ...raw });
+							const dateB = new DepremanDate({ ...raw, year });
+							assert.ok(!dateA.is(dateB));
+							assert.ok(!dateB.is(dateA));
+						},
+					),
+				);
+			});
 
-			const badCases = {
-				"other is not a date": {
-					a: new DepremanDate({ year: 2024, month: 11, day: 3 }),
-					b: "foobar",
-					want: /^TypeError: not a date 'foobar'$/u,
-				},
-			};
+			t.test("different month", () => {
+				fc.assert(
+					fc.property(
+						fc.record({
+							month: arbitrary.month(),
+							raw: arbitrary.date(),
+						}),
+						({ month, raw }) => {
+							fc.pre(raw.month !== month);
 
-			for (const [name, testCase] of Object.entries(badCases)) {
-				const { a, b, want } = testCase;
-				t.test(name, () => {
-					assert.throws(
-						() => a.is(b),
-						want,
-					);
-				});
-			}
+							const dateA = new DepremanDate({ ...raw });
+							const dateB = new DepremanDate({ ...raw, month });
+							assert.ok(!dateA.is(dateB));
+							assert.ok(!dateB.is(dateA));
+						},
+					),
+				);
+			});
+
+			t.test("different day", () => {
+				fc.assert(
+					fc.property(
+						fc.record({
+							day: arbitrary.day(),
+							raw: arbitrary.date(),
+						}),
+						({ day, raw }) => {
+							fc.pre(raw.day !== day);
+
+							const dateA = new DepremanDate({ ...raw });
+							const dateB = new DepremanDate({ ...raw, day });
+							assert.ok(!dateA.is(dateB));
+							assert.ok(!dateB.is(dateA));
+						},
+					),
+				);
+			});
+
+			t.test("wrong type", () => {
+				fc.assert(
+					fc.property(
+						fc.record({
+							any: fc.anything(),
+							raw: arbitrary.date(),
+						}),
+						({ any, raw }) => {
+							const date = new DepremanDate(raw);
+							assert.throws(
+								() => !date.is(any),
+								{
+									name: "TypeError",
+									message: "other is not a date",
+								},
+							);
+						},
+					),
+				);
+			});
 		});
 
 		t.test("isBefore", (t) => {
@@ -288,7 +284,7 @@ test("date.js", (t) => {
 						day: 1,
 					}
 				},
-				"previous month (same year)": {
+				"previous month": {
 					a: {
 						year: 2024,
 						month: 11,
@@ -300,7 +296,7 @@ test("date.js", (t) => {
 						day: 1,
 					}
 				},
-				"previous day (same year, month)": {
+				"previous day": {
 					a: {
 						year: 2024,
 						month: 11,
@@ -359,18 +355,6 @@ test("date.js", (t) => {
 						day: 1,
 					}
 				},
-				"same date": {
-					a: {
-						year: 2024,
-						month: 11,
-						day: 2,
-					},
-					b: {
-						year: 2024,
-						month: 11,
-						day: 2,
-					}
-				},
 			};
 
 			for (const [name, testCase] of Object.entries(falseCases)) {
@@ -381,23 +365,54 @@ test("date.js", (t) => {
 				});
 			}
 
-			const badCases = {
-				"other is not a date": {
-					a: new DepremanDate({ year: 2024, month: 11, day: 3 }),
-					b: "foobar",
-					want: /^TypeError: not a date 'foobar'$/u,
-				},
-			};
+			t.test("one date is always before another", () => {
+				fc.assert(
+					fc.property(
+						fc.record({
+							rawA: arbitrary.date(),
+							rawB: arbitrary.date(),
+						}),
+						({ rawA, rawB }) => {
+							const dateA = new DepremanDate(rawA);
+							const dateB = new DepremanDate(rawB);
+							assert.ok(dateA.isBefore(dateB) || dateB.isBefore(dateA) || dateA.is(dateB));
+						},
+					),
+				);
+			});
 
-			for (const [name, testCase] of Object.entries(badCases)) {
-				const { a, b, want } = testCase;
-				t.test(name, () => {
-					assert.throws(
-						() => a.isBefore(b),
-						want,
-					);
-				});
-			}
+			t.test("compare to self", () => {
+				fc.assert(
+					fc.property(
+						arbitrary.date(),
+						(raw) => {
+							const date = new DepremanDate(raw);
+							assert.ok(!date.isBefore(date));
+						},
+					),
+				);
+			});
+
+			t.test("wrong type", () => {
+				fc.assert(
+					fc.property(
+						fc.record({
+							any: fc.anything(),
+							raw: arbitrary.date(),
+						}),
+						({ any, raw }) => {
+							const date = new DepremanDate(raw);
+							assert.throws(
+								() => !date.isBefore(any),
+								{
+									name: "TypeError",
+									message: "other is not a date",
+								},
+							);
+						},
+					),
+				);
+			});
 		});
 	});
 
@@ -433,9 +448,9 @@ test("date.js", (t) => {
 			t.test(`good: ${testCase.str}`, () => {
 				const got = parse(testCase.str);
 				assert.ok(got instanceof DepremanDate);
-				assert.equal(got.year, testCase.want.year);
-				assert.equal(got.month, testCase.want.month);
-				assert.equal(got.day, testCase.want.day);
+
+				const want = new DepremanDate(testCase.want);
+				assert.ok(got.is(want));
 			});
 		}
 
@@ -470,15 +485,39 @@ test("date.js", (t) => {
 				);
 			});
 		}
+
+		t.test("wrong format", () => {
+			fc.assert(
+				fc.property(
+					fc.oneof(
+						// Strings not following the 'x-y-z' format
+						fc.string().filter(str => str.split("-").length !== 3),
+
+						// Strings following the 'x-y-z' format but not 'yyyy-mm-dd'
+						fc.tuple(fc.string(), fc.string(), fc.string())
+							.filter(([x, y, z]) => !/^\d{4}$/u.test(x) || !/^\d{1,2}$/u.test(y) || !/^\d{1,2}$/u.test(z))
+							.map(([x, y, z]) => `${x}-${y}-${z}`),
+					),
+					(str) => {
+						assert.throws(
+							() => parse(str),
+							/^Error: invalid date '.*?' \(must be '.+?'\)$/u,
+						);
+					},
+				),
+			);
+		});
 	});
 
 	t.test("today", () => {
 		const got = today();
-		const want = new Date();
-
 		assert.ok(got instanceof DepremanDate);
-		assert.equal(got.year, want.getFullYear());
-		assert.equal(got.month, want.getMonth() + 1);
-		assert.equal(got.day, want.getDate());
+
+		const want = new DepremanDate({
+			year: (new Date()).getFullYear(),
+			month: (new Date()).getMonth() + 1,
+			day: (new Date()).getDate(),
+		});
+		assert.ok(got.is(want));
 	});
 });
