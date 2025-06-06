@@ -12,7 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import * as cp from "node:child_process";
+import * as nodeCp from "node:child_process";
 import * as nodeFs from "node:fs/promises";
 import { stdout, stderr } from "node:process";
 
@@ -21,6 +21,7 @@ import chalk from "chalk"; // eslint-disable-line depend/ban-dependencies
 import { getConfiguration } from "./config.js";
 import { getDeprecatedPackages } from "./deprecations.js";
 import { FS } from "./fs.js";
+import { CP } from "./cp.js";
 import { removeIgnored, unusedIgnores } from "./ignores.js";
 import { printAndExit } from "./output.js";
 import { parseArgv } from "./cli.js";
@@ -54,6 +55,7 @@ to ignore npm deprecation warnings for your dependencies.
 async function depreman(options) {
 	try {
 		const fs = new FS(nodeFs);
+		const cp = new CP(nodeCp);
 
 		const [config, deprecations] = await Promise.all([
 			getConfiguration(fs),

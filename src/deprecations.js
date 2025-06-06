@@ -44,45 +44,39 @@ export async function getDeprecatedPackages({ cp, fs, options }) {
  */
 async function obtainDeprecation({ cp, fs, options }) {
 	const cleanInstall = await hasLockfile(fs);
-	return new Promise((resolve, reject) => {
-		const args = [
-			(cleanInstall ? "clean-install" : "install"),
-			"--no-audit",
-			"--no-fund",
-			"--no-update-notifier",
-		];
+	const args = [
+		(cleanInstall ? "clean-install" : "install"),
+		"--no-audit",
+		"--no-fund",
+		"--no-update-notifier",
+	];
 
-		if (options.omitDev) {
-			args.push("--omit", "dev");
+	if (options.omitDev) {
+		args.push("--omit", "dev");
+	}
+	if (options.omitOptional) {
+		args.push("--omit", "optional");
+	}
+	if (options.omitPeer) {
+		args.push("--omit", "peer");
+	}
+
+	const result = await cp.exec("npm", args);
+	if (result.isErr()) {
+		const { exitCode, stderr } = result.error();
+		throw new Error(`npm install failed with code ${exitCode}:\n${stderr}`);
+	}
+
+	const { stderr } = result.value();
+	const deprecations = [];
+	for (const line of stderr.split(/\n/u)) {
+		const deprecation = parseDeprecationWarning(line);
+		if (deprecation.isSome()) {
+			deprecations.push(deprecation.value());
 		}
-		if (options.omitOptional) {
-			args.push("--omit", "optional");
-		}
-		if (options.omitPeer) {
-			args.push("--omit", "peer");
-		}
+	}
 
-		const process = cp.spawn("npm", args);
-
-		const log = [];
-		process.stderr.on("data", (fragment) => log.push(fragment));
-
-		process.on("close", (exitCode, error) => {
-			if (exitCode === 0) {
-				const deprecations = [];
-				for (const line of log.join("").split(/\n/u)) {
-					const deprecation = parseDeprecationWarning(line);
-					if (deprecation.isSome()) {
-						deprecations.push(deprecation.value());
-					}
-				}
-
-				resolve(deprecations.filter(unique));
-			} else {
-				reject(error);
-			}
-		});
-	});
+	return deprecations.filter(unique);
 }
 
 /**
@@ -91,36 +85,36 @@ async function obtainDeprecation({ cp, fs, options }) {
  * @param {Options} p.options
  * @returns {Promise<PackageHierarchy>}
  */
-function obtainHierarchy({ cp, options }) {
-	const optionalArgs = [];
+async function obtainHierarchy({ cp, options }) {
+	const args = [
+		"list",
+		"--all",
+		"--json",
+	];
+
 	if (options.omitDev) {
-		optionalArgs.push("--omit", "dev");
+		args.push("--omit", "dev");
 	}
 	if (options.omitOptional) {
-		optionalArgs.push("--omit", "optional");
+		args.push("--omit", "optional");
 	}
 	if (options.omitPeer) {
-		optionalArgs.push("--omit", "peer");
+		args.push("--omit", "peer");
 	}
 
-	return new Promise((resolve, reject) => {
-		cp.exec(
-			`npm list --all --json ${optionalArgs.join(" ")}`,
-			{ shell: false },
-			(error, stdout) => {
-				if (error) {
-					reject(error);
-				} else {
-					const hierarchy = JSON.parse(stdout);
-					if (hierarchy.dependencies) {
-						delete hierarchy.dependencies[hierarchy.name];
-					}
+	const result = await cp.exec("npm", args);
+	if (result.isErr()) {
+		const { exitCode, stderr } = result.error();
+		throw new Error(`npm list failed with code ${exitCode}:\n${stderr}`);
+	}
 
-					resolve(hierarchy);
-				}
-			},
-		);
-	});
+	const { stdout } = result.value();
+	const hierarchy = JSON.parse(stdout);
+	if (hierarchy.dependencies) {
+		delete hierarchy.dependencies[hierarchy.name];
+	}
+
+	return hierarchy;
 }
 
 /**
