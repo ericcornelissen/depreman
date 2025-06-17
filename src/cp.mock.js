@@ -30,7 +30,6 @@ export class CP {
 				if (want.includes(command)) {
 					const { error, stdout, stderr } = commands[command];
 					const result = {
-						exitCode: error ? 1 : 0,
 						stderr: stderr || "",
 						stdout: stdout || "",
 					};
