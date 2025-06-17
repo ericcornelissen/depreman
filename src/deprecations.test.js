@@ -566,7 +566,7 @@ test("deprecations.js", (t) => {
 					assert.ok(error instanceof Error);
 					assert.match(
 						error.message,
-						/^npm install failed with code \d+:\n.*$/u,
+						/^npm install failed:\n.*$/u,
 					);
 
 					return true;
@@ -595,7 +595,7 @@ test("deprecations.js", (t) => {
 					assert.ok(error instanceof Error);
 					assert.match(
 						error.message,
-						/^npm list failed with code \d+:\n.*$/u,
+						/^npm list failed:\n.*$/u,
 					);
 
 					return true;

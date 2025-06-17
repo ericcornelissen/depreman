@@ -9,7 +9,7 @@ Versioning].
 
 ## [Unreleased]
 
-- _No changes yet_
+- Fix support for Windows.
 
 ## [0.3.8] - 2025-05-10
 

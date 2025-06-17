@@ -36,38 +36,24 @@ export class CP {
 	 * @returns {Promise<Result<Output, Output>>}
 	 */
 	exec(cmd, args) {
-		const opts = {
-			shell: false,
-		};
-
 		return new Promise((resolve) => {
-			const process = this.#cp.spawn(cmd, args, opts);
+			this.#cp.exec(
+				`${cmd} ${args.join(" ")}`,
+				(error, stdout, stderr) => {
+					const result = {
+						stdout: stdout.toString(),
+						stderr: stderr.toString(),
+					};
 
-			const stdout = [];
-			process.stdout.on("data", (fragment) => {
-				stdout.push(fragment);
-			});
+					if (error) {
+						const err = new Err(result);
+						resolve(err);
+					}
 
-			const stderr = [];
-			process.stderr.on("data", (fragment) => {
-				stderr.push(fragment);
-			});
-
-			process.on("close", (exitCode) => {
-				const result = {
-					exitCode,
-					stdout: stdout.join(""),
-					stderr: stderr.join(""),
-				};
-
-				if (exitCode !== 0) {
-					const err = new Err(result);
-					resolve(err);
-				}
-
-				const ok = new Ok(result);
-				resolve(ok);
-			});
+					const ok = new Ok(result);
+					resolve(ok);
+				},
+			);
 		});
 	}
 }
@@ -86,7 +72,8 @@ export class CP {
 
 /**
  * @typedef cp
- * @property {function(string, string[], options): process} spawn
+ * @property {function(string, execCallback)} exec
+ * @property {function(Error, string, string)} execCallback
  *
  * @typedef options
  * @property {boolean} shell
