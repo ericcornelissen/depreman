@@ -63,8 +63,8 @@ async function obtainDeprecation({ cp, fs, options }) {
 
 	const result = await cp.exec("npm", args);
 	if (result.isErr()) {
-		const { exitCode, stderr } = result.error();
-		throw new Error(`npm install failed with code ${exitCode}:\n${stderr}`);
+		const { stderr } = result.error();
+		throw new Error(`npm install failed:\n${stderr}`);
 	}
 
 	const { stderr } = result.value();
@@ -104,8 +104,8 @@ async function obtainHierarchy({ cp, options }) {
 
 	const result = await cp.exec("npm", args);
 	if (result.isErr()) {
-		const { exitCode, stderr } = result.error();
-		throw new Error(`npm list failed with code ${exitCode}:\n${stderr}`);
+		const { stderr } = result.error();
+		throw new Error(`npm list failed:\n${stderr}`);
 	}
 
 	const { stdout } = result.value();
