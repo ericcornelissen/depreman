@@ -154,7 +154,6 @@ test("cp.mock.js", (t) => {
 								assert.ok(got.isOk());
 
 								const ok = got.value();
-								assert.equal(ok.exitCode, 0);
 								assert.equal(ok.stdout, stdout);
 								assert.equal(ok.stderr, stderr);
 							},
@@ -184,7 +183,6 @@ test("cp.mock.js", (t) => {
 								assert.ok(got.isErr());
 
 								const err = got.error();
-								assert.equal(err.exitCode, 1);
 								assert.equal(err.stdout, stdout);
 								assert.equal(err.stderr, stderr);
 							},

@@ -65,7 +65,6 @@ export class CP {
  * @typedef {function(string, string[]): Promise<Result<Output, Output>>} Exec
  *
  * @typedef Output
- * @property {number} exitCode
  * @property {string} stderr
  * @property {string} stdout
  */
