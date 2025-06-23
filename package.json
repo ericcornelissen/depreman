@@ -56,7 +56,7 @@
   "devDependencies": {
     "@ericcornelissen/eslint-plugin-top": "3.5.2",
     "@eslint/json": "0.10.0",
-    "@eslint/markdown": "6.4.0",
+    "@eslint/markdown": "6.6.0",
     "@stryker-mutator/core": "9.0.1",
     "@stryker-mutator/tap-runner": "9.0.1",
     "better-npm-audit": "3.11.0",
