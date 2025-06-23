@@ -18,13 +18,14 @@ import { stdout, stderr } from "node:process";
 
 import chalk from "chalk"; // eslint-disable-line depend/ban-dependencies
 
+import { parseArgv } from "./cli.js";
 import { getConfiguration } from "./config.js";
+import { CP } from "./cp.js";
 import { getDeprecatedPackages } from "./deprecations.js";
 import { FS } from "./fs.js";
-import { CP } from "./cp.js";
 import { removeIgnored, unusedIgnores } from "./ignores.js";
+import { NPM } from "./npm.js";
 import { printAndExit } from "./output.js";
-import { parseArgv } from "./cli.js";
 
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_FAILURE = 1;
@@ -54,12 +55,13 @@ to ignore npm deprecation warnings for your dependencies.
  */
 async function depreman(options) {
 	try {
-		const fs = new FS(nodeFs);
 		const cp = new CP(nodeCp);
+		const fs = new FS(nodeFs);
+		const pm = new NPM({ cp, fs, options });
 
 		const [config, deprecations] = await Promise.all([
 			getConfiguration(fs),
-			getDeprecatedPackages({ cp, fs, options }),
+			getDeprecatedPackages(pm),
 		]);
 
 		const result = removeIgnored(config, deprecations);
