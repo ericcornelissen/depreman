@@ -29,7 +29,7 @@ export class NPM {
 	/**
 	 * @type {Options}
 	 */
-	#options
+	#options;
 
 	/**
 	 * @param {Object} p
@@ -96,7 +96,7 @@ export class NPM {
 	}
 
 	/**
-	 * @returns {Promise<Result<Object, string>>}
+	 * @returns {Promise<Result<PackageHierarchy, string>>}
 	 */
 	async hierarchy() {
 		const cmd = "npm";
