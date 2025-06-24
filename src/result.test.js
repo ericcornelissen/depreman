@@ -21,6 +21,42 @@ import { Err, Ok } from "./result.js";
 
 test("result.js", (t) => {
 	t.test("Err", (t) => {
+		t.test("and", (t) => {
+			t.test("Err", () => {
+				fc.assert(
+					fc.property(
+						fc.anything(),
+						fc.anything(),
+						(a, b) => {
+							const errA = new Err(a);
+							const errB = new Err(b);
+
+							const got = errA.and(errB);
+							const want = errA;
+							assert.equal(got, want);
+						}
+					),
+				);
+			});
+
+			t.test("Ok", () => {
+				fc.assert(
+					fc.property(
+						fc.anything(),
+						fc.anything(),
+						(a, b) => {
+							const err = new Err(a);
+							const ok = new Ok(b);
+
+							const got = err.and(ok);
+							const want = err;
+							assert.equal(got, want);
+						}
+					),
+				);
+			});
+		});
+
 		t.test("error", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
@@ -75,6 +111,42 @@ test("result.js", (t) => {
 	});
 
 	t.test("Ok", (t) => {
+		t.test("and", (t) => {
+			t.test("Err", () => {
+				fc.assert(
+					fc.property(
+						fc.anything(),
+						fc.anything(),
+						(a, b) => {
+							const ok = new Ok(a);
+							const err = new Err(b);
+
+							const got = ok.and(err);
+							const want = err;
+							assert.equal(got, want);
+						}
+					),
+				);
+			});
+
+			t.test("Ok", () => {
+				fc.assert(
+					fc.property(
+						fc.anything(),
+						fc.anything(),
+						(a, b) => {
+							const okA = new Ok(a);
+							const okB = new Ok(b);
+
+							const got = okA.and(okB);
+							const want = okB;
+							assert.equal(got, want);
+						}
+					),
+				);
+			});
+		});
+
 		t.test("error", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {

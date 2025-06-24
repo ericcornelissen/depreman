@@ -288,6 +288,28 @@ test("deprecations.js", (t) => {
 				},
 			);
 		});
+
+		t.test("multiple errors", async () => {
+			const err1 = "deprecations error";
+			const err2 = "aliases error";
+			const err3 = "hierarchy error";
+
+			const pm = new PM({
+				aliases: new Err(err2),
+				deprecations: new Err(err1),
+				hierarchy: new Err(err3),
+			});
+
+			await assert.rejects(
+				() => getDeprecatedPackages(pm),
+				(error) => {
+					assert.ok(error instanceof Error);
+					assert.equal(error.message, err1);
+
+					return true;
+				},
+			);
+		});
 	});
 });
 

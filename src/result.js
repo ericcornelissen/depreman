@@ -15,6 +15,7 @@
 /**
  * @template O, E
  * @typedef Result
+ * @property {function(Result<O,E>): Result<O,E>} and
  * @property {function(): E} error
  * @property {function(): boolean} isErr
  * @property {function(): boolean} isOk
@@ -22,14 +23,23 @@
  */
 
 /**
- * @template T
+ * @template O
  */
 export class Ok {
 	/**
-	 * @param {T} value
+	 * @param {O} value
 	 */
 	constructor(value) {
 		this.v = value;
+	}
+
+	/**
+	 * @template E
+	 * @param {Result<O,E>} other
+	 * @returns {Result<O,E>}
+	 */
+	and(other) {
+		return other;
 	}
 
 	/**
@@ -55,7 +65,7 @@ export class Ok {
 	}
 
 	/**
-	 * @returns {T}
+	 * @returns {O}
 	 */
 	value() {
 		return this.v;
@@ -63,18 +73,26 @@ export class Ok {
 }
 
 /**
- * @template T
+ * @template E
  */
 export class Err {
 	/**
-	 * @param {T} error
+	 * @param {E} error
 	 */
 	constructor(error) {
 		this.e = error;
 	}
 
 	/**
-	 * @returns {T}
+	 * @template O
+	 * @returns {Result<O,E>}
+	 */
+	and() {
+		return this;
+	}
+
+	/**
+	 * @returns {E}
 	 */
 	error() {
 		return this.e;
