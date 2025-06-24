@@ -32,7 +32,7 @@ export class NPM {
 	#options;
 
 	/**
-	 * @param {Object} p
+	 * @param {object} p
 	 * @param {ExecCP} p.cp
 	 * @param {ReadFS} p.fs
 	 * @param {Options} p.options
@@ -165,7 +165,7 @@ export class NPM {
 	}
 
 	/**
-   * @returns {Promise<boolean>}
+	 * @returns {Promise<boolean>}
 	 */
 	async #hasLockfile() {
 		return await this.#fs.access("./package-lock.json");
@@ -216,23 +216,33 @@ function parseJSON(rawJSON) {
 
 /**
  * @typedef {Map<string, Package>} Aliases
- *
+ */
+
+/**
  * @typedef Deprecation
  * @property {string} reason
- *
+ */
+
+/**
  * @typedef {Package & Deprecation} DeprecatedPackage
- *
+ */
+
+/**
  * @typedef Package
  * @property {string} name
  * @property {string} version
- *
+ */
+
+/**
  * @typedef PackageHierarchy
- * @property {Object<string, HierarchyDependency>} dependencies
+ * @property {{[key: string]: HierarchyDependency}} dependencies
  * @property {string} name
  * @property {string} version
- *
+ */
+
+/**
  * @typedef HierarchyDependency
- * @property {Object<string, HierarchyDependency>} dependencies
+ * @property {{[key: string]: HierarchyDependency}} dependencies
  * @property {string} version
  */
 

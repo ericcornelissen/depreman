@@ -40,10 +40,8 @@ export async function getConfiguration(fs) {
 }
 
 /**
- * @param {Object} p
- * @param {string} p.file
- * @param {FileSystem} p.fs
- * @returns {Result<Config, string>}
+ * @param {string} raw
+ * @returns {Result<object, string>}
  */
 function parseRawConfig(raw) {
 	try {
@@ -56,6 +54,7 @@ function parseRawConfig(raw) {
 
 /**
  * @param {Config} config
+ * @param {boolean} root
  * @returns {Option<string[]>}
  */
 function validateConfig(config, root=true) {
@@ -107,7 +106,7 @@ function validateConfig(config, root=true) {
 
 /**
  * @param {any} value
- * @return {string}
+ * @returns {string}
  */
 function typeOf(value) {
 	if (value === null) {

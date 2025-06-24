@@ -106,12 +106,6 @@ const MIN_MONTH = 1, MAX_MONTH = 12;
 const MIN_DAY = 1, MAX_DAY = 31;
 
 /**
- * Determine if a raw (unverified) date is a valid date.
- *
- * The year is validated in a way to catch likely mistakes for the purposes of
- * an expiry date (e.g. a year past 10.000 is probably not intended as an expiry
- * date). The day is validated approximately, not considering the month.
- *
  * @param {RawDate} date
  * @returns {boolean}
  */

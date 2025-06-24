@@ -31,6 +31,9 @@ const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_FAILURE = 1;
 const EXIT_CODE_UNEXPECTED = 2;
 
+/**
+ * @returns {void}
+ */
 function help() {
 	stdout.write(`depreman [-h|--help] [--errors-only] [--report-unused]
          [--omit=<dev|optional|peer> ...]
@@ -51,7 +54,7 @@ to ignore npm deprecation warnings for your dependencies.
 
 /**
  * @param {Options} options
- * @return {Promise<ExitCode>}
+ * @returns {Promise<ExitCode>}
  */
 async function depreman(options) {
 	try {
@@ -80,7 +83,7 @@ async function depreman(options) {
 
 /**
  * @param {string[]} argv
- * @return {Promise<ExitCode>}
+ * @returns {Promise<ExitCode>}
  */
 export async function cli(argv) {
 	const options = parseArgv(argv);

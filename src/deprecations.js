@@ -78,15 +78,21 @@ function findPackagePaths(pkg, hierarchy, aliases, path = []) {
 
 /**
  * @typedef {Package & _Deprecation} DeprecatedPackage
- *
+ */
+
+/**
  * @typedef _Deprecation
  * @property {PackagePath[]} paths
  * @property {string} reason
- *
+ */
+
+/**
  * @typedef Package
  * @property {string} name
  * @property {string} version
- *
+ */
+
+/**
  * @typedef {Package[]} PackagePath
  */
 
@@ -95,4 +101,12 @@ function findPackagePaths(pkg, hierarchy, aliases, path = []) {
  * @property {function(): Promise<Result<Aliases, string>>} aliases
  * @property {function(): Promise<Result<DeprecatedPackage[], string>>} deprecations
  * @property {function(): Promise<Result<PackageHierarchy, string>>} hierarchy
+ */
+
+/** @typedef {import("./npm.js").Aliases} Aliases */
+/** @typedef {import("./npm.js").PackageHierarchy} PackageHierarchy */
+
+/**
+ * @template O, E
+ * @typedef {import("./result.js").Result<O, E>} Result
  */
