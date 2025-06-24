@@ -14,6 +14,7 @@
 
 import { None, Some } from "./option.js";
 import { Err, Ok } from "./result.js";
+import { typeOf, types } from "./types.js";
 
 /**
  * @param {ReadFS} fs
@@ -58,7 +59,7 @@ function parseRawConfig(raw) {
  * @returns {Option<string[]>}
  */
 function validateConfig(config, root=true) {
-	if (typeOf(config) !== "object") {
+	if (typeOf(config) !== types.object) {
 		return new Some(["config must be an object"]);
 	}
 
@@ -68,18 +69,18 @@ function validateConfig(config, root=true) {
 			if (root) {
 				problems.push(`unexpected directive '${key}' in the root`);
 			} else {
-				const type = typeOf(value)
+				const type = typeOf(value);
 				switch (key) {
 				case "#expire":
 					if (!Object.hasOwn(config, "#ignore")) {
 						problems.push(`has '#expire' without '#ignore'`);
-					} else if (type !== "string") {
+					} else if (type !== types.string) {
 						problems.push(`unexpected type for '#expire': ${type}`);
 					}
 
 					break;
 				case "#ignore":
-					if (!(type === "boolean" || type === "string")) {
+					if (!(type === types.boolean || type === types.string)) {
 						problems.push(`unexpected type for '#ignore': ${type}`);
 					}
 					break;
@@ -102,22 +103,6 @@ function validateConfig(config, root=true) {
 	}
 
 	return None;
-}
-
-/**
- * @param {any} value
- * @returns {string}
- */
-function typeOf(value) {
-	if (value === null) {
-		return "null";
-	}
-
-	if (Array.isArray(value)) {
-		return "array";
-	}
-
-	return typeof value;
 }
 
 /**
