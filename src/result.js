@@ -14,7 +14,7 @@
 
 /**
  * @template O, E
- * @typedef Result<O, E>
+ * @typedef Result
  * @property {function(): E} error
  * @property {function(): boolean} isErr
  * @property {function(): boolean} isOk
@@ -22,7 +22,6 @@
  */
 
 /**
- * @class
  * @template T
  */
 export class Ok {
@@ -34,6 +33,7 @@ export class Ok {
 	}
 
 	/**
+	 * @returns {never}
 	 * @throws {TypeError}
 	 */
 	error() {
@@ -63,7 +63,6 @@ export class Ok {
 }
 
 /**
- * @class
  * @template T
  */
 export class Err {
@@ -96,6 +95,7 @@ export class Err {
 	}
 
 	/**
+	 * @returns {never}
 	 * @throws {TypeError}
 	 */
 	value() {

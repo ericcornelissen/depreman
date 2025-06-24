@@ -187,6 +187,7 @@ function isExpired(config) {
 /**
  * @param {string} pkg
  * @returns {[string, string]}
+ * @throws {Error}
  */
 function parseRule(pkg) {
 	const i = pkg.lastIndexOf("@");

@@ -16,12 +16,9 @@ import { mock } from "node:test";
 
 import { Err, Ok } from "./result.js";
 
-/**
- * @type {ReadFS}
- */
 export class FS {
 	/**
-	 * @param {Object<string, string>} files
+	 * @param {{[key: string]: string}} files
 	 */
 	constructor(files) {
 		this.access = mock.fn((path) => {

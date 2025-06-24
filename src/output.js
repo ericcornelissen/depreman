@@ -82,9 +82,9 @@ function pkgToString(pkg) {
 	return `${pkg.name}@${pkg.version}`;
 }
 
-/** @typedef {Iterable<Result>} Results */
+/** @typedef {Result[]} Results */
 
-/**  @typedef {Iterable<string[]>} Unused */
+/** @typedef {string[][]} Unused */
 
 /**
  * @typedef Package
@@ -97,7 +97,9 @@ function pkgToString(pkg) {
  * @property {string} reason The deprecation message.
  * @property {{ path: Package[] }[]} kept
  * @property {{ path: Package[], reason: string | boolean }[]} ignored
- *
+ */
+
+/**
  * @typedef {Package & _Result} Result
  */
 

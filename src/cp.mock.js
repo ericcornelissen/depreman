@@ -16,12 +16,9 @@ import { mock } from "node:test";
 
 import { Err, Ok } from "./result.js";
 
-/**
- * @type {ExecCP}
- */
 export class CP {
 	/**
-	 * @param {Object<string, MockCommand>} commands
+	 * @param {{[key: string]: MockCommand}} commands
 	 */
 	constructor(commands) {
 		this.exec = mock.fn((cmd, args) => {

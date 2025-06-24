@@ -5,6 +5,7 @@ import * as process from "node:process";
 import json from "@eslint/json";
 import markdown from "@eslint/markdown";
 import depend from "eslint-plugin-depend";
+import jsdoc from "eslint-plugin-jsdoc";
 import regexp from "eslint-plugin-regexp";
 import top from "@ericcornelissen/eslint-plugin-top";
 import unicorn from "eslint-plugin-unicorn";
@@ -23,6 +24,7 @@ export default [
 		},
 		plugins: {
 			depend,
+			jsdoc,
 			regexp,
 			top,
 			unicorn,
@@ -244,6 +246,168 @@ export default [
 				"depend/ban-dependencies": ["error", {
 					"allowed": ["eslint-plugin-unicorn"],
 				}],
+			},
+
+			// eslint-plugin-jsdoc
+			...{
+				"jsdoc/check-access": "error",
+				"jsdoc/check-alignment": "error",
+				"jsdoc/check-indentation": [
+					"error",
+					{
+						excludeTags: [
+							"typedef",
+						],
+					},
+				],
+				"jsdoc/check-line-alignment": ["error", "never"],
+				"jsdoc/check-param-names": [
+					"error",
+					{
+						allowExtraTrailingParamDocs: false,
+						checkDestructured: true,
+						checkRestProperty: true,
+						disableExtraPropertyReporting: false,
+						enableFixer: false,
+						useDefaultObjectProperties: true,
+					},
+				],
+				"jsdoc/check-property-names": "error",
+				"jsdoc/check-syntax": "error",
+				"jsdoc/check-tag-names": "error",
+				"jsdoc/check-types": [
+					"error",
+					{
+						exemptTagContexts: [],
+						noDefaults: false,
+						unifyParentAndChildTypeChecks: false,
+					},
+				],
+				"jsdoc/empty-tags": "error",
+				"jsdoc/implements-on-classes": "error",
+				"jsdoc/informative-docs": "error",
+				"jsdoc/match-description": [
+					"error",
+					{
+						mainDescription: "^$",
+						tags: {
+							param: "^$",
+							returns: "^$",
+							throws: "^$",
+							yields: "^$",
+						},
+					},
+				],
+				"jsdoc/match-name": "off",
+				"jsdoc/multiline-blocks": [
+					"error",
+					{
+						noFinalLineText: true,
+						noMultilineBlocks: false,
+						noSingleLineBlocks: false,
+						noZeroLineText: true,
+						singleLineTags: [],
+					},
+				],
+				"jsdoc/no-bad-blocks": [
+					"error",
+					{
+						ignore: [],
+						preventAllMultiAsteriskBlocks: true,
+					},
+				],
+				"jsdoc/no-blank-block-descriptions": "error",
+				"jsdoc/no-defaults": "error",
+				"jsdoc/no-missing-syntax": "off",
+				"jsdoc/no-multi-asterisks": [
+					"error",
+					{
+						allowWhitespace: true,
+						preventAtEnd: true,
+						preventAtMiddleLines: true,
+					},
+				],
+				"jsdoc/no-restricted-syntax": "off",
+				"jsdoc/no-types": "off",
+				"jsdoc/no-undefined-types": "error",
+				"jsdoc/require-asterisk-prefix": ["error", "always"],
+				"jsdoc/require-description-complete-sentence": "off",
+				"jsdoc/require-description": "off",
+				"jsdoc/require-example": "off",
+				"jsdoc/require-file-overview": "off",
+				"jsdoc/require-hyphen-before-param-description": "off",
+				"jsdoc/require-jsdoc": [
+					"error",
+					{
+						publicOnly: false,
+						require: {
+							ArrowFunctionExpression: false,
+							ClassDeclaration: false,
+							ClassExpression: false,
+							FunctionDeclaration: true,
+							FunctionExpression: false,
+							MethodDefinition: true,
+						},
+					},
+				],
+				"jsdoc/require-param": "error",
+				"jsdoc/require-param-description": "off",
+				"jsdoc/require-param-name": "error",
+				"jsdoc/require-param-type": "error",
+				"jsdoc/require-property": "error",
+				"jsdoc/require-property-description": "off",
+				"jsdoc/require-property-name": "error",
+				"jsdoc/require-property-type": "error",
+				"jsdoc/require-returns": [
+					"error",
+					{
+						checkConstructors: false,
+						checkGetters: true,
+						exemptedBy: [],
+						forceRequireReturn: true,
+						forceReturnsWithAsync: true,
+					},
+				],
+				"jsdoc/require-returns-check": [
+					"error",
+					{
+						exemptGenerators: true,
+						exemptAsync: false,
+						reportMissingReturnForUndefinedTypes: false,
+					},
+				],
+				"jsdoc/require-returns-description": "off",
+				"jsdoc/require-returns-type": "error",
+				"jsdoc/require-throws": "error",
+				"jsdoc/require-yields": [
+					"error",
+					{
+						exemptedBy: [],
+						forceRequireNext: false,
+						forceRequireYields: true,
+						next: false,
+						nextWithGeneratorTag: false,
+						withGeneratorTag: false,
+					},
+				],
+				"jsdoc/require-yields-check": [
+					"error",
+					{
+						checkGeneratorsOnly: false,
+						next: false,
+					},
+				],
+				"jsdoc/sort-tags": "error",
+				"jsdoc/tag-lines": [
+					"error",
+					"any",
+					{
+						endLines: 0,
+						startLines: 1,
+					},
+				],
+				"jsdoc/text-escaping": "off",
+				"jsdoc/valid-types": "error",
 			},
 
 			// eslint-plugin-regexp
@@ -608,6 +772,9 @@ export default [
 			"no-console": "off",
 			"no-await-in-loop": "off",
 
+			// eslint-plugin-jsdoc
+			"jsdoc/require-jsdoc": "off",
+
 			// eslint-plugin-top
 			"top/no-top-level-side-effects": "off",
 			"top/no-top-level-variables": "off",
@@ -628,6 +795,10 @@ export default [
 			"no-shadow": ["error", {
 				allow: ["t"],
 			}],
+
+			// eslint-plugin-jsdoc
+			"jsdoc/require-jsdoc": "off",
+			"jsdoc/require-returns": "off",
 
 			// eslint-plugin-top
 			"top/no-top-level-side-effects": "off",

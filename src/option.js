@@ -14,14 +14,13 @@
 
 /**
  * @template T
- * @typedef Option<T>
+ * @typedef Option
  * @property {function(): boolean} isNone
  * @property {function(): boolean} isSome
  * @property {function(): T} value
  */
 
 /**
- * @class
  * @template T
  */
 export class Some {
@@ -73,6 +72,7 @@ export const None = {
 	},
 
 	/**
+	 * @returns {never}
 	 * @throws {TypeError}
 	 */
 	value() {

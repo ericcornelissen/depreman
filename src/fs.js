@@ -14,9 +14,6 @@
 
 import { Err, Ok } from "./result.js";
 
-/**
- * @type {ReadFS}
- */
 export class FS {
 	/**
 	 * @type {fs}
@@ -32,7 +29,7 @@ export class FS {
 
 	/**
 	 * @param {string} filepath
-	 * @return {Promise<boolean>}
+	 * @returns {Promise<boolean>}
 	 */
 	async access(filepath) {
 		try {
@@ -45,7 +42,7 @@ export class FS {
 
 	/**
 	 * @param {string} filepath
-	 * @return {Promise<Result<string, string>>}
+	 * @returns {Promise<Result<string, string>>}
 	 */
 	async readFile(filepath) {
 		const options = { encoding: "utf8" };

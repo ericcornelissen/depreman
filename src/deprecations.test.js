@@ -293,7 +293,7 @@ test("deprecations.js", (t) => {
 
 class PM {
 	/**
-	 * @param {Object} p
+	 * @param {object} p
 	 * @param {import("./npm.js").Aliases} p.aliases
 	 * @param {import("./npm.js").DeprecatedPackage} p.deprecations
 	 * @param {import("./npm.js").PackageHierarchy} p.hierarchy

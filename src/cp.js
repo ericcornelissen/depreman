@@ -14,9 +14,6 @@
 
 import { Err, Ok } from "./result.js";
 
-/**
- * @type {ExecCP}
- */
 export class CP {
 	/**
 	 * @type {cp}
@@ -61,9 +58,13 @@ export class CP {
 /**
  * @typedef ExecCP
  * @property {Exec} exec
- *
+ */
+
+/**
  * @typedef {function(string, string[]): Promise<Result<Output, Output>>} Exec
- *
+ */
+
+/**
  * @typedef Output
  * @property {string} stderr
  * @property {string} stdout
@@ -71,18 +72,8 @@ export class CP {
 
 /**
  * @typedef cp
- * @property {function(string, execCallback)} exec
- * @property {function(Error, string, string)} execCallback
- *
- * @typedef options
- * @property {boolean} shell
- *
- * @typedef process
- * @property {function(string, function(number, string): null)} on
- * @property {stream} stdout
- *
- * @typedef stream
- * @property {function(string, function(Buffer): null)} on
+ * @property {function(string, execCallback): void} exec
+ * @property {function(Error, string, string): void} execCallback
  */
 
 /**
