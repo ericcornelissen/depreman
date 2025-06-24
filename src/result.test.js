@@ -20,17 +20,19 @@ import * as fc from "fast-check";
 import { Err, Ok } from "./result.js";
 
 test("result.js", (t) => {
+	const arbitrary = {
+		err: () => fc.anything().map((err) => new Err(err)),
+		ok: () => fc.anything().map((value) => new Ok(value)),
+	};
+
 	t.test("Err", (t) => {
 		t.test("and", (t) => {
 			t.test("Err", () => {
 				fc.assert(
 					fc.property(
-						fc.anything(),
-						fc.anything(),
-						(a, b) => {
-							const errA = new Err(a);
-							const errB = new Err(b);
-
+						arbitrary.err(),
+						arbitrary.err(),
+						(errA, errB) => {
 							const got = errA.and(errB);
 							const want = errA;
 							assert.equal(got, want);
@@ -42,12 +44,9 @@ test("result.js", (t) => {
 			t.test("Ok", () => {
 				fc.assert(
 					fc.property(
-						fc.anything(),
-						fc.anything(),
-						(a, b) => {
-							const err = new Err(a);
-							const ok = new Ok(b);
-
+						arbitrary.err(),
+						arbitrary.ok(),
+						(err, ok) => {
 							const got = err.and(ok);
 							const want = err;
 							assert.equal(got, want);
@@ -71,9 +70,7 @@ test("result.js", (t) => {
 
 		t.test("isErr", () => {
 			fc.assert(
-				fc.property(fc.anything(), (value) => {
-					const err = new Err(value);
-
+				fc.property(arbitrary.err(), (err) => {
 					const got = err.isErr();
 					const want = true;
 					assert.equal(got, want);
@@ -83,9 +80,7 @@ test("result.js", (t) => {
 
 		t.test("isOk", () => {
 			fc.assert(
-				fc.property(fc.anything(), (value) => {
-					const err = new Err(value);
-
+				fc.property(arbitrary.err(), (err) => {
 					const got = err.isOk();
 					const want = false;
 					assert.equal(got, want);
@@ -95,9 +90,7 @@ test("result.js", (t) => {
 
 		t.test("value", () => {
 			fc.assert(
-				fc.property(fc.anything(), (value) => {
-					const err = new Err(value);
-
+				fc.property(arbitrary.err(), (err) => {
 					assert.throws(
 						() => err.value(),
 						{
@@ -115,12 +108,9 @@ test("result.js", (t) => {
 			t.test("Err", () => {
 				fc.assert(
 					fc.property(
-						fc.anything(),
-						fc.anything(),
-						(a, b) => {
-							const ok = new Ok(a);
-							const err = new Err(b);
-
+						arbitrary.ok(),
+						arbitrary.err(),
+						(ok, err) => {
 							const got = ok.and(err);
 							const want = err;
 							assert.equal(got, want);
@@ -132,12 +122,9 @@ test("result.js", (t) => {
 			t.test("Ok", () => {
 				fc.assert(
 					fc.property(
-						fc.anything(),
-						fc.anything(),
-						(a, b) => {
-							const okA = new Ok(a);
-							const okB = new Ok(b);
-
+						arbitrary.ok(),
+						arbitrary.ok(),
+						(okA, okB) => {
 							const got = okA.and(okB);
 							const want = okB;
 							assert.equal(got, want);
@@ -149,9 +136,7 @@ test("result.js", (t) => {
 
 		t.test("error", () => {
 			fc.assert(
-				fc.property(fc.anything(), (value) => {
-					const ok = new Ok(value);
-
+				fc.property(arbitrary.ok(), (ok) => {
 					assert.throws(
 						() => ok.error(),
 						{
@@ -165,9 +150,7 @@ test("result.js", (t) => {
 
 		t.test("isErr", () => {
 			fc.assert(
-				fc.property(fc.anything(), (value) => {
-					const ok = new Ok(value);
-
+				fc.property(arbitrary.ok(), (ok) => {
 					const got = ok.isErr();
 					const want = false;
 					assert.equal(got, want);
@@ -177,9 +160,7 @@ test("result.js", (t) => {
 
 		t.test("isOk", () => {
 			fc.assert(
-				fc.property(fc.anything(), (value) => {
-					const ok = new Ok(value);
-
+				fc.property(arbitrary.ok(), (ok) => {
 					const got = ok.isOk();
 					const want = true;
 					assert.equal(got, want);
