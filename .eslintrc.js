@@ -1,5 +1,7 @@
 // Configuration file for ESLint (https://eslint.org/)
 
+import * as process from "node:process";
+
 import json from "@eslint/json";
 import markdown from "@eslint/markdown";
 import depend from "eslint-plugin-depend";
@@ -657,16 +659,66 @@ export default [
 			"json/top-level-interop": "error",
 		},
 	},
-	{
-		name: "Documentation snippets",
-		files: ["**/*.md/*.js"],
-	},
+
+	...process.argv.includes("**/*.md**") ? [
+		{
+			name: "MarkDown processor",
+			files: ["**/*.md"],
+			plugins: {
+				markdown,
+			},
+			processor: "markdown/markdown",
+		},
+		{
+			name: "Documentation snippets",
+			files: ["**/*.md/*.js"],
+			plugins: {
+				unicorn,
+			},
+			rules: {
+				"eol-last": "off",
+				"no-undef": "off",
+				"no-unused-expressions": "off",
+				"no-unused-vars": "off",
+				"padded-blocks": "off",
+				"strict": "off",
+				"unicode-bom": "off",
+			},
+		},
+	] : [
+		{
+			name: "Documentation",
+			files: ["**/*.md"],
+			language: "markdown/commonmark",
+			plugins: {
+				markdown,
+			},
+			rules: {
+				"markdown/fenced-code-language": "error",
+				"markdown/heading-increment": "error",
+				"markdown/no-bare-urls": "error",
+				"markdown/no-duplicate-definitions": "error",
+				"markdown/no-duplicate-headings": "error",
+				"markdown/no-empty-definitions": "error",
+				"markdown/no-empty-images": "error",
+				"markdown/no-empty-links": "error",
+				"markdown/no-html": "error",
+				"markdown/no-invalid-label-refs": "error",
+				"markdown/no-missing-atx-heading-space": "error",
+				"markdown/no-missing-label-refs": "error",
+				"markdown/no-missing-link-fragments": "error",
+				"markdown/no-multiple-h1": "error",
+				"markdown/no-reversed-media-syntax": "error",
+				"markdown/require-alt-text": "error",
+				"markdown/table-column-count": "error",
+			},
+		},
+	],
+
 	{
 		ignores: [
 			"**/node_modules/",
 			"**/package-lock.json",
 		],
 	},
-
-	...markdown.configs.processor,
 ];

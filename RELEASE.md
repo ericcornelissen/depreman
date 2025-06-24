@@ -46,7 +46,7 @@ found in this document.
    ```markdown
    - _No changes yet_
 
-   ## [0.3.1] - YYYY-MM-DD
+   ## 0.3.1 (YYYY-MM-DD)
    ```
 
    The date should follow the year-month-day format where single-digit months
