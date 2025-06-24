@@ -18,21 +18,14 @@
  */
 export async function getDeprecatedPackages(pm) {
 	const packages = await pm.deprecations();
-	if (packages.isErr()) {
-		throw new Error(packages.error());
-	}
-
-	const [hierarchy, aliases] = await Promise.all([
-		pm.hierarchy(),
+	const [aliases, hierarchy] = await Promise.all([
 		pm.aliases(),
+		pm.hierarchy(),
 	]);
 
-	if (hierarchy.isErr()) {
-		throw new Error(hierarchy.error());
-	}
-
-	if (aliases.isErr()) {
-		throw new Error(aliases.error());
+	const err = packages.and(aliases).and(hierarchy);
+	if (err.isErr()) {
+		throw new Error(err.error());
 	}
 
 	if (hierarchy.value().dependencies) {
