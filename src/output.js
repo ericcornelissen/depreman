@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { typeOf, types } from "./types.js";
+
 /**
  * @param {Results} result
  * @param {Unused} unused
@@ -43,7 +45,7 @@ export function printAndExit(result, unused, options, chalk) {
 			for (const { path, reason } of pkg.ignored) {
 				output.push(
 					`\t${chalk.dim(`. > ${path.map(pkgToString).join(" > ")}`)}`,
-					`\t\t${chalk.dim(`(allowed "${typeof reason === "string" ? reason : "no reason given"}")`)}`,
+					`\t\t${chalk.dim(`(allowed "${typeOf(reason) === types.string ? reason : "no reason given"}")`)}`,
 				);
 			}
 		}

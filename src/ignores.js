@@ -14,6 +14,7 @@
 
 import * as date from "./date.js";
 import * as semver from "./semver.js";
+import { typeOf, types } from "./types.js";
 
 const kUsed = Symbol.for("#used"); // eslint-disable-line top/no-top-level-side-effects
 const kIgnore = "#ignore";
@@ -34,7 +35,7 @@ export function removeIgnored(config, deprecations) {
 			if (ignore) {
 				ignored.push({
 					path,
-					reason: typeof ignore === "string" ? ignore : null,
+					reason: typeOf(ignore) === types.string ? ignore : null,
 				});
 			} else {
 				kept.push({ path });
@@ -156,9 +157,9 @@ function parseDecision(config) {
 		config["*"][kUsed] = true;
 	}
 
-	switch (typeof ignore) {
-		case "boolean":
-		case "string":
+	switch (typeOf(ignore)) {
+		case types.boolean:
+		case types.string:
 			if (ignore.length === 0) {
 				throw new Error(`cannot use empty string for '${kIgnore}', use 'true' instead`);
 			} else {

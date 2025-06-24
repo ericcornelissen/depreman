@@ -14,7 +14,7 @@
 
 /**
  * @param {any} value
- * @returns {string}
+ * @returns {TypeName}
  */
 export function typeOf(value) {
 	if (value === null) {
