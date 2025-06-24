@@ -49,6 +49,9 @@ to ignore npm deprecation warnings for your dependencies.
       Omit deprecation warnings for development, optional, or peer dependencies.
    --report-unused
       Report and fail for unused ignore directives.
+
+Need more help? Found a bug? Missing something? See:
+https://github.com/ericcornelissen/depreman/issues/new/choose
 `);
 }
 
