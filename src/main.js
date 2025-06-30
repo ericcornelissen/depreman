@@ -25,6 +25,7 @@ import { getDeprecatedPackages } from "./deprecations.js";
 import { FS } from "./fs.js";
 import { removeIgnored, unusedIgnores } from "./ignores.js";
 import { NPM } from "./npm.js";
+import { Yarn } from "./yarn.js";
 import { printAndExit } from "./output.js";
 
 const EXIT_CODE_SUCCESS = 0;
@@ -36,10 +37,10 @@ const EXIT_CODE_UNEXPECTED = 2;
  */
 function help() {
 	stdout.write(`depreman [-h|--help] [--errors-only] [--report-unused]
-         [--omit=<dev|optional|peer> ...]
+         [--omit=<dev|optional|peer> ...] [--package-manager=<npm|yarn>]
 
-Manage npm deprecation.  Create an '.ndmrc' file with a JSON-based configuration
-to ignore npm deprecation warnings for your dependencies.
+Manage deprecation warnings. Create an '.ndmrc' file with a JSON-based config
+to ignore deprecation warnings for your dependencies.
 
    -h, --help
       Show this help message.
@@ -47,6 +48,8 @@ to ignore npm deprecation warnings for your dependencies.
       Only output deprecation warnings that are not ignored.
    --omit=<dev|optional|peer>
       Omit deprecation warnings for development, optional, or peer dependencies.
+   --package-manager=<npm|yarn>
+      Which package manager to use, 'npm' (default) or 'yarn'.
    --report-unused
       Report and fail for unused ignore directives.
 
@@ -63,7 +66,9 @@ async function depreman(options) {
 	try {
 		const cp = new CP(nodeCp);
 		const fs = new FS(nodeFs);
-		const pm = new NPM({ cp, fs, options });
+		const pm = options.packageManager === "yarn"
+			? new Yarn({ cp, options })
+			: new NPM({ cp, fs, options });
 
 		const [config, deprecations] = await Promise.all([
 			getConfiguration(fs),
