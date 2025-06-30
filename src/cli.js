@@ -41,6 +41,7 @@ function parse(argv) {
 		omitDev: removeFromList(argv, "--omit=dev"),
 		omitOptional: removeFromList(argv, "--omit=optional"),
 		omitPeer: removeFromList(argv, "--omit=peer"),
+		packageManager: packageManager(argv),
 		reportUnused: removeFromList(argv, "--report-unused"),
 	};
 
@@ -80,12 +81,26 @@ function removeFromList(haystack, needle) {
 }
 
 /**
+ * @param {string[]} argv
+ * @returns {string}
+ */
+function packageManager(argv) {
+	if (removeFromList(argv, "--package-manager=yarn")) {
+		return "yarn"
+	}
+
+	removeFromList(argv, "--package-manager=npm");
+	return "npm";
+}
+
+/**
  * @typedef Config
  * @property {boolean} help
  * @property {boolean} everything
  * @property {boolean} omitDev
  * @property {boolean} omitOptional
  * @property {boolean} omitPeer
+ * @property {"npm" | "yarn"} packageManager
  * @property {boolean} reportUnused
  */
 
