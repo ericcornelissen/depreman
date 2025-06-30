@@ -28,6 +28,8 @@ test("cli.js", (t) => {
 		"--omit=dev",
 		"--omit=optional",
 		"--omit=peer",
+		"--package-manager=npm",
+		"--package-manager=yarn",
 		"--report-unused",
 	];
 
@@ -49,10 +51,17 @@ test("cli.js", (t) => {
 		 * @param {string[]} options.include
 		 */
 		flags: (options) => {
+			if (!options.exclude) {
+				options.exclude = [];
+			};
+			if (!options.include) {
+				options.include = [];
+			};
+
 			const max = flags.length - options.include.filter(v => flags.includes(v)).length;
 			return fc.record({
 				args: fc.uniqueArray(
-					arbitrary.flag({ exclude: options.include }),
+					arbitrary.flag({ exclude: [...options.exclude, ...options.include] }),
 					{ minLength: 0, maxLength: max },
 				),
 				indices: fc.tuple(
@@ -73,6 +82,10 @@ test("cli.js", (t) => {
 				(options.include.includes("-h") && options.include.includes("--help"))
 				||
 				!(args.includes("-h") && args.includes("--help"))
+			).filter((args) =>
+				(options.include.includes("--package-manager=npm") && options.include.includes("--package-manager=yarn"))
+				||
+				!(args.includes("--package-manager=npm") && args.includes("--package-manager=yarn"))
 			);
 		},
 	};
@@ -84,40 +97,57 @@ test("cli.js", (t) => {
 			const argv = [...base];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
-			assert.ok(!got.value().help);
-			assert.ok(got.value().everything);
-			assert.ok(!got.value().omitDev);
-			assert.ok(!got.value().omitOptional);
-			assert.ok(!got.value().omitPeer);
-			assert.ok(!got.value().reportUnused);
+			assert.equal(got.value().help, false);
+			assert.equal(got.value().everything, true);
+			assert.equal(got.value().omitDev, false);
+			assert.equal(got.value().omitOptional, false);
+			assert.equal(got.value().omitPeer, false);
+			assert.equal(got.value().packageManager, "npm");
+			assert.equal(got.value().reportUnused, false);
 		});
 
-		t.test("--help", () => {
-			fc.assert(
-				fc.property(
-					arbitrary.flags({ include: ["--help"] }),
-					(args) => {
-						const argv = [...base, ...args];
-						const got = parseArgv(argv);
-						assert.ok(got.isOk());
-						assert.ok(got.value().help);
-					},
-				),
-			);
-		});
+		t.test("--help", (t) => {
+			t.test("full flag", () => {
+				fc.assert(
+					fc.property(
+						arbitrary.flags({ include: ["--help"] }),
+						(args) => {
+							const argv = [...base, ...args];
+							const got = parseArgv(argv);
+							assert.ok(got.isOk());
+							assert.ok(got.value().help);
+						},
+					),
+				);
+			});
 
-		t.test("-h", () => {
-			fc.assert(
-				fc.property(
-					arbitrary.flags({ include: ["-h"] }),
-					(args) => {
-						const argv = [...base, ...args];
-						const got = parseArgv(argv);
-						assert.ok(got.isOk());
-						assert.ok(got.value().help);
-					},
-				),
-			);
+			t.test("shorthand", () => {
+				fc.assert(
+					fc.property(
+						arbitrary.flags({ include: ["-h"] }),
+						(args) => {
+							const argv = [...base, ...args];
+							const got = parseArgv(argv);
+							assert.ok(got.isOk());
+							assert.ok(got.value().help);
+						},
+					),
+				);
+			});
+
+			t.test("both full and shorthand", () => {
+				fc.assert(
+					fc.property(
+						arbitrary.flags({ include: ["--help", "-h"] }),
+						(args) => {
+							const argv = [...base, ...args];
+							const got = parseArgv(argv);
+							assert.ok(got.isErr());
+							assert.equal(got.error(), "spurious flag(s): -h");
+						},
+					),
+				);
+			});
 		});
 
 		t.test("--errors-only", () => {
@@ -176,6 +206,80 @@ test("cli.js", (t) => {
 			);
 		});
 
+		t.test("--package-manager", (t) => {
+			t.test("npm", () => {
+				fc.assert(
+					fc.property(
+						arbitrary.flags({ include: ["--package-manager=npm"] }),
+						(args) => {
+							const argv = [...base, ...args];
+							const got = parseArgv(argv);
+							assert.ok(got.isOk());
+							assert.equal(got.value().packageManager, "npm");
+						},
+					),
+				);
+			});
+
+			t.test("yarn", () => {
+				fc.assert(
+					fc.property(
+						arbitrary.flags({ include: ["--package-manager=yarn"] }),
+						(args) => {
+							const argv = [...base, ...args];
+							const got = parseArgv(argv);
+							assert.ok(got.isOk());
+							assert.equal(got.value().packageManager, "yarn");
+						},
+					),
+				);
+			});
+
+			t.test("not present", () => {
+				fc.assert(
+					fc.property(
+						arbitrary.flags({ exclude: ["--package-manager=npm", "--package-manager=yarn"] }),
+						(args) => {
+							const argv = [...base, ...args];
+							const got = parseArgv(argv);
+							assert.ok(got.isOk());
+							assert.equal(got.value().packageManager, "npm");
+						},
+					),
+				);
+			});
+
+			t.test("unsupported", () => {
+				fc.assert(
+					fc.property(
+						fc.string()
+							.filter(name => name !== "npm" && name !== "yarn")
+							.chain(name => arbitrary.flags({ include: [`--package-manager=${name}`] })),
+						(args) => {
+							const argv = [...base, ...args];
+							const got = parseArgv(argv);
+							assert.ok(got.isErr());
+							assert.match(got.error(), /^spurious flag\(s\): --package-manager=.*$/u);
+						},
+					),
+				);
+			});
+
+			t.test("multiple", () => {
+				fc.assert(
+					fc.property(
+						arbitrary.flags({ include: ["--package-manager=npm", "--package-manager=yarn"] }),
+						(args) => {
+							const argv = [...base, ...args];
+							const got = parseArgv(argv);
+							assert.ok(got.isErr());
+							assert.equal(got.error(), "spurious flag(s): --package-manager=npm");
+						},
+					),
+				);
+			});
+		});
+
 		t.test("--report-unused", () => {
 			fc.assert(
 				fc.property(
@@ -203,20 +307,6 @@ test("cli.js", (t) => {
 						const got = parseArgv(argv);
 						assert.ok(got.isErr());
 						assert.equal(got.error(), `spurious flag(s): ${flag}`);
-					},
-				),
-			);
-		});
-
-		t.test("both -h and --help", () => {
-			fc.assert(
-				fc.property(
-					arbitrary.flags({ include: ["--help", "-h"] }),
-					(args) => {
-						const argv = [...base, ...args];
-						const got = parseArgv(argv);
-						assert.ok(got.isErr());
-						assert.equal(got.error(), "spurious flag(s): -h");
 					},
 				),
 			);
