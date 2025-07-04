@@ -58,6 +58,8 @@ The CLI has a couple of options:
 - `--report-unused`: report and fail if there is an ignore directive that is
   unused. This is recommended if you have a lockfile but discouraged if you do
   not.
+- `--package-manager=<npm|yarn>`: select which package manager to use, 'npm'
+  (default) or 'yarn'.
 - `--omit=<dev|optional|peer>`: ignore deprecation warnings in development,
   optional, or peer dependencies. Can be repeated.
 
