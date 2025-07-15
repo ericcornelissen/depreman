@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { parseJSON } from "./json.js";
 import { Err, Ok } from "./result.js";
 
 export class Yarn {
@@ -131,18 +132,6 @@ export class Yarn {
 		}
 
 		return new Ok(hierarchy);
-	}
-}
-
-/**
- * @param {string} rawJSON
- * @returns {Result<any, string>}
- */
-function parseJSON(rawJSON) {
-	try {
-		return new Ok(JSON.parse(rawJSON));
-	} catch (error) {
-		return new Err(error.message);
 	}
 }
 

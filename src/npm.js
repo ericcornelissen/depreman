@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { parseJSON } from "./json.js";
 import { None, Some } from "./option.js";
 import { Err, Ok } from "./result.js";
 
@@ -192,18 +193,6 @@ export class NPM {
 		const version = pkg.slice(i + 1);
 
 		return new Some({ name, version, reason });
-	}
-}
-
-/**
- * @param {string} rawJSON
- * @returns {Result<any, string>}
- */
-function parseJSON(rawJSON) {
-	try {
-		return new Ok(JSON.parse(rawJSON));
-	} catch (error) {
-		return new Err(error.toString());
 	}
 }
 
