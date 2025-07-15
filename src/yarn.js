@@ -12,29 +12,147 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Err } from "./result.js";
+import { Err, Ok } from "./result.js";
 
 export class Yarn {
 	/**
-	 * @returns {Promise<Result<Aliases, string>>}
+	 * @type {ExecCP}
+	 */
+	#cp;
+
+	/**
+	 * @param {object} p
+	 * @param {ExecCP} p.cp
+	 */
+	constructor({ cp }) {
+		// NOTE: Support for options is not yet supported for Yarn.
+		this.#cp = cp;
+	}
+
+	/**
+	 * @returns {Result<Aliases, string>}
 	 */
 	aliases() {
-		return new Err("not implemented");
+		// NOTE: Support for resolving aliases is not yet supported for Yarn.
+		return new Ok(new Map());
 	}
 
 	/**
 	 * @returns {Promise<Result<DeprecatedPackage[], string>>}
 	 */
-	deprecations() {
-		return new Err("not implemented");
+	async deprecations() {
+		const cmd = "yarn";
+		const args = [
+			"npm",
+			"audit",
+			"--recursive",
+			"--json",
+		];
+
+		const result = await this.#cp.exec(cmd, args);
+		if (result.isOk()) {
+			return new Ok([]);
+		}
+
+		const { stdout } = result.error();
+		const deprecations = [];
+		for (const line of stdout.trim().split("\n")) {
+			const json = parseJSON(line);
+			if (json.isErr()) {
+				const error = json.error();
+				return new Err(`yarn npm audit output not JSON: ${error}`);
+			}
+
+			const advisory = json.value();
+			if (!advisory.children.ID.endsWith(" (deprecation)")) {
+				continue;
+			}
+
+			for (const version of advisory.children["Tree Versions"]) {
+				deprecations.push({
+					name: advisory.value,
+					version,
+					reason: advisory.children.Issue,
+				});
+			}
+		}
+
+		return new Ok(deprecations);
 	}
 
 	/**
 	 * @returns {Promise<Result<PackageHierarchy, string>>}
 	 */
-	hierarchy() {
-		return new Err("not implemented");
+	async hierarchy() {
+		const cmd = "yarn";
+		const args = [
+			"info",
+			"--recursive",
+			"--json",
+		];
+
+		const result = await this.#cp.exec(cmd, args);
+		if (result.isErr()) {
+			const { stderr } = result.error();
+			return new Err(`yarn info failed:\n${stderr}`);
+		}
+
+		const { stdout } = result.value();
+		const dependencies = new Map();
+		let root = null;
+		for (const line of stdout.trim().split("\n")) {
+			const json = parseJSON(line);
+			if (json.isErr()) {
+				const error = json.error();
+				return new Err(`yarn info output not JSON: ${error}`);
+			}
+
+			const dependency = json.value();
+			root = dependency.value;
+			dependencies.set(
+				dependency.value,
+				dependency.children.Dependencies?.map(({ locator }) => locator),
+			);
+		}
+
+		const hierarchy = { dependencies: {} };
+		const queue = [[root, hierarchy]];
+		while (queue.length > 0) {
+			const [id, obj] = queue.pop();
+			for (const dependency of (dependencies.get(id) || [])) {
+				const { name, version } = parseLocator(dependency);
+				obj.dependencies[name] = {
+					version,
+					dependencies: {},
+				};
+
+				queue.push([dependency, obj.dependencies[name]]);
+			}
+		}
+
+		return new Ok(hierarchy);
 	}
+}
+
+/**
+ * @param {string} rawJSON
+ * @returns {Result<any, string>}
+ */
+function parseJSON(rawJSON) {
+	try {
+		return new Ok(JSON.parse(rawJSON));
+	} catch (error) {
+		return new Err(error.message);
+	}
+}
+
+/**
+ * @param {string} locator
+ * @returns {Package}
+ */
+function parseLocator(locator) {
+	const match = /^(?<name>.+)@[^@]+:(?<version>[^:]+)/u.exec(locator);
+	return match.groups;
 }
 
 /**
@@ -73,3 +191,5 @@ export class Yarn {
  * @template O, E
  * @typedef {import("./result.js").Result<O, E>} Result
  */
+
+/** @typedef {import("./cp.js").ExecCP} ExecCP */

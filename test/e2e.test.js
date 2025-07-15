@@ -83,6 +83,17 @@ test("end-to-end", async (t) => {
 
 		assert.equal(result.exitCode, 0);
 	});
+
+	await t.test("using yarn", () => {
+		const result = cli({
+			args: ["--package-manager=yarn"],
+			project: fixture("yarn"),
+		});
+
+		assert.equal(result.exitCode, 1);
+		assert.notEqual(result.stdout, "");
+		assert.equal(result.stderr, "");
+	});
 });
 
 const root = path.resolve(import.meta.dirname, "..");

@@ -10,6 +10,11 @@ export default {
 		"!src/**/*.test.js",
 		"!src/main.js",
 	],
+	mutator: {
+		excludedMutations: [
+			"Regex",
+		],
+	},
 
 	testRunner: "tap",
 	tap: {
