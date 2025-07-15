@@ -22,7 +22,8 @@
   "type": "module",
   "engines": {
     "node": "^20 || ^22 || ^24",
-    "npm": "^9 || ^10 || ^11"
+    "npm": "^9 || ^10 || ^11",
+    "yarn": "^4.1.0"
   },
   "scripts": {
     "_eslint": "eslint --config .eslintrc.js",
@@ -36,11 +37,11 @@
     "check:json": "npm run _eslint -- '**/*.json'",
     "check:licenses": "licensee --errors-only",
     "check:lockfile": "lockfile-lint",
-    "check:manifest": "publint --strict && ls-engines",
+    "check:manifest": "publint --pack npm --strict && ls-engines",
     "check:md": "npm run check:md:code && npm run check:md:text",
     "check:md:code": "npm run _eslint -- '**/*.md**'",
     "check:md:text": "npm run _eslint -- '**/*.md'",
-    "clean": "git clean --force -X test/fixtures/*/node_modules mutation.html unit.lcov",
+    "clean": "git clean --force -X test/fixtures/*/node_modules test/fixtures/yarn/.yarn* mutation.html unit.lcov",
     "coverage": "npm run coverage:unit",
     "coverage:unit": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=unit.lcov 'src/*.test.js' && lcov-total unit.lcov --gte=100",
     "dogfeed": "node bin/cli.js --errors-only --report-unused",

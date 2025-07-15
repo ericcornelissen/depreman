@@ -9,7 +9,7 @@ Versioning].
 
 ## Unreleased
 
-- _No changes yet_
+- Add (experimental) support for Yarn v4.
 
 ## 0.3.9 (2025-06-18)
 

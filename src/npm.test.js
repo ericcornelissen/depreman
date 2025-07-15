@@ -224,7 +224,6 @@ test("npm.js", (t) => {
 			const err = got.error();
 			assert.equal(err, `npm install failed:\n${stderr}`);
 		});
-
 	});
 
 	t.test("hierarchy", (t) => {
