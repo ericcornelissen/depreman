@@ -19,6 +19,9 @@ import * as path from "node:path";
 import * as process from "node:process";
 import { test } from "node:test";
 
+import isCI from "is-ci";
+import which from "which";
+
 test("end-to-end", async (t) => {
 	await t.test("--help", () => {
 		const result = cli({
@@ -84,7 +87,7 @@ test("end-to-end", async (t) => {
 		assert.equal(result.exitCode, 0);
 	});
 
-	await t.test("using yarn", () => {
+	await t.test("using yarn", { skip: await skipYarn() }, () => {
 		const result = cli({
 			args: ["--package-manager=yarn"],
 			project: fixture("yarn"),
@@ -132,4 +135,17 @@ function cli({ args, project }) {
 		stdout: result.stdout,
 		stderr: result.stderr,
 	};
+}
+
+async function skipYarn() {
+	if (isCI) {
+		return false;
+	}
+
+	try {
+		await which("yarn");
+		return false;
+	} catch {
+		return "yarn not installed";
+	}
 }

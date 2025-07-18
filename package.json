@@ -26,6 +26,7 @@
     "yarn": "^4.1.0"
   },
   "scripts": {
+    "_dev-env": "docker run -it --rm --workdir '/depreman' --mount 'type=bind,source=.,target=/depreman' --name depreman-dev-env depreman-dev-img",
     "_eslint": "eslint --config .eslintrc.js",
     "audit": "npm run audit:deprecations && npm run audit:vulnerabilities",
     "audit:deprecations": "npm run dogfeed",
@@ -44,6 +45,8 @@
     "clean": "git clean --force -X test/fixtures/*/node_modules test/fixtures/yarn/.yarn* mutation.html unit.lcov",
     "coverage": "npm run coverage:unit",
     "coverage:unit": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=unit.lcov 'src/*.test.js' && lcov-total unit.lcov --gte=100",
+    "dev-env": "npm run dev-img && npm run _dev-env",
+    "dev-img": "docker build --file Containerfile.dev --tag depreman-dev-img .",
     "dogfeed": "node bin/cli.js --errors-only --report-unused",
     "mutation": "stryker run .stryker.js",
     "test": "npm run test:unit && npm run test:e2e",
@@ -69,10 +72,12 @@
     "eslint-plugin-regexp": "2.9.0",
     "eslint-plugin-unicorn": "59.0.0",
     "fast-check": "4.2.0",
+    "is-ci": "4.1.0",
     "lcov-total": "2.1.1",
     "licensee": "11.1.1",
     "lockfile-lint": "4.14.0",
     "ls-engines": "0.9.3",
-    "publint": "0.3.11"
+    "publint": "0.3.11",
+    "which": "5.0.0"
   }
 }

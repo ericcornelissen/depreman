@@ -15,37 +15,17 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-name: Nightly
-on:
-  schedule:
-    - cron: "0 2 * * *"
-  workflow_dispatch: ~
+FROM docker.io/node:24.4.1-alpine3.22
 
-permissions: read-all
+RUN apk add --no-cache \
+  bash git \
+  && \
+  git config --global --add safe.directory /depreman
 
-jobs:
-  test:
-    name: Test against latest runtime dependency versions
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          persist-credentials: false
-      - name: Install Node.js
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
-        with:
-          cache: npm
-          node-version-file: .nvmrc
-      - name: Install Yarn
-        run: |
-          corepack enable
-          yarn set version 4.1.0
-      - name: Install dependencies
-        run: npm clean-install
-      - name: Bump runtime dependencies to latest compatible
-        run: |
-          npm update --omit dev --omit optional --omit peer
-          npm install
-      - name: Run tests
-        run: npm run test
+RUN corepack enable && yarn set version 4.1.0
+
+WORKDIR /depreman
+COPY package.json package-lock.json .npmrc ./
+RUN npm clean-install
+
+ENTRYPOINT ["/bin/bash"]
