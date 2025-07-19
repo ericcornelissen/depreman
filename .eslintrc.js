@@ -9,6 +9,7 @@ import jsdoc from "eslint-plugin-jsdoc";
 import regexp from "eslint-plugin-regexp";
 import top from "@ericcornelissen/eslint-plugin-top";
 import unicorn from "eslint-plugin-unicorn";
+import yml from "eslint-plugin-yml";
 
 export default [
 	{
@@ -830,6 +831,69 @@ export default [
 			"json/top-level-interop": "error",
 		},
 	},
+	{
+		name: "YAML",
+		files: [".github/**/*.yml", ".lockfile-lintrc.yml"],
+		plugins: { yml },
+		rules: {
+			"yml/block-mapping": ["error", "always"],
+			"yml/block-mapping-colon-indicator-newline": ["error", "never"],
+			"yml/block-mapping-question-indicator-newline": ["error", "never"],
+			"yml/block-sequence": ["error", "always"],
+			"yml/block-sequence-hyphen-indicator-newline": ["error", "never"],
+			"yml/file-extension": [
+				"error",
+				{
+					extension: "yml",
+					caseSensitive: true,
+				},
+			],
+			"yml/indent": [
+				"error",
+				2,
+				{
+					indentBlockSequences: true,
+					indicatorValueIndent: 2,
+				},
+			],
+			"yml/key-name-casing": "off",
+			"yml/key-spacing": [
+				"error",
+				{
+					afterColon: true,
+					beforeColon: false,
+					mode: "strict",
+				},
+			],
+			"yml/no-empty-document": "error",
+			"yml/no-empty-key": "error",
+			"yml/no-empty-mapping-value": "error",
+			"yml/no-empty-sequence-entry": "error",
+			"yml/no-irregular-whitespace": "error",
+			"yml/no-multiple-empty-lines": [
+				"error",
+				{
+					max: 1,
+					maxEOF: 0,
+					maxBOF: 0,
+				},
+			],
+			"yml/no-tab-indent": "error",
+			"yml/no-trailing-zeros": "error",
+			"yml/plain-scalar": ["error", "always"],
+			"yml/quotes": [
+				"error",
+				{
+					avoidEscape: true,
+					prefer: "double",
+				},
+			],
+			"yml/require-string-key": "error",
+			"yml/sort-keys": "off",
+			"yml/sort-sequence-values": "off",
+			"yml/spaced-comment": ["error", "always"],
+		},
+	},
 
 	...process.argv.includes("**/*.md**") ? [
 		{
@@ -900,4 +964,6 @@ export default [
 			"**/package-lock.json",
 		],
 	},
+
+	...yml.configs["flat/base"],
 ];
