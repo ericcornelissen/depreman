@@ -219,74 +219,57 @@ test("deprecations.js", (t) => {
 			t.test(name, async () => {
 				const { want } = testCase;
 
-				const pm = new PM({
+				const pm = new PackageManager({
 					aliases: new Ok(testCase.aliases || new Map()),
 					deprecations: new Ok(testCase.deprecations),
 					hierarchy: new Ok(testCase.hierarchy),
 				})
 				const got = await getDeprecatedPackages(pm);
-				assert.deepEqual(got, want);
+				assert.ok(got.isOk());
+				assert.deepEqual(got.value(), want);
 			});
 		}
 
 		t.test("deprecation warnings cannot be obtained", async () => {
 			const err = "deprecations error";
 
-			const pm = new PM({
+			const pm = new PackageManager({
 				aliases: new Ok(),
 				deprecations: new Err(err),
 				hierarchy: new Ok(),
 			});
 
-			await assert.rejects(
-				() => getDeprecatedPackages(pm),
-				(error) => {
-					assert.ok(error instanceof Error);
-					assert.equal(error.message, err);
-
-					return true;
-				},
-			);
+			const got = await getDeprecatedPackages(pm);
+			assert.ok(got.isErr());
+			assert.equal(got.error(), err);
 		});
 
 		t.test("dependency hierarchy cannot be obtained", async () => {
 			const err = "hierarchy error";
 
-			const pm = new PM({
+			const pm = new PackageManager({
 				aliases: new Ok(),
 				deprecations: new Ok(),
 				hierarchy: new Err(err),
 			});
 
-			await assert.rejects(
-				() => getDeprecatedPackages(pm),
-				(error) => {
-					assert.ok(error instanceof Error);
-					assert.equal(error.message, err);
-
-					return true;
-				},
-			);
+			const got = await getDeprecatedPackages(pm);
+			assert.ok(got.isErr());
+			assert.equal(got.error(), err);
 		});
 
 		t.test("aliases cannot be obtained", async () => {
 			const err = "alias error";
 
-			const pm = new PM({
+			const pm = new PackageManager({
 				aliases: new Err(err),
 				deprecations: new Ok(),
 				hierarchy: new Ok(),
 			});
 
-			await assert.rejects(
-				() => getDeprecatedPackages(pm),
-				(error) => {
-					assert.ok(error instanceof Error);
-					assert.equal(error.message, err);
-
-					return true;
-				},
-			);
+			const got = await getDeprecatedPackages(pm);
+			assert.ok(got.isErr());
+			assert.equal(got.error(), err);
 		});
 
 		t.test("multiple errors", async () => {
@@ -294,26 +277,20 @@ test("deprecations.js", (t) => {
 			const err2 = "aliases error";
 			const err3 = "hierarchy error";
 
-			const pm = new PM({
+			const pm = new PackageManager({
 				aliases: new Err(err2),
 				deprecations: new Err(err1),
 				hierarchy: new Err(err3),
 			});
 
-			await assert.rejects(
-				() => getDeprecatedPackages(pm),
-				(error) => {
-					assert.ok(error instanceof Error);
-					assert.equal(error.message, err1);
-
-					return true;
-				},
-			);
+			const got = await getDeprecatedPackages(pm);
+			assert.ok(got.isErr());
+			assert.equal(got.error(), err1);
 		});
 	});
 });
 
-class PM {
+class PackageManager {
 	/**
 	 * @param {object} p
 	 * @param {import("./npm.js").Aliases} p.aliases
