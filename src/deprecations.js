@@ -12,9 +12,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { Err, Ok } from "./result.js";
+
 /**
  * @param {PackageManager} pm
- * @returns {Promise<DeprecatedPackage[]>}
+ * @returns {Promise<Result<DeprecatedPackage[], string>>}
  */
 export async function getDeprecatedPackages(pm) {
 	const packages = await pm.deprecations();
@@ -25,7 +27,7 @@ export async function getDeprecatedPackages(pm) {
 
 	const err = packages.and(aliases).and(hierarchy);
 	if (err.isErr()) {
-		throw new Error(err.error());
+		return new Err(err.error());
 	}
 
 	if (hierarchy.value().dependencies) {
@@ -36,7 +38,7 @@ export async function getDeprecatedPackages(pm) {
 		pkg.paths = findPackagePaths(pkg, hierarchy.value(), aliases.value());
 	}
 
-	return packages.value();
+	return new Ok(packages.value());
 }
 
 /**
