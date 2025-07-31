@@ -38,7 +38,7 @@
     "check:json": "npm run _eslint -- '**/*.json'",
     "check:licenses": "licensee --errors-only",
     "check:lockfile": "lockfile-lint",
-    "check:manifest": "publint --pack npm --strict && ls-engines",
+    "check:manifest": "npmPkgJsonLint --quiet --configFile ./.manifest-lintrc.json ./package.json && publint --pack npm --strict && ls-engines",
     "check:md": "npm run check:md:code && npm run check:md:text",
     "check:md:code": "npm run _eslint -- '**/*.md**'",
     "check:md:text": "npm run _eslint -- '**/*.md'",
@@ -79,6 +79,7 @@
     "licensee": "11.1.1",
     "lockfile-lint": "4.14.0",
     "ls-engines": "0.9.3",
+    "npm-package-json-lint": "9.0.0",
     "publint": "0.3.11",
     "which": "5.0.0"
   }
