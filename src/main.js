@@ -75,12 +75,12 @@ async function depreman(options) {
 			getDeprecatedPackages(pm),
 		]);
 
-		if (deprecations.isErr()) {
-			throw new Error(deprecations.error());
+		if (deprecations.and(config).isErr()) {
+			throw new Error(deprecations.and(config).error());
 		}
 
-		const result = removeIgnored(config, deprecations.value());
-		const unused = options.reportUnused ? unusedIgnores(config) : [];
+		const result = removeIgnored(config.value(), deprecations.value());
+		const unused = options.reportUnused ? unusedIgnores(config.value()) : [];
 		const { ok, report } = printAndExit(result, unused, options, chalk);
 		if (report) {
 			stdout.write(`${report}\n`);

@@ -76,8 +76,10 @@ test("config.js", (t) => {
 				});
 
 				const got = await getConfiguration(fs);
+				assert.ok(got.isOk());
+
 				const want = testCase.config;
-				assert.deepEqual(got, want);
+				assert.deepEqual(got.value(), want);
 			});
 		}
 
@@ -162,15 +164,9 @@ test("config.js", (t) => {
 					"./.ndmrc": JSON.stringify(testCase.config),
 				});
 
-				await assert.rejects(
-					async () => await getConfiguration(fs),
-					(error) => {
-						assert.ok(error instanceof Error);
-						assert.equal(error.message, testCase.message);
-
-						return true;
-					},
-				)
+				const got = await getConfiguration(fs);
+				assert.ok(got.isErr());
+				assert.equal(got.error(), testCase.message);
 			});
 		}
 
@@ -192,34 +188,22 @@ test("config.js", (t) => {
 				"./.ndmrc": "I'm not valid JSON",
 			});
 
-			await assert.rejects(
-				() => getConfiguration(fs),
-				(error) => {
-					assert.ok(error instanceof Error);
-					assert.match(
-						error.message,
-						/^Configuration file invalid \(.+?\)$/u,
-					);
-
-					return true;
-				},
+			const got = await getConfiguration(fs);
+			assert.ok(got.isErr());
+			assert.match(
+				got.error(),
+				/^Configuration file invalid \(.+?\)$/u,
 			);
 		});
 
 		t.test("file not found", async () => {
 			const fs = new FS({});
 
-			await assert.rejects(
-				() => getConfiguration(fs),
-				(error) => {
-					assert.ok(error instanceof Error);
-					assert.equal(
-						error.message,
-						"could not get .ndmrc: file not found",
-					);
-
-					return true;
-				},
+			const got = await getConfiguration(fs);
+			assert.ok(got.isErr());
+			assert.equal(
+				got.error(),
+				"could not get .ndmrc: file not found",
 			);
 		});
 	});
