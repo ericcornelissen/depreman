@@ -957,7 +957,9 @@ export default [
 				"markdown/no-reversed-media-syntax": "error",
 				"markdown/no-unused-definitions": "error",
 				"markdown/require-alt-text": "error",
-				"markdown/table-column-count": "error",
+				"markdown/table-column-count": ["error", {
+					checkMissingCells: true,
+				}],
 			},
 		},
 	],
