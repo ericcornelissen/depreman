@@ -67,7 +67,7 @@
     "@stryker-mutator/core": "9.0.1",
     "@stryker-mutator/tap-runner": "9.0.1",
     "better-npm-audit": "3.11.0",
-    "eslint": "9.32.0",
+    "eslint": "9.33.0",
     "eslint-plugin-depend": "1.1.0",
     "eslint-plugin-jsdoc": "51.3.1",
     "eslint-plugin-regexp": "2.9.0",
