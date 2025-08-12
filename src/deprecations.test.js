@@ -15,6 +15,8 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
+import * as fc from "fast-check";
+
 import { Err, Ok } from "./result.js";
 
 import {
@@ -217,13 +219,14 @@ test("deprecations.js", (t) => {
 
 		for (const [name, testCase] of Object.entries(testCases)) {
 			t.test(name, async () => {
-				const { want } = testCase;
+				const { aliases, deprecations, hierarchy, want } = testCase;
 
 				const pm = new PackageManager({
-					aliases: new Ok(testCase.aliases || new Map()),
-					deprecations: new Ok(testCase.deprecations),
-					hierarchy: new Ok(testCase.hierarchy),
-				})
+					aliases: Promise.resolve(new Ok(aliases || new Map())),
+					deprecations: Promise.resolve(new Ok(deprecations)),
+					hierarchy: Promise.resolve(new Ok(hierarchy)),
+				});
+
 				const got = await getDeprecatedPackages(pm);
 				assert.ok(got.isOk());
 				assert.deepEqual(got.value(), want);
@@ -286,6 +289,31 @@ test("deprecations.js", (t) => {
 			const got = await getDeprecatedPackages(pm);
 			assert.ok(got.isErr());
 			assert.equal(got.error(), err1);
+		});
+
+		t.test("race conditions", async () => {
+			await fc.assert(
+				fc.asyncProperty(
+					fc.scheduler(),
+					async (s) => {
+						const aliases = new Ok(new Map());
+						const deprecations = new Ok([]);
+						const hierarchy = new Ok({});
+
+						const pm = new PackageManager({
+							aliases: s.schedule(Promise.resolve(aliases)),
+							deprecations: s.schedule(Promise.resolve(deprecations)),
+							hierarchy: s.schedule(Promise.resolve(hierarchy)),
+						});
+
+						const promise = getDeprecatedPackages(pm);
+						s.waitNext(3);
+
+						const got = await promise;
+						assert.ok(got.isOk());
+					},
+				),
+			);
 		});
 	});
 });
