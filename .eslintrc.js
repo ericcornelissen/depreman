@@ -253,6 +253,7 @@ export default [
 			...{
 				"jsdoc/check-access": "error",
 				"jsdoc/check-alignment": "error",
+				"jsdoc/check-examples": "off",
 				"jsdoc/check-indentation": [
 					"error",
 					{
@@ -276,6 +277,7 @@ export default [
 				"jsdoc/check-property-names": "error",
 				"jsdoc/check-syntax": "error",
 				"jsdoc/check-tag-names": "error",
+				"jsdoc/check-template-names": "error",
 				"jsdoc/check-types": [
 					"error",
 					{
@@ -286,6 +288,7 @@ export default [
 				],
 				"jsdoc/empty-tags": "error",
 				"jsdoc/implements-on-classes": "error",
+				"jsdoc/imports-as-dependencies": "error",
 				"jsdoc/informative-docs": "error",
 				"jsdoc/match-description": [
 					"error",
