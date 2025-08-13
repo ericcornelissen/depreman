@@ -14,7 +14,48 @@
 
 import { Err, Ok } from "./result.js";
 
-const dateExpr = /^(?<yyyy>\d{4})-(?<mm>\d{1,2})-(?<dd>\d{1,2})$/u;
+const DATE_EXPR = /^(?<yyyy>\d{4})-(?<mm>\d{1,2})-(?<dd>\d{1,2})$/u;
+
+const MIN_YEAR = 2000, MAX_YEAR = 3000;
+const MIN_MONTH = 1, MAX_MONTH = 12;
+const MIN_DAY = 1, MAX_DAY = 31;
+
+/**
+ * @param {string} str
+ * @returns {Result<DepremanDate, string>}
+ */
+export function parse(str) {
+	const parsed = DATE_EXPR.exec(str);
+	if (parsed === null) {
+		return new Err(`invalid date '${str}' (must be 'yyyy-mm-dd')`);
+	}
+
+	const { yyyy, mm, dd } = parsed.groups;
+	const rawDate = {
+		year: Number.parseInt(yyyy, 10),
+		month: Number.parseInt(mm, 10),
+		day: Number.parseInt(dd, 10),
+	};
+
+	if (!isValid(rawDate)) {
+		return new Err(`invalid date '${yyyy}-${mm}-${dd}'`);
+	}
+
+	const date = new DepremanDate(rawDate);
+	return new Ok(date);
+}
+
+/**
+ * @returns {DepremanDate}
+ */
+export function today() {
+	const date = new Date();
+	return new DepremanDate({
+		year: date.getFullYear(),
+		month: date.getMonth() + 1,
+		day: date.getDate(),
+	});
+}
 
 /**
  * @private
@@ -70,47 +111,6 @@ export class DepremanDate {
 		return false;
 	}
 }
-
-/**
- * @param {string} str
- * @returns {Result<DepremanDate, string>}
- */
-export function parse(str) {
-	const parsed = dateExpr.exec(str);
-	if (parsed === null) {
-		return new Err(`invalid date '${str}' (must be 'yyyy-mm-dd')`);
-	}
-
-	const { yyyy, mm, dd } = parsed.groups;
-	const rawDate = {
-		year: Number.parseInt(yyyy, 10),
-		month: Number.parseInt(mm, 10),
-		day: Number.parseInt(dd, 10),
-	};
-
-	if (!isValid(rawDate)) {
-		return new Err(`invalid date '${yyyy}-${mm}-${dd}'`);
-	}
-
-	const date = new DepremanDate(rawDate);
-	return new Ok(date);
-}
-
-/**
- * @returns {DepremanDate}
- */
-export function today() {
-	const date = new Date();
-	return new DepremanDate({
-		year: date.getFullYear(),
-		month: date.getMonth() + 1,
-		day: date.getDate(),
-	});
-}
-
-const MIN_YEAR = 2000, MAX_YEAR = 3000;
-const MIN_MONTH = 1, MAX_MONTH = 12;
-const MIN_DAY = 1, MAX_DAY = 31;
 
 /**
  * @param {RawDate} date

@@ -48,6 +48,215 @@ test("date.js", (t) => {
 			),
 	};
 
+	t.test("parse", (t) => {
+		const goodTestCases = {
+			"full year": {
+				str: "2024-12-31",
+				raw: {
+					year: 2024,
+					month: 12,
+					day: 31,
+				},
+			},
+			"day and month prefixed with zero": {
+				str: "2025-01-01",
+				raw: {
+					year: 2025,
+					month: 1,
+					day: 1,
+				},
+			},
+			"day and month NOT prefixed with zero": {
+				str: "2024-1-1",
+				raw: {
+					year: 2024,
+					month: 1,
+					day: 1,
+				},
+			},
+			"earliest valid date": {
+				str: "2000-01-01",
+				raw: {
+					year: 2000,
+					month: 1,
+					day: 1,
+				},
+			},
+			"earliest month and day": {
+				str: "2025-01-01",
+				raw: {
+					year: 2025,
+					month: 1,
+					day: 1,
+				},
+			},
+			"earliest month": {
+				str: "2025-01-04",
+				raw: {
+					year: 2025,
+					month: 1,
+					day: 4,
+				},
+			},
+			"earliest day": {
+				str: "2025-02-01",
+				raw: {
+					year: 2025,
+					month: 2,
+					day: 1,
+				},
+			},
+			"latest valid date": {
+				str: "2999-12-31",
+				raw: {
+					year: 2999,
+					month: 12,
+					day: 31,
+				},
+			},
+			"latest month and day": {
+				str: "2025-12-31",
+				raw: {
+					year: 2025,
+					month: 12,
+					day: 31,
+				},
+			},
+			"latest month": {
+				str: "2025-12-4",
+				raw: {
+					year: 2025,
+					month: 12,
+					day: 4,
+				},
+			},
+			"latest day": {
+				str: "2025-2-31",
+				raw: {
+					year: 2025,
+					month: 2,
+					day: 31,
+				},
+			},
+		};
+
+		for (const [name, testCase] of Object.entries(goodTestCases)) {
+			const { str, raw } = testCase;
+			t.test(name, () => {
+				const result = parse(str);
+				assert.ok(result.isOk());
+
+				const got = result.value();
+				assert.ok(got instanceof DepremanDate);
+
+				const want = new DepremanDate(raw);
+				assert.ok(got.is(want));
+			});
+		}
+
+		const badTestCases = {
+			"month 0": {
+				str: "2025-00-01",
+				want: "invalid date '2025-00-01'",
+			},
+			"month 13": {
+				str: "2025-13-01",
+				want: "invalid date '2025-13-01'",
+			},
+			"day 32": {
+				str: "2025-01-32",
+				want: "invalid date '2025-01-32'",
+			},
+			"day 0": {
+				str: "2025-01-00",
+				want: "invalid date '2025-01-00'",
+			},
+			"too far in the past (catch likely mistakes in the year)": {
+				str: "1025-01-01",
+				want: "invalid date '1025-01-01'",
+			},
+			"too far in the future (catch likely mistakes in the year)": {
+				str: "3035-01-01",
+				want: "invalid date '3035-01-01'",
+			},
+			"not a date": {
+				str: "foobar",
+				want: "invalid date 'foobar' (must be 'yyyy-mm-dd')",
+			},
+			"short year": {
+				str: "25-01-01",
+				want: "invalid date '25-01-01' (must be 'yyyy-mm-dd')",
+			},
+			"valid year with prefix": {
+				str: "prefix2025-01-01",
+				want: "invalid date 'prefix2025-01-01' (must be 'yyyy-mm-dd')",
+			},
+			"valid year with suffix": {
+				str: "2025-01-01suffix",
+				want: "invalid date '2025-01-01suffix' (must be 'yyyy-mm-dd')",
+			},
+		};
+
+		for (const [name, testCase] of Object.entries(badTestCases)) {
+			const { str, want } = testCase;
+			t.test(name, () => {
+				const result = parse(str);
+				assert.ok(result.isErr());
+
+				const err = result.error();
+				assert.equal(err, want);
+			});
+		}
+
+		t.test("correct format", () => {
+			fc.assert(
+				fc.property(
+					arbitrary.rawDate(),
+					(rawDate) => {
+						const { year, month, day } = rawDate;
+						const str = `${year}-${month}-${day}`;
+
+						const result = parse(str);
+						assert.ok(result.isOk());
+
+						const got = result.value();
+						assert.ok(got instanceof DepremanDate);
+
+						const want = new DepremanDate(rawDate);
+						assert.ok(got.is(want));
+					},
+				),
+			);
+		});
+
+		t.test("wrong format", () => {
+			fc.assert(
+				fc.property(
+					arbitrary.invalidDate(),
+					(str) => {
+						const result = parse(str);
+						assert.ok(result.isErr());
+
+						const err = result.error();
+						assert.equal(err, `invalid date '${str}' (must be 'yyyy-mm-dd')`);
+					},
+				),
+			);
+		});
+	});
+
+	t.test("today", () => {
+		const got = today();
+		assert.ok(got instanceof DepremanDate);
+
+		const want = new DepremanDate({
+			year: (new Date()).getFullYear(),
+			month: (new Date()).getMonth() + 1,
+			day: (new Date()).getDate(),
+		});
+		assert.ok(got.is(want));
+	});
+
 	t.test("DepremanDate", (t) => {
 		t.test("constructor", () => {
 			fc.assert(
@@ -312,214 +521,5 @@ test("date.js", (t) => {
 				);
 			});
 		});
-	});
-
-	t.test("parse", (t) => {
-		const goodTestCases = {
-			"full year": {
-				str: "2024-12-31",
-				raw: {
-					year: 2024,
-					month: 12,
-					day: 31,
-				},
-			},
-			"day and month prefixed with zero": {
-				str: "2025-01-01",
-				raw: {
-					year: 2025,
-					month: 1,
-					day: 1,
-				},
-			},
-			"day and month NOT prefixed with zero": {
-				str: "2024-1-1",
-				raw: {
-					year: 2024,
-					month: 1,
-					day: 1,
-				},
-			},
-			"earliest valid date": {
-				str: "2000-01-01",
-				raw: {
-					year: 2000,
-					month: 1,
-					day: 1,
-				},
-			},
-			"earliest month and day": {
-				str: "2025-01-01",
-				raw: {
-					year: 2025,
-					month: 1,
-					day: 1,
-				},
-			},
-			"earliest month": {
-				str: "2025-01-04",
-				raw: {
-					year: 2025,
-					month: 1,
-					day: 4,
-				},
-			},
-			"earliest day": {
-				str: "2025-02-01",
-				raw: {
-					year: 2025,
-					month: 2,
-					day: 1,
-				},
-			},
-			"latest valid date": {
-				str: "2999-12-31",
-				raw: {
-					year: 2999,
-					month: 12,
-					day: 31,
-				},
-			},
-			"latest month and day": {
-				str: "2025-12-31",
-				raw: {
-					year: 2025,
-					month: 12,
-					day: 31,
-				},
-			},
-			"latest month": {
-				str: "2025-12-4",
-				raw: {
-					year: 2025,
-					month: 12,
-					day: 4,
-				},
-			},
-			"latest day": {
-				str: "2025-2-31",
-				raw: {
-					year: 2025,
-					month: 2,
-					day: 31,
-				},
-			},
-		};
-
-		for (const [name, testCase] of Object.entries(goodTestCases)) {
-			const { str, raw } = testCase;
-			t.test(name, () => {
-				const result = parse(str);
-				assert.ok(result.isOk());
-
-				const got = result.value();
-				assert.ok(got instanceof DepremanDate);
-
-				const want = new DepremanDate(raw);
-				assert.ok(got.is(want));
-			});
-		}
-
-		const badTestCases = {
-			"month 0": {
-				str: "2025-00-01",
-				want: "invalid date '2025-00-01'",
-			},
-			"month 13": {
-				str: "2025-13-01",
-				want: "invalid date '2025-13-01'",
-			},
-			"day 32": {
-				str: "2025-01-32",
-				want: "invalid date '2025-01-32'",
-			},
-			"day 0": {
-				str: "2025-01-00",
-				want: "invalid date '2025-01-00'",
-			},
-			"too far in the past (catch likely mistakes in the year)": {
-				str: "1025-01-01",
-				want: "invalid date '1025-01-01'",
-			},
-			"too far in the future (catch likely mistakes in the year)": {
-				str: "3035-01-01",
-				want: "invalid date '3035-01-01'",
-			},
-			"not a date": {
-				str: "foobar",
-				want: "invalid date 'foobar' (must be 'yyyy-mm-dd')",
-			},
-			"short year": {
-				str: "25-01-01",
-				want: "invalid date '25-01-01' (must be 'yyyy-mm-dd')",
-			},
-			"valid year with prefix": {
-				str: "prefix2025-01-01",
-				want: "invalid date 'prefix2025-01-01' (must be 'yyyy-mm-dd')",
-			},
-			"valid year with suffix": {
-				str: "2025-01-01suffix",
-				want: "invalid date '2025-01-01suffix' (must be 'yyyy-mm-dd')",
-			},
-		};
-
-		for (const [name, testCase] of Object.entries(badTestCases)) {
-			const { str, want } = testCase;
-			t.test(name, () => {
-				const result = parse(str);
-				assert.ok(result.isErr());
-
-				const err = result.error();
-				assert.equal(err, want);
-			});
-		}
-
-		t.test("correct format", () => {
-			fc.assert(
-				fc.property(
-					arbitrary.rawDate(),
-					(rawDate) => {
-						const { year, month, day } = rawDate;
-						const str = `${year}-${month}-${day}`;
-
-						const result = parse(str);
-						assert.ok(result.isOk());
-
-						const got = result.value();
-						assert.ok(got instanceof DepremanDate);
-
-						const want = new DepremanDate(rawDate);
-						assert.ok(got.is(want));
-					},
-				),
-			);
-		});
-
-		t.test("wrong format", () => {
-			fc.assert(
-				fc.property(
-					arbitrary.invalidDate(),
-					(str) => {
-						const result = parse(str);
-						assert.ok(result.isErr());
-
-						const err = result.error();
-						assert.equal(err, `invalid date '${str}' (must be 'yyyy-mm-dd')`);
-					},
-				),
-			);
-		});
-	});
-
-	t.test("today", () => {
-		const got = today();
-		assert.ok(got instanceof DepremanDate);
-
-		const want = new DepremanDate({
-			year: (new Date()).getFullYear(),
-			month: (new Date()).getMonth() + 1,
-			day: (new Date()).getDate(),
-		});
-		assert.ok(got.is(want));
 	});
 });
