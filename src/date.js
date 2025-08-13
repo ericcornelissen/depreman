@@ -12,8 +12,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { Err, Ok } from "./result.js";
+
 const dateExpr = /^(?<yyyy>\d{4})-(?<mm>\d{1,2})-(?<dd>\d{1,2})$/u;
 
+/**
+ * @private
+ */
 export class DepremanDate {
 	#year; #month; #day;
 
@@ -22,10 +27,6 @@ export class DepremanDate {
 	 */
 	constructor(date) {
 		const { year, month, day } = date;
-		if (!isValid(date)) {
-			throw new Error(`invalid date '${year}-${month}-${day}'`);
-		}
-
 		this.#year = year;
 		this.#month = month;
 		this.#day = day;
@@ -72,21 +73,27 @@ export class DepremanDate {
 
 /**
  * @param {string} str
- * @returns {DepremanDate}
- * @throws {Error}
+ * @returns {Result<DepremanDate, string>}
  */
 export function parse(str) {
 	const parsed = dateExpr.exec(str);
 	if (parsed === null) {
-		throw new Error(`invalid date '${str}' (must be 'yyyy-mm-dd')`);
+		return new Err(`invalid date '${str}' (must be 'yyyy-mm-dd')`);
 	}
 
 	const { yyyy, mm, dd } = parsed.groups;
-	return new DepremanDate({
+	const rawDate = {
 		year: Number.parseInt(yyyy, 10),
 		month: Number.parseInt(mm, 10),
 		day: Number.parseInt(dd, 10),
-	});
+	};
+
+	if (!isValid(rawDate)) {
+		return new Err(`invalid date '${yyyy}-${mm}-${dd}'`);
+	}
+
+	const date = new DepremanDate(rawDate);
+	return new Ok(date);
 }
 
 /**
@@ -101,7 +108,7 @@ export function today() {
 	});
 }
 
-const MIN_YEAR = 2000, MAX_YEAR = 9999;
+const MIN_YEAR = 2000, MAX_YEAR = 3000;
 const MIN_MONTH = 1, MAX_MONTH = 12;
 const MIN_DAY = 1, MAX_DAY = 31;
 
@@ -121,4 +128,9 @@ function isValid(date) {
  * @property {number} year
  * @property {number} month
  * @property {number} day
+ */
+
+/**
+ * @template O, E
+ * @typedef {import("./result.js").Result<O, E>} Result
  */

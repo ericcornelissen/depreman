@@ -9,7 +9,7 @@ Versioning].
 
 ## Unreleased
 
-- _No changes yet_
+- Disallow dates past the year 3000.
 
 ## 0.3.10 (2025-07-31)
 

@@ -177,7 +177,7 @@ function parseDecision(config) {
 function isExpired(config) {
 	const expire = config[kExpire] ?? config["*"]?.[kExpire];
 	if (expire !== undefined) {
-		const expires = date.parse(expire);
+		const expires = date.parse(expire).value();
 		const today = date.today();
 		return expires.isBefore(today) || expires.is(today);
 	}
