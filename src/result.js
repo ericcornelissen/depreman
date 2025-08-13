@@ -26,11 +26,13 @@
  * @template O
  */
 export class Ok {
+	#value;
+
 	/**
 	 * @param {O} value
 	 */
 	constructor(value) {
-		this.v = value;
+		this.#value = value;
 	}
 
 	/**
@@ -68,7 +70,7 @@ export class Ok {
 	 * @returns {O}
 	 */
 	value() {
-		return this.v;
+		return this.#value;
 	}
 }
 
@@ -76,11 +78,13 @@ export class Ok {
  * @template E
  */
 export class Err {
+	#error;
+
 	/**
 	 * @param {E} error
 	 */
 	constructor(error) {
-		this.e = error;
+		this.#error = error;
 	}
 
 	/**
@@ -95,7 +99,7 @@ export class Err {
 	 * @returns {E}
 	 */
 	error() {
-		return this.e;
+		return this.#error;
 	}
 
 	/**
