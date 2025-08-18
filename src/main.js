@@ -25,8 +25,8 @@ import { getDeprecatedPackages } from "./deprecations.js";
 import { FS } from "./fs.js";
 import { removeIgnored, unusedIgnores } from "./ignores.js";
 import { NPM } from "./npm.js";
-import { Yarn } from "./yarn.js";
 import { printAndExit } from "./output.js";
+import { Yarn } from "./yarn.js";
 
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_FAILURE = 1;
