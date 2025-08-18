@@ -27,7 +27,7 @@ test("date.js", (t) => {
 	const arbitrary = {
 		day: () => fc.integer({ min: 1, max: 31 }),
 		month: () => fc.integer({ min: 1, max: 12 }),
-		year: () => fc.integer({ min: 2000, max: 3000 }),
+		year: () => fc.integer({ min: 2000, max: 2999 }),
 
 		rawDate: () =>
 			fc.record({
@@ -175,9 +175,17 @@ test("date.js", (t) => {
 				str: "1025-01-01",
 				want: "invalid date '1025-01-01'",
 			},
+			"last date too far in the past": {
+				str: "1999-12-31",
+				want: "invalid date '1999-12-31'",
+			},
 			"too far in the future (catch likely mistakes in the year)": {
 				str: "3035-01-01",
 				want: "invalid date '3035-01-01'",
+			},
+			"first date too far in the future": {
+				str: "3000-01-01",
+				want: "invalid date '3000-01-01'",
 			},
 			"not a date": {
 				str: "foobar",
@@ -201,7 +209,7 @@ test("date.js", (t) => {
 			const { str, want } = testCase;
 			t.test(name, () => {
 				const result = parse(str);
-				assert.ok(result.isErr());
+				assert.ok(result.isErr(), name);
 
 				const err = result.error();
 				assert.equal(err, want);
