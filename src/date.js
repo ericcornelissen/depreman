@@ -118,7 +118,7 @@ export class DepremanDate {
  */
 function isValid(date) {
 	const { year, month, day } = date;
-	return year >= MIN_YEAR && year <= MAX_YEAR
+	return year >= MIN_YEAR && year < MAX_YEAR
 		&& month >= MIN_MONTH && month <= MAX_MONTH
 		&& day >= MIN_DAY && day <= MAX_DAY;
 }

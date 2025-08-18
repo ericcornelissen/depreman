@@ -121,6 +121,10 @@ export class Err {
 	 * @throws {TypeError}
 	 */
 	value() {
-		throw new TypeError(`${this.#error}`);
+		throw (
+			typeof this.#error === "string"
+				? new TypeError(this.#error)
+				: new TypeError("Err has no value")
+		);
 	}
 }

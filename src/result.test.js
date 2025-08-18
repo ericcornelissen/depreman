@@ -95,7 +95,9 @@ test("result.js", (t) => {
 						() => err.value(),
 						{
 							name: "TypeError",
-							message: `${err.error()}`,
+							message: typeof err.error() === "string"
+								? err.error()
+								: "Err has no value",
 						},
 					);
 				}),
