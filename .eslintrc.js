@@ -2,12 +2,13 @@
 
 import * as process from "node:process";
 
+import top from "@ericcornelissen/eslint-plugin-top";
 import json from "@eslint/json";
 import markdown from "@eslint/markdown";
 import depend from "eslint-plugin-depend";
+import imports from "eslint-plugin-import";
 import jsdoc from "eslint-plugin-jsdoc";
 import regexp from "eslint-plugin-regexp";
-import top from "@ericcornelissen/eslint-plugin-top";
 import unicorn from "eslint-plugin-unicorn";
 import yml from "eslint-plugin-yml";
 
@@ -25,6 +26,7 @@ export default [
 		},
 		plugins: {
 			depend,
+			imports,
 			jsdoc,
 			regexp,
 			top,
@@ -245,8 +247,69 @@ export default [
 			// eslint-plugin-depend
 			...{
 				"depend/ban-dependencies": ["error", {
-					"allowed": ["eslint-plugin-unicorn"],
+					"allowed": [
+						"eslint-plugin-import",
+						"eslint-plugin-unicorn",
+					],
 				}],
+			},
+
+			// eslint-plugin-import
+			...{
+				"imports/consistent-type-specifier-style": "error",
+				"imports/default": "error",
+				"imports/export": "error",
+				"imports/enforce-node-protocol-usage": ["error", "always"],
+				"imports/exports-last": "off",
+				"imports/extensions": ["error", "always"],
+				"imports/first": "error",
+				"imports/group-exports": "off",
+				"imports/imports-first": "error",
+				"imports/max-dependencies": "off",
+				"imports/named": "error",
+				"imports/namespace": "error",
+				"imports/newline-after-import": "error",
+				"imports/no-absolute-path": "error",
+				"imports/no-amd": "error",
+				"imports/no-anonymous-default-export": "error",
+				"imports/no-commonjs": "error",
+				"imports/no-cycle": "error",
+				"imports/no-default-export": "error",
+				"imports/no-deprecated": "error",
+				"imports/no-duplicates": "error",
+				"imports/no-dynamic-require": "error",
+				"imports/no-empty-named-blocks": "error",
+				"imports/no-extraneous-dependencies": "error",
+				"imports/no-import-module-exports": "error",
+				"imports/no-internal-modules": "off",
+				"imports/no-mutable-exports": "error",
+				"imports/no-named-as-default": "error",
+				"imports/no-named-as-default-member": "error",
+				"imports/no-named-default": "error",
+				"imports/no-named-export": "off",
+				"imports/no-namespace": "off",
+				"imports/no-nodejs-modules": "off",
+				"imports/no-relative-packages": "error",
+				"imports/no-relative-parent-imports": "error",
+				"imports/no-restricted-paths": "error",
+				"imports/no-self-import": "error",
+				"imports/no-unassigned-import": "error",
+				"imports/no-unresolved": "off",
+				"imports/no-unused-modules": "error",
+				"imports/no-useless-path-segments": "error",
+				"imports/no-webpack-loader-syntax": "error",
+				"imports/order": [
+					"error",
+					{
+						alphabetize: {
+							order: "asc",
+							caseInsensitive: true,
+						},
+						"newlines-between": "always",
+					},
+				],
+				"imports/prefer-default-export": "off",
+				"imports/unambiguous": "error",
 			},
 
 			// eslint-plugin-jsdoc
@@ -768,6 +831,9 @@ export default [
 		name: "bin",
 		files: ["bin/*.js"],
 		rules: {
+			// eslint-plugin-import
+			"imports/no-relative-parent-imports": "off",
+
 			// eslint-plugin-top
 			"top/no-top-level-side-effects": "off",
 			"top/no-top-level-variables": "off",
@@ -804,6 +870,9 @@ export default [
 				allow: ["t"],
 			}],
 
+			// eslint-plugin-import
+			"imports/order": "off",
+
 			// eslint-plugin-jsdoc
 			"jsdoc/require-jsdoc": "off",
 			"jsdoc/require-returns": "off",
@@ -821,6 +890,10 @@ export default [
 		],
 		rules: {
 			"no-magic-numbers": "off",
+
+			// eslint-plugin-import
+			"imports/no-anonymous-default-export": "off",
+			"imports/no-default-export": "off",
 		},
 	},
 	{
