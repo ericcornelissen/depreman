@@ -248,6 +248,7 @@ export default [
 			...{
 				"depend/ban-dependencies": ["error", {
 					"allowed": [
+						"chalk",
 						"eslint-plugin-import",
 						"eslint-plugin-unicorn",
 					],
