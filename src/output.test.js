@@ -15,6 +15,8 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
+import { MockStyler } from "./style.mock.js";
+
 import {
 	printAndExit,
 } from "./output.js";
@@ -104,7 +106,7 @@ test("output.js", (t) => {
 				unused: [],
 				want: {
 					ok: true,
-					report: `${styler.dim(`foobar@3.1.4 *("no longer maintained")*:`)}
+					report: `${styler.dim(`foobar@3.1.4 ${styler.italic(`("no longer maintained")`)}:`)}
 	${styler.dim(`. > foobar@3.1.4`)}
 		${styler.dim(`(allowed "okay for now")`)}`,
 				}
@@ -130,7 +132,7 @@ test("output.js", (t) => {
 				unused: [],
 				want: {
 					ok: true,
-					report: `${styler.dim(`foobar@3.1.4 *("no longer maintained")*:`)}
+					report: `${styler.dim(`foobar@3.1.4 ${styler.italic(`("no longer maintained")`)}:`)}
 	${styler.dim(`. > foobar@3.1.4`)}
 		${styler.dim(`(allowed "no reason given")`)}`,
 				}
@@ -159,7 +161,7 @@ test("output.js", (t) => {
 				unused: [],
 				want: {
 					ok: true,
-					report: `${styler.dim(`bar@3.1.4 *("no longer maintained")*:`)}
+					report: `${styler.dim(`bar@3.1.4 ${styler.italic(`("no longer maintained")`)}:`)}
 	${styler.dim(`. > foo@2.7.1 > bar@3.1.4`)}
 		${styler.dim(`(allowed "no reason given")`)}`,
 				}
@@ -305,12 +307,3 @@ foo@2.7.1 ${styler.italic(`("not maintained anymore")`)}:
 		}
 	});
 });
-
-const MockStyler = {
-	dim(value) {
-		return `/${value}\\`;
-	},
-	italic(value) {
-		return `*${value}*`;
-	}
-}

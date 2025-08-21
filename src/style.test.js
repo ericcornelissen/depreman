@@ -20,6 +20,9 @@ import * as fc from "fast-check";
 import {
 	create,
 } from "./style.js";
+import {
+	MockStyler,
+} from "./style.mock.js";
 
 test("style.js", (t) => {
 	t.test("create", (t) => {
@@ -43,6 +46,34 @@ test("style.js", (t) => {
 					(msg) => {
 						const styler = create();
 						const got = styler.italic(msg);
+						assert.ok(got.includes(msg));
+					},
+				),
+			);
+		});
+	});
+});
+
+test("style.mock.js", (t) => {
+	t.test("MockStyler", (t) => {
+		t.test("dim", () => {
+			fc.assert(
+				fc.property(
+					fc.string(),
+					(msg) => {
+						const got = MockStyler.dim(msg);
+						assert.ok(got.includes(msg));
+					},
+				),
+			);
+		});
+
+		t.test("italic", () => {
+			fc.assert(
+				fc.property(
+					fc.string(),
+					(msg) => {
+						const got = MockStyler.italic(msg);
 						assert.ok(got.includes(msg));
 					},
 				),

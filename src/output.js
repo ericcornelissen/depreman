@@ -110,8 +110,4 @@ function pkgToString(pkg) {
  * @property {boolean} everything Whether to output all deprecations.
  */
 
-/**
- * @typedef Styler
- * @property {(string) => string} dim
- * @property {(string) => string} italic
- */
+/** @typedef {import("./style.js").Styler} Styler */
