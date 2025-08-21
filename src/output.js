@@ -27,18 +27,18 @@ export function printAndExit(result, unused, options, chalk) {
 
 	for (const pkg of result.sort(byName)) {
 		const id = pkgToString(pkg);
+
+		const header = `${id} ${chalk.italic(`("${pkg.reason}")`)}:`;
 		if (pkg.kept.length > 0) {
 			ok = false;
-
-			const msg = `${id} ${chalk.italic(`("${pkg.reason}")`)}:`;
-			output.push(msg);
+			output.push(header);
 		} else if (options.everything) {
-			output.push(chalk.dim(id));
+			output.push(chalk.dim(header));
 		}
 
 		for (const { path } of pkg.kept) {
-			const msg = `\t. > ${path.map(pkgToString).join(" > ")}`;
-			output.push(msg);
+			const entry = `\t. > ${path.map(pkgToString).join(" > ")}`;
+			output.push(entry);
 		}
 
 		if (options.everything) {

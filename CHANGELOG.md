@@ -10,6 +10,7 @@ Versioning].
 ## Unreleased
 
 - Disallow dates past the year 3000.
+- Include deprecation message when all instances of it are ignored.
 
 ## 0.3.10 (2025-07-31)
 

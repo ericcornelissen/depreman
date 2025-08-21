@@ -99,12 +99,12 @@ test("output.js", (t) => {
 								reason: "okay for now",
 							}
 						],
-					}
+					},
 				],
 				unused: [],
 				want: {
 					ok: true,
-					report: `${styler.dim(`foobar@3.1.4`)}
+					report: `${styler.dim(`foobar@3.1.4 *("no longer maintained")*:`)}
 	${styler.dim(`. > foobar@3.1.4`)}
 		${styler.dim(`(allowed "okay for now")`)}`,
 				}
@@ -125,12 +125,12 @@ test("output.js", (t) => {
 								reason: true,
 							},
 						],
-					}
+					},
 				],
 				unused: [],
 				want: {
 					ok: true,
-					report: `${styler.dim(`foobar@3.1.4`)}
+					report: `${styler.dim(`foobar@3.1.4 *("no longer maintained")*:`)}
 	${styler.dim(`. > foobar@3.1.4`)}
 		${styler.dim(`(allowed "no reason given")`)}`,
 				}
@@ -154,12 +154,12 @@ test("output.js", (t) => {
 								reason: true,
 							}
 						],
-					}
+					},
 				],
 				unused: [],
 				want: {
 					ok: true,
-					report: `${styler.dim(`bar@3.1.4`)}
+					report: `${styler.dim(`bar@3.1.4 *("no longer maintained")*:`)}
 	${styler.dim(`. > foo@2.7.1 > bar@3.1.4`)}
 		${styler.dim(`(allowed "no reason given")`)}`,
 				}
