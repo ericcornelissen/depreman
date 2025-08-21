@@ -16,8 +16,6 @@ import * as nodeCp from "node:child_process";
 import * as nodeFs from "node:fs/promises";
 import { stdout, stderr } from "node:process";
 
-import chalk from "chalk"; // eslint-disable-line depend/ban-dependencies
-
 import { parseArgv } from "./cli.js";
 import { getConfiguration } from "./config.js";
 import { CP } from "./cp.js";
@@ -26,6 +24,7 @@ import { FS } from "./fs.js";
 import { removeIgnored, unusedIgnores } from "./ignores.js";
 import { NPM } from "./npm.js";
 import { printAndExit } from "./output.js";
+import * as style from "./style.js";
 import { Yarn } from "./yarn.js";
 
 const EXIT_CODE_SUCCESS = 0;
@@ -81,7 +80,7 @@ async function depreman(options) {
 
 		const result = removeIgnored(config.value(), deprecations.value());
 		const unused = options.reportUnused ? unusedIgnores(config.value()) : [];
-		const { ok, report } = printAndExit(result, unused, options, chalk);
+		const { ok, report } = printAndExit(result, unused, options, style.create());
 		if (report) {
 			stdout.write(`${report}\n`);
 		}
