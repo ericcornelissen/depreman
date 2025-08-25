@@ -61,7 +61,7 @@
     "semver": "^7.0.0"
   },
   "devDependencies": {
-    "@ericcornelissen/eslint-plugin-top": "3.5.5",
+    "@ericcornelissen/eslint-plugin-top": "3.6.0",
     "@eslint/json": "0.13.1",
     "@eslint/markdown": "7.1.0",
     "@stryker-mutator/core": "9.0.1",
