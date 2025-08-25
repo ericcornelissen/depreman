@@ -683,6 +683,7 @@ export default [
 					allowIIFE: false,
 					allowPropertyAccess: false,
 				}],
+				"top/no-top-level-state": "error",
 				"top/no-top-level-variables": ["error", {
 					allowed: ["ObjectExpression"],
 					kind: ["const"],
@@ -837,6 +838,7 @@ export default [
 
 			// eslint-plugin-top
 			"top/no-top-level-side-effects": "off",
+			"top/no-top-level-state": "off",
 			"top/no-top-level-variables": "off",
 		},
 	},
@@ -852,6 +854,7 @@ export default [
 
 			// eslint-plugin-top
 			"top/no-top-level-side-effects": "off",
+			"top/no-top-level-state": "off",
 			"top/no-top-level-variables": "off",
 
 			// eslint-plugin-unicorn
@@ -880,6 +883,7 @@ export default [
 
 			// eslint-plugin-top
 			"top/no-top-level-side-effects": "off",
+			"top/no-top-level-state": "off",
 			"top/no-top-level-variables": "off",
 		},
 	},
