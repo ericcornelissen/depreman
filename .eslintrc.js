@@ -1026,9 +1026,14 @@ export default [
 				}],
 				"markdown/no-empty-images": "error",
 				"markdown/no-empty-links": "error",
-				"markdown/no-html": "error",
+				"markdown/no-html": ["error", {
+					allowed: [],
+					allowedIgnoreCase: false,
+				}],
 				"markdown/no-invalid-label-refs": "error",
-				"markdown/no-missing-atx-heading-space": "error",
+				"markdown/no-missing-atx-heading-space": ["error", {
+					checkClosedHeadings: true,
+				}],
 				"markdown/no-missing-label-refs": "error",
 				"markdown/no-missing-link-fragments": ["error", {
 					allowPattern: "",
@@ -1036,6 +1041,9 @@ export default [
 				}],
 				"markdown/no-multiple-h1": "error",
 				"markdown/no-reversed-media-syntax": "error",
+				"markdown/no-space-in-emphasis": ["error", {
+					checkStrikethrough: true,
+				}],
 				"markdown/no-unused-definitions": "error",
 				"markdown/require-alt-text": "error",
 				"markdown/table-column-count": ["error", {
