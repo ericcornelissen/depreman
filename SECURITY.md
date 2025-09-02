@@ -77,6 +77,17 @@ Try to include as many of the following items as possible in a security report:
 
 [cwe]: https://cwe.mitre.org/
 
+### Threat Model
+
+The CLI considers CLI arguments, program configuration files, package managers
+(npm or yarn), JavaScript runtime, and host OS as trusted. All other inputs, for
+example data coming from the package registry, are considered untrusted. Any
+violation of confidentiality or integrity is considered a security issue.
+
+The project considers local tooling, the GitHub infrastructure, and all project
+maintainers to be trusted. Any action performed by any other GitHub user against
+the repository is considered untrusted.
+
 ## Advisories
 
 An advisory will be created only if a vulnerability affects at least one
