@@ -25,7 +25,7 @@ export function printAndExit(result, unused, options, chalk) {
 	let ok = true;
 	const output = [];
 
-	for (const pkg of result.sort(byName)) {
+	for (const pkg of result.toSorted(byName)) {
 		const id = pkgToString(pkg);
 
 		const header = `${id} ${chalk.italic(`("${pkg.reason}")`)}:`;
