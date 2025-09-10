@@ -389,7 +389,7 @@ test("npm.js", (t) => {
 			assert.ok(got.isErr());
 
 			const err = got.error();
-			assert.match(err, /npm list output corrupted: .+/u);
+			assert.match(err, /npm list failed:\n.+/u);
 		});
 
 		t.test("npm CLI usage", async () => {

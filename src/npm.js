@@ -118,15 +118,12 @@ export class NPM {
 		}
 
 		const result = await this.#cp.exec(cmd, args);
-		if (result.isErr()) {
-			const { stderr } = result.error();
-			return new Err(`npm list failed:\n${stderr}`);
-		}
-
-		const { stdout } = result.value();
-		const hierarchy = parseJSON(stdout);
+		const hierarchy = result
+			.map(({ stdout }) => stdout)
+			.mapErr(({ stderr }) => stderr)
+			.andThen((stdout) => parseJSON(stdout));
 		if (hierarchy.isErr()) {
-			return new Err(`npm list output corrupted: ${hierarchy.error()}`);
+			return new Err(`npm list failed:\n${hierarchy.error()}`);
 		}
 
 		return hierarchy;
