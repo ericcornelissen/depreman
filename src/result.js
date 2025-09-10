@@ -13,12 +13,15 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * @template O, E
+ * @template O, P, E, F
  * @typedef Result
  * @property {function(Result<O,E>): Result<O,E>} and
+ * @property {function((ok: O) => Result<P,E>): Result<P,E>} andThen
  * @property {function(): E} error
  * @property {function(): boolean} isErr
  * @property {function(): boolean} isOk
+ * @property {function((ok: O) => P): Result<P,E>} map
+ * @property {function((err: E) => F): Result<O,F>} mapErr
  * @property {function(): O} value
  */
 
@@ -45,6 +48,15 @@ export class Ok {
 	}
 
 	/**
+	 * @template P, E
+	 * @param {(ok: O) => Result<P,E>} callback
+	 * @returns {Result<P,E>}
+	 */
+	andThen(callback) {
+		return callback(this.#value);
+	}
+
+	/**
 	 * @returns {never}
 	 * @throws {TypeError}
 	 */
@@ -64,6 +76,24 @@ export class Ok {
 	 */
 	isOk() {
 		return true;
+	}
+
+	/**
+	 * @template P, E
+	 * @param {(ok: O) => P} callback
+	 * @returns {Result<P,E>}
+	 */
+	map(callback) {
+		const value = callback(this.#value);
+		return new Ok(value);
+	}
+
+	/**
+	 * @template E
+	 * @returns {Result<O,E>}
+	 */
+	mapErr() {
+		return this;
 	}
 
 	/**
@@ -96,6 +126,14 @@ export class Err {
 	}
 
 	/**
+	 * @template O
+	 * @returns {Result<O,E>}
+	 */
+	andThen() {
+		return this;
+	}
+
+	/**
 	 * @returns {E}
 	 */
 	error() {
@@ -114,6 +152,24 @@ export class Err {
 	 */
 	isOk() {
 		return false;
+	}
+
+	/**
+	 * @template O
+	 * @returns {Result<O,E>}
+	 */
+	map() {
+		return this;
+	}
+
+	/**
+	 * @template O, F
+	 * @param {function(E): F} callback
+	 * @returns {Result<O,F>}
+	 */
+	mapErr(callback) {
+		const error = callback(this.#error);
+		return new Err(error);
 	}
 
 	/**
