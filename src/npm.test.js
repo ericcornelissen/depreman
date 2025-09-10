@@ -602,4 +602,174 @@ test("npm.js", (t) => {
 			});
 		});
 	});
+
+	t.test("hierarchy", (t) => {
+		t.test("success", (t) => {
+			const prod = "semver";
+			const dev = "eslint";
+			const optional = "pi";
+			const peer = "react";
+
+			function setup() {
+				const hierarchy = {
+					dependencies: {
+						[prod]: { version: "7.7.2" },
+						[dev]: { version: "9.29.0" },
+						[optional]: { version: "3.1.4" },
+						[peer]: { version: "19.1.1" },
+					},
+				};
+				const manifest = {
+					dependencies: {
+						[prod]: "7.7.2",
+					},
+					devDependencies: {
+						[dev]: "9.29.0",
+					},
+					optionalDependencies: {
+						[optional]: "3.1.4",
+					},
+					peerDependencies: {
+						[peer]: "19.1.1",
+					},
+				};
+
+				return {
+					cp: new CP({
+						"npm list": {
+							stdout: JSON.stringify(hierarchy),
+						},
+					}),
+					fs: new FS({
+						"./package.json": JSON.stringify(manifest),
+					}),
+				};
+			}
+
+			t.test("prod", async () => {
+				const options = {};
+
+				const { cp, fs } = setup();
+
+				const npm = new NPM({ cp, fs, options });
+				const got = await npm.scopeOf(prod);
+				assert.ok(got.isOk());
+
+				const value = got.value();
+				assert.deepEqual(value, "prod");
+			});
+
+			t.test("dev", async () => {
+				const options = {};
+
+				const { cp, fs } = setup();
+
+				const npm = new NPM({ cp, fs, options });
+				const got = await npm.scopeOf(dev);
+				assert.ok(got.isOk());
+
+				const value = got.value();
+				assert.deepEqual(value, "dev");
+			});
+
+			t.test("optional", async () => {
+				const options = {};
+
+				const { cp, fs } = setup();
+
+				const npm = new NPM({ cp, fs, options });
+				const got = await npm.scopeOf(optional);
+				assert.ok(got.isOk());
+
+				const value = got.value();
+				assert.deepEqual(value, "optional");
+			});
+
+			t.test("peer", async () => {
+				const options = {};
+
+				const { cp, fs } = setup();
+
+				const npm = new NPM({ cp, fs, options });
+				const got = await npm.scopeOf(peer);
+				assert.ok(got.isOk());
+
+				const value = got.value();
+				assert.deepEqual(value, "peer");
+			});
+		});
+
+		t.test("not found", async () => {
+			const options = {};
+			const target = "not eslint";
+
+			const hierarchy = {
+				dependencies: {
+					"eslint": { version: "9.29.0" },
+				},
+			};
+			const manifest = {
+				devDependencies: {
+					"eslint": "9.29.0",
+				},
+			};
+
+			const cp = new CP({
+				"npm list": {
+					stdout: JSON.stringify(hierarchy),
+				},
+			});
+			const fs = new FS({
+				"./package.json": JSON.stringify(manifest),
+			});
+
+			const npm = new NPM({ cp, fs, options });
+			const got = await npm.scopeOf(target);
+			assert.ok(got.isErr());
+
+			const value = got.error();
+			assert.deepEqual(value, `${target} not found`);
+		});
+
+		t.test("hierarchy error", async () => {
+			const options = {};
+			const stderr = "Something went wrong";
+
+			const cp = new CP({
+				"npm list": {
+					error: true,
+					stderr,
+				},
+			});
+			const fs = new FS({
+				"./package.json": JSON.stringify({}),
+			});
+
+			const npm = new NPM({ fs, cp, options });
+			const got = await npm.scopeOf("package");
+			assert.ok(got.isErr());
+
+			const err = got.error();
+			assert.match(err, /^could not get dependency info:/u);
+			assert.ok(err.includes(stderr));
+		});
+
+		t.test("manifest error", async () => {
+			const options = {};
+
+			const cp = new CP({
+				"npm list": {
+					stdout: JSON.stringify({}),
+				},
+			});
+			const fs = new FS({});
+
+			const npm = new NPM({ fs, cp, options });
+			const got = await npm.scopeOf("package");
+			assert.ok(got.isErr());
+
+			const err = got.error();
+			assert.match(err, /^could not get dependency info:/u);
+		});
+	});
 });
