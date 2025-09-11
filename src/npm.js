@@ -48,14 +48,9 @@ export class NPM {
 	 * @returns {Promise<Result<Aliases, string>>}
 	 */
 	async aliases() {
-		const rawManifest = await this.#fs.readFile("./package.json");
-		if (rawManifest.isErr()) {
-			return new Err(`could not read package.json: ${rawManifest.error()}`);
-		}
-
-		const manifest = parseJSON(rawManifest.value());
+		const manifest = await this.#getManifest();
 		if (manifest.isErr()) {
-			return new Err(`could not parse package.json: ${manifest.error()}`);
+			return new Err(`could get manifest: ${manifest.error()}`);
 		}
 
 		const aliases = new Map();
@@ -163,10 +158,73 @@ export class NPM {
 	}
 
 	/**
+	 * @param {string} pkg
+	 * @returns {Promise<Result<Scope, string>>}
+	 */
+	async scopeOf(pkg) {
+		const [hierarchy, manifest] = await Promise.all([
+			this.hierarchy(),
+			this.#getManifest(),
+		]);
+
+		const err = hierarchy.and(manifest);
+		if (err.isErr()) {
+			return new Err(`could not get dependency info: ${err.error()}`);
+		}
+
+		const {
+			dependencies,
+			devDependencies,
+			optionalDependencies,
+			peerDependencies,
+		} = manifest.value();
+
+		const categories = {
+			prod: dependencies,
+			dev: devDependencies,
+			optional: optionalDependencies,
+			peer: peerDependencies,
+		};
+
+		for (const want of Object.keys(hierarchy.value().dependencies)) {
+			for (const [scope, deps] of Object.entries(categories)) {
+				if (want !== pkg) {
+					continue;
+				}
+
+				for (const got of Object.keys(deps)) {
+					if (got === want) {
+						return new Ok(scope);
+					}
+				}
+			}
+		}
+
+		return new Err(`${pkg} not found`);
+	}
+
+	/**
 	 * @returns {Promise<boolean>}
 	 */
 	async #hasLockfile() {
 		return await this.#fs.access("./package-lock.json");
+	}
+
+	/**
+	 * @returns {Promise<Manifest>}
+	 */
+	async #getManifest() {
+		const rawManifest = await this.#fs.readFile("./package.json");
+		if (rawManifest.isErr()) {
+			return new Err(`could not read package.json: ${rawManifest.error()}`);
+		}
+
+		const manifest = parseJSON(rawManifest.value());
+		if (manifest.isErr()) {
+			return new Err(`could not parse package.json: ${manifest.error()}`);
+		}
+
+		return manifest;
 	}
 
 	/**
@@ -230,6 +288,18 @@ export class NPM {
  * @typedef HierarchyDependency
  * @property {{[key: string]: HierarchyDependency}} dependencies
  * @property {string} version
+ */
+
+/**
+ * @typedef Manifest
+ * @property {{[key: string]: string} | undefined} dependencies
+ * @property {{[key: string]: string} | undefined} devDependencies
+ * @property {{[key: string]: string} | undefined} optionalDependencies
+ * @property {{[key: string]: string} | undefined} peerDependencies
+ */
+
+/**
+ * @typedef {"dev" | "optional" | "peer" | "prod"} Scope
  */
 
 /**
