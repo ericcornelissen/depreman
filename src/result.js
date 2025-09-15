@@ -15,13 +15,13 @@
 /**
  * @template O, P, E, F
  * @typedef Result
- * @property {function(Result<O,E>): Result<O,E>} and
- * @property {function((ok: O) => Result<P,E>): Result<P,E>} andThen
+ * @property {function(Result<O, E>): Result<O, E>} and
+ * @property {function((ok: O) => Result<P, E>): Result<P, E>} andThen
  * @property {function(): E} error
  * @property {function(): boolean} isErr
  * @property {function(): boolean} isOk
- * @property {function((ok: O) => P): Result<P,E>} map
- * @property {function((err: E) => F): Result<O,F>} mapErr
+ * @property {function((ok: O) => P): Result<P, E>} map
+ * @property {function((err: E) => F): Result<O, F>} mapErr
  * @property {function(): O} value
  */
 
@@ -40,8 +40,8 @@ export class Ok {
 
 	/**
 	 * @template E
-	 * @param {Result<O,E>} other
-	 * @returns {Result<O,E>}
+	 * @param {Result<O, E>} other
+	 * @returns {Result<O, E>}
 	 */
 	and(other) {
 		return other;
@@ -49,8 +49,8 @@ export class Ok {
 
 	/**
 	 * @template P, E
-	 * @param {(ok: O) => Result<P,E>} callback
-	 * @returns {Result<P,E>}
+	 * @param {(ok: O) => Result<P, E>} callback
+	 * @returns {Result<P, E>}
 	 */
 	andThen(callback) {
 		return callback(this.#value);
@@ -81,7 +81,7 @@ export class Ok {
 	/**
 	 * @template P, E
 	 * @param {(ok: O) => P} callback
-	 * @returns {Result<P,E>}
+	 * @returns {Result<P, E>}
 	 */
 	map(callback) {
 		const value = callback(this.#value);
@@ -90,7 +90,7 @@ export class Ok {
 
 	/**
 	 * @template E
-	 * @returns {Result<O,E>}
+	 * @returns {Result<O, E>}
 	 */
 	mapErr() {
 		return this;
@@ -119,7 +119,7 @@ export class Err {
 
 	/**
 	 * @template O
-	 * @returns {Result<O,E>}
+	 * @returns {Result<O, E>}
 	 */
 	and() {
 		return this;
@@ -127,7 +127,7 @@ export class Err {
 
 	/**
 	 * @template O
-	 * @returns {Result<O,E>}
+	 * @returns {Result<O, E>}
 	 */
 	andThen() {
 		return this;
@@ -156,7 +156,7 @@ export class Err {
 
 	/**
 	 * @template O
-	 * @returns {Result<O,E>}
+	 * @returns {Result<O, E>}
 	 */
 	map() {
 		return this;
@@ -165,7 +165,7 @@ export class Err {
 	/**
 	 * @template O, F
 	 * @param {function(E): F} callback
-	 * @returns {Result<O,F>}
+	 * @returns {Result<O, F>}
 	 */
 	mapErr(callback) {
 		const error = callback(this.#error);

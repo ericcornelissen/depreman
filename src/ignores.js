@@ -206,8 +206,8 @@ function parseRule(pkg) {
  * @property {string} name
  * @property {string} version
  * @property {string} reason
- * @property {{ path: string[], reason: boolean | string }} ignored
- * @property {{ path: string[] }} kept
+ * @property {{path: string[], reason: boolean | string}} ignored
+ * @property {{path: string[]}} kept
  */
 
 /** @typedef {import("./config.js").Config} Config */
