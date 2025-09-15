@@ -418,6 +418,7 @@ export default [
 						},
 					},
 				],
+				"jsdoc/require-next-type": "error",
 				"jsdoc/require-param": "error",
 				"jsdoc/require-param-description": "off",
 				"jsdoc/require-param-name": "error",
@@ -447,6 +448,7 @@ export default [
 				"jsdoc/require-returns-description": "off",
 				"jsdoc/require-returns-type": "error",
 				"jsdoc/require-throws": "error",
+				"jsdoc/require-throws-type": "error",
 				"jsdoc/require-yields": [
 					"error",
 					{
@@ -465,6 +467,7 @@ export default [
 						next: false,
 					},
 				],
+				"jsdoc/require-yields-type": "error",
 				"jsdoc/sort-tags": "error",
 				"jsdoc/tag-lines": [
 					"error",
@@ -475,6 +478,23 @@ export default [
 					},
 				],
 				"jsdoc/text-escaping": "off",
+				"jsdoc/type-formatting": [
+					"error",
+					{
+						arrayBrackets: "square",
+						enableFixer: true,
+						genericDot: false,
+						objectFieldQuote: null,
+						propertyQuotes: null,
+						stringQuotes: "double",
+						objectFieldSeparator: "comma",
+						objectFieldIndent: "  ",
+						objectFieldSeparatorTrailingPunctuation: false,
+						separatorForSingleObjectField: false,
+						typeBracketSpacing: "",
+						unionSpacing: " ",
+					},
+				],
 				"jsdoc/valid-types": "error",
 			},
 

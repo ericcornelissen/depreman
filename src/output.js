@@ -19,7 +19,7 @@ import { typeOf, types } from "./types.js";
  * @param {Unused} unused
  * @param {Options} options
  * @param {Styler} chalk
- * @returns {{ ok: boolean, result: string }}
+ * @returns {{ok: boolean, result: string}}
  */
 export function printAndExit(result, unused, options, chalk) {
 	let ok = true;
@@ -97,8 +97,8 @@ function pkgToString(pkg) {
 /**
  * @typedef _Result
  * @property {string} reason The deprecation message.
- * @property {{ path: Package[] }[]} kept
- * @property {{ path: Package[], reason: string | boolean }[]} ignored
+ * @property {{path: Package[]}[]} kept
+ * @property {{path: Package[], reason: string | boolean}[]} ignored
  */
 
 /**

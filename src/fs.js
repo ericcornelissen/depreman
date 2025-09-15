@@ -67,7 +67,7 @@ export class FS {
 /**
  * @typedef fs
  * @property {function(string): Promise<boolean>} access
- * @property {function(string, { encoding: string }): Promise<string>} readFile
+ * @property {function(string, {encoding: string}): Promise<string>} readFile
  */
 
 /**

@@ -101,13 +101,12 @@ function isDirective(key) {
 }
 
 /**
- * @typedef {{
- *   "#ignore": boolean | string,
- *   "#expire": string,
- *   "*": Config,
- *   "+": Config,
- *   [key: string]: Config,
- * }} Config
+ * @typedef Config
+ * @property {boolean | string} ["#ignore"]
+ * @property {string} ["#expire"]
+ * @property {Config} ["*"]
+ * @property {Config} ["+"]
+ * @property {Config} [key]
  */
 
 /** @typedef {import("./fs.js").ReadFS} ReadFS */

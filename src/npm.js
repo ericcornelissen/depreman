@@ -130,7 +130,7 @@ export class NPM {
 	}
 
 	/**
-	 * @returns {Promise<Result<{ stdout: string, stderr: string }, string>>}
+	 * @returns {Promise<Result<{stdout: string, stderr: string}, string>>}
 	 */
 	async install() {
 		const hasLockfile = await this.#hasLockfile();
