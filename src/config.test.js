@@ -145,7 +145,8 @@ test("config.js", (t) => {
 						"#expire": "2025-04-19",
 					},
 				},
-				message: "answer@0.4.2: ineffective leaf (no '#ignore' found)",
+				message: "answer@0.4.2: ineffective leaf (no '#ignore' found)\n"
+					+ "answer@0.4.2: has '#expire' without '#ignore'",
 			},
 			"correct followed by incorrect config": {
 				config: {
