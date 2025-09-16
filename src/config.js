@@ -50,6 +50,10 @@ function validateConfig(config, root=true) {
 		return new Some(["config must be an object"]);
 	}
 
+	const children = Object.keys(config).filter(key => !isDirective(key));
+	if (children.length === 0 && !Object.hasOwn(config, "#ignore") && !root) {
+		return new Some(["ineffective leaf (no '#ignore' found)"]);
+	}
 	const problems = [];
 	for (const [key, value] of Object.entries(config)) {
 		if (isDirective(key)) {

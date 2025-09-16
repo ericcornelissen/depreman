@@ -11,6 +11,7 @@ Versioning].
 
 - Disallow dates past the year 3000.
 - Include deprecation message when all instances of it are ignored.
+- Warn about ineffective leafs in the configuration.
 
 ## 0.3.10 (2025-07-31)
 

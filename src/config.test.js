@@ -93,6 +93,7 @@ test("config.js", (t) => {
 			"unknown directives": {
 				config: {
 					"package@1.0.0": {
+						"#ignore": true,
 						"#foo": true,
 						"#bar": false,
 					},
@@ -119,13 +120,32 @@ test("config.js", (t) => {
 				},
 				message: "foobar@3.1.4: unexpected type for '#expire': boolean",
 			},
-			"an '#expire' directive without '#ignore'": {
+			"a leaf without '#ignore'": {
 				config: {
-					"answer@0.4.2": {
-						"#expire": '2025-04-19',
+					"foo@0.4.2": {
+						"bar@3.1.4": {},
 					},
 				},
-				message: "answer@0.4.2: has '#expire' without '#ignore'",
+				message: "foo@0.4.2: bar@3.1.4: ineffective leaf (no '#ignore' found)",
+			},
+			"an '#expire' directive without '#ignore'": {
+				config: {
+					"foo@0.4.2": {
+						"bar@3.1.4": {
+							"#ignore": true,
+						},
+						"#expire": "2025-04-19",
+					},
+				},
+				message: "foo@0.4.2: has '#expire' without '#ignore'",
+			},
+			"a leaf with only '#expire'": {
+				config: {
+					"answer@0.4.2": {
+						"#expire": "2025-04-19",
+					},
+				},
+				message: "answer@0.4.2: ineffective leaf (no '#ignore' found)",
 			},
 			"correct followed by incorrect config": {
 				config: {
