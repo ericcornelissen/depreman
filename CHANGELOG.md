@@ -9,6 +9,10 @@ Versioning].
 
 ## Unreleased
 
+- _No changes yet_
+
+## 0.3.11 (2025-09-17)
+
 - Disallow dates past the year 3000.
 - Include deprecation message when all instances of it are ignored.
 - Warn about ineffective leafs in the configuration.
