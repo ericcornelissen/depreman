@@ -13,7 +13,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * @param {any} value
+ * @param {unknown} value
  * @returns {TypeName}
  */
 export function typeOf(value) {
