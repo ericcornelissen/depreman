@@ -347,7 +347,6 @@ export default [
 					{
 						exemptTagContexts: [],
 						noDefaults: false,
-						unifyParentAndChildTypeChecks: false,
 					},
 				],
 				"jsdoc/empty-tags": "error",
@@ -398,6 +397,8 @@ export default [
 				"jsdoc/no-restricted-syntax": "off",
 				"jsdoc/no-types": "off",
 				"jsdoc/no-undefined-types": "error",
+				"jsdoc/reject-any-type": "error",
+				"jsdoc/reject-function-type": "error",
 				"jsdoc/require-asterisk-prefix": ["error", "always"],
 				"jsdoc/require-description-complete-sentence": "off",
 				"jsdoc/require-description": "off",

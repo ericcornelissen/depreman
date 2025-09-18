@@ -16,7 +16,7 @@ import { Err, Ok } from "./result.js";
 
 /**
  * @param {string} raw
- * @returns {Result<any, string>}
+ * @returns {Result<unknown, string>}
  */
 export function parseJSON(raw) {
 	try {
