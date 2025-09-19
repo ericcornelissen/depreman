@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { Object } from "./object.js";
 import { Err, Ok } from "./result.js";
 
 /**
@@ -50,10 +51,6 @@ export async function getDeprecatedPackages(pm) {
  */
 function findPackagePaths(pkg, hierarchy, aliases, path = []) {
 	const { dependencies } = hierarchy;
-	if (!dependencies) {
-		return [];
-	}
-
 	const paths = [];
 	for (const [depName, depInfo] of Object.entries(dependencies)) {
 		const dep = aliases.has(depName)
