@@ -48,20 +48,17 @@ export class NPM {
 	 * @returns {Promise<Result<Aliases, string>>}
 	 */
 	async aliases() {
-		const rawManifest = await this.#fs.readFile("./package.json");
-		if (rawManifest.isErr()) {
-			return new Err(`could not read package.json: ${rawManifest.error()}`);
-		}
-
-		const manifest = parseJSON(rawManifest.value());
+		const manifest = await this.#getManifest();
 		if (manifest.isErr()) {
-			return new Err(`could not parse package.json: ${manifest.error()}`);
+			return new Err(`could not get manifest: ${manifest.error()}`);
 		}
 
 		const aliases = new Map();
 		for (const deps of [
 			manifest.value().dependencies || {},
 			manifest.value().devDependencies || {},
+			manifest.value().optionalDependencies || {},
+			manifest.value().peerDependencies || {},
 		]) {
 			for (const [name, rhs] of Object.entries(deps)) {
 				const aliasMatch = /npm:(?<alias>@?[^@]+)@(?<version>.+)/u.exec(rhs);
@@ -163,6 +160,23 @@ export class NPM {
 	}
 
 	/**
+	 * @returns {Promise<Manifest>}
+	 */
+	async #getManifest() {
+		const rawManifest = await this.#fs.readFile("./package.json");
+		if (rawManifest.isErr()) {
+			return new Err(`could not read package.json: ${rawManifest.error()}`);
+		}
+
+		const manifest = parseJSON(rawManifest.value());
+		if (manifest.isErr()) {
+			return new Err(`could not parse package.json: ${manifest.error()}`);
+		}
+
+		return manifest;
+	}
+
+	/**
 	 * @returns {Promise<boolean>}
 	 */
 	async #hasLockfile() {
@@ -211,6 +225,14 @@ export class NPM {
 
 /**
  * @typedef {Package & Deprecation} DeprecatedPackage
+ */
+
+/**
+ * @typedef Manifest
+ * @property {{[key: string]: string} | undefined} dependencies
+ * @property {{[key: string]: string} | undefined} devDependencies
+ * @property {{[key: string]: string} | undefined} optionalDependencies
+ * @property {{[key: string]: string} | undefined} peerDependencies
  */
 
 /**
