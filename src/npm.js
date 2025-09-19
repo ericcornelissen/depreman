@@ -13,6 +13,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { parseJSON } from "./json.js";
+import { Object } from "./object.js";
 import { None, Some } from "./option.js";
 import { Err, Ok } from "./result.js";
 
@@ -55,10 +56,10 @@ export class NPM {
 
 		const aliases = new Map();
 		for (const deps of [
-			manifest.value().dependencies || {},
-			manifest.value().devDependencies || {},
-			manifest.value().optionalDependencies || {},
-			manifest.value().peerDependencies || {},
+			manifest.value().dependencies,
+			manifest.value().devDependencies,
+			manifest.value().optionalDependencies,
+			manifest.value().peerDependencies,
 		]) {
 			for (const [name, rhs] of Object.entries(deps)) {
 				const aliasMatch = /npm:(?<alias>@?[^@]+)@(?<version>.+)/u.exec(rhs);
