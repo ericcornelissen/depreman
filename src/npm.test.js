@@ -278,75 +278,143 @@ test("npm.js", (t) => {
 
 	t.test("hierarchy", (t) => {
 		t.test("success", (t) => {
-			t.test("with hierarchy", async () => {
+			t.test("with dependencies", async () => {
 				const options = {};
-
-				const hierarchy = {
-					version: "0.3.9",
-					name: "depreman",
-					dependencies: {
-						depreman: {
-							eslint: {
-								version: "9.29.0",
-								dependencies: {},
-							},
-						},
-						eslint: {
-							version: "9.29.0",
-							dependencies: {},
-						},
-					},
-				};
-				const want = {
-					version: "0.3.9",
-					name: "depreman",
-					dependencies: {
-						eslint: {
-							version: "9.29.0",
-							dependencies: {},
-						},
-					},
-				};
 
 				const cp = new CP({
 					"npm list": {
-						stdout: JSON.stringify(hierarchy),
+						stdout: JSON.stringify({
+							version: "0.3.9",
+							name: "depreman",
+							dependencies: {
+								chalk: {
+									version: "5.4.1",
+									dependencies: {},
+								},
+								eslint: {
+									version: "9.29.0",
+									dependencies: {
+										"@eslint/config-array": {
+											version: "0.21.0",
+											dependencies: {
+												"@eslint/object-schema": {
+													version: "2.1.6",
+													dependencies: {},
+												},
+											},
+										},
+									},
+								},
+								pi: {
+									pi: "3.1.4",
+									dependencies: {},
+								},
+								which: {
+									version: "5.0.0",
+									dependencies: {
+										isexe: {
+											version: "3.1.1",
+											dependencies: {},
+										},
+									},
+								},
+							},
+						}),
 					},
 				});
+				const fs = new FS({
+					"./package.json": JSON.stringify({
+						dependencies: {
+							chalk: "^5.4.1",
+						},
+						devDependencies: {
+							eslint: "^9.29.0",
+						},
+						peerDependencies: {
+							which: "^5.0.0",
+						},
+						optionalDependencies: {
+							pi: "^3.1.4",
+						},
+					}),
+				});
 
-				const npm = new NPM({ cp, options });
+				const npm = new NPM({ cp, fs, options });
 				const got = await npm.hierarchy();
 				assert.ok(got.isOk());
 
 				const value = got.value();
-				assert.deepEqual(value, want);
-			});
-
-			t.test("without hierarchy", async () => {
-				const options = {};
-
-				const hierarchy = {
+				assert.deepEqual(value, {
 					version: "0.3.9",
 					name: "depreman",
-				};
-				const want = {
+					dependencies: {
+						chalk: {
+							version: "5.4.1",
+							scope: "prod",
+							dependencies: {},
+						},
+						eslint: {
+							version: "9.29.0",
+							scope: "dev",
+							dependencies: {
+								"@eslint/config-array": {
+									version: "0.21.0",
+									scope: "dev",
+									dependencies: {
+										"@eslint/object-schema": {
+											version: "2.1.6",
+											scope: "dev",
+											dependencies: {},
+										},
+									},
+								},
+							},
+						},
+						pi: {
+							pi: "3.1.4",
+							scope: "optional",
+							dependencies: {},
+						},
+						which: {
+							version: "5.0.0",
+							scope: "peer",
+							dependencies: {
+								isexe: {
+									version: "3.1.1",
+									scope: "peer",
+									dependencies: {},
+								},
+							},
+						},
+					},
+				});
+			});
+
+			t.test("without dependencies", async () => {
+				const options = {};
+
+				const cp = new CP({
+					"npm list": {
+						stdout: JSON.stringify({
+							version: "0.3.9",
+							name: "depreman",
+						}),
+					},
+				});
+				const fs = new FS({
+					"./package.json": "{}",
+				});
+
+				const npm = new NPM({ cp, fs, options });
+				const got = await npm.hierarchy();
+				assert.ok(got.isOk());
+
+				const value = got.value();
+				assert.deepEqual(value, {
 					version: "0.3.9",
 					name: "depreman",
 					dependencies: {},
-				};
-
-				const cp = new CP({
-					"npm list": {
-						stdout: JSON.stringify(hierarchy),
-					},
 				});
-
-				const npm = new NPM({ cp, options });
-				const got = await npm.hierarchy();
-				assert.ok(got.isOk());
-
-				const value = got.value();
-				assert.deepEqual(value, want);
 			});
 		});
 
@@ -357,6 +425,9 @@ test("npm.js", (t) => {
 						"npm list": {
 							stdout: "{}",
 						},
+					}),
+					fs: new FS({
+						"./package.json": "{}",
 					}),
 				};
 			}
@@ -452,43 +523,51 @@ test("npm.js", (t) => {
 			});
 		});
 
-		t.test("npm error", async () => {
-			const options = {};
-			const stderr = "Something went wrong";
+		t.test("cli error", () => {
+			t.test("command error", async () => {
+				const options = {};
+				const stderr = "Something went wrong";
 
-			const cp = new CP({
-				"npm list": {
-					error: true,
-					stderr,
-				},
+				const cp = new CP({
+					"npm list": {
+						error: true,
+						stderr,
+					},
+				});
+				const fs = new FS({
+					"./package.json": "{}",
+				});
+
+				const npm = new NPM({ cp, fs, options });
+				const got = await npm.hierarchy();
+				assert.ok(got.isErr());
+
+				const err = got.error();
+				assert.equal(err, `npm list failed:\n${stderr}`);
 			});
 
-			const npm = new NPM({ cp, options });
-			const got = await npm.hierarchy();
-			assert.ok(got.isErr());
+			t.test("corrupt output", async () => {
+				const options = {};
 
-			const err = got.error();
-			assert.equal(err, `npm list failed:\n${stderr}`);
-		});
+				const cp = new CP({
+					"npm list": {
+						stdout: "not JSON",
+					},
+				});
+				const fs = new FS({
+					"./package.json": "{}",
+				});
 
-		t.test("corrupt output", async () => {
-			const options = {};
+				const npm = new NPM({ cp, fs, options });
+				const got = await npm.hierarchy();
+				assert.ok(got.isErr());
 
-			const cp = new CP({
-				"npm list": {
-					stdout: "not JSON",
-				},
+				const err = got.error();
+				assert.match(err, /npm list failed:\n.+/u);
 			});
-
-			const npm = new NPM({ cp, options });
-			const got = await npm.hierarchy();
-			assert.ok(got.isErr());
-
-			const err = got.error();
-			assert.match(err, /npm list failed:\n.+/u);
 		});
 
-		t.test("npm CLI usage", async () => {
+		t.test("cli usage", async () => {
 			const options = {};
 
 			const cp = new CP({
@@ -496,8 +575,11 @@ test("npm.js", (t) => {
 					stdout: "{}",
 				},
 			});
+			const fs = new FS({
+				"./package.json": "{}",
+			});
 
-			const npm = new NPM({ cp, options });
+			const npm = new NPM({ cp, fs, options });
 			await npm.hierarchy();
 			assert.equal(cp.exec.mock.callCount(), 1);
 
@@ -506,6 +588,46 @@ test("npm.js", (t) => {
 			assert.ok(call.arguments[1].includes("list"));
 			assert.ok(call.arguments[1].includes("--all"));
 			assert.ok(call.arguments[1].includes("--json"));
+		});
+
+		t.test("no manifest", async () => {
+			const options = {};
+
+			const cp = new CP({});
+			const fs = new FS({});
+
+			const npm = new NPM({ cp, fs, options });
+			const got = await npm.hierarchy();
+			assert.ok(got.isErr());
+
+			const err = got.error();
+			assert.match(err, /^could not \w+ package\.json: .+/u);
+		});
+
+		t.test("dependency missing from manifest", async () => {
+			const options = {};
+
+			const cp = new CP({
+				"npm list": {
+					stdout: JSON.stringify({
+						version: "0.3.9",
+						name: "depreman",
+						dependencies: {
+							chalk: {
+								version: "5.4.1",
+							},
+						},
+					}),
+				},
+			});
+			const fs = new FS({
+				"./package.json": "{}",
+			});
+
+			const npm = new NPM({ cp, fs, options });
+			await assert.rejects(
+				async () => await npm.hierarchy(),
+			);
 		});
 	});
 

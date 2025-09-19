@@ -115,15 +115,17 @@ export class NPM {
 			args.push("--omit", "peer");
 		}
 
+		const manifest = await this.#getManifest();
+		if (manifest.isErr()) {
+			return manifest;
+		}
+
 		const result = await this.#cp.exec(cmd, args);
 		return result
 			.map(({ stdout }) => stdout)
 			.andThen((stdout) => parseJSON(stdout))
-			.map(hierarchy => {
-				hierarchy.dependencies ||= {};
-				delete hierarchy.dependencies[hierarchy.name];
-				return hierarchy;
-			})
+			.map(hierarchy => this.#normalizeHierarchy(hierarchy))
+			.map(hierarchy => this.#annotateHierarchy(manifest.value(), hierarchy))
 			.mapErr(({ stderr }) => `npm list failed:\n${stderr}`);
 	}
 
@@ -161,6 +163,28 @@ export class NPM {
 	}
 
 	/**
+	 * @param {Manifest} manifest
+	 * @param {PackageHierarchy} hierarchy
+	 * @returns {Promise<PackageHierarchy>}
+	 */
+	#annotateHierarchy(manifest, hierarchy) {
+		const { dependencies } = hierarchy;
+		for (const [name, info] of Object.entries(dependencies)) {
+			const scope = this.#scopeOf(manifest, name);
+			info.scope = scope.value();
+
+			const transitive = Object.values(info.dependencies);
+			while (transitive.length > 0) {
+				const dependency = transitive.pop();
+				dependency.scope = info.scope;
+				transitive.push(...Object.values(dependency.dependencies));
+			}
+		}
+
+		return hierarchy;
+	}
+
+	/**
 	 * @returns {Promise<Manifest>}
 	 */
 	async #getManifest() {
@@ -185,6 +209,16 @@ export class NPM {
 	}
 
 	/**
+	 * @param {PackageHierarchy} hierarchy
+	 * @returns {Promise<PackageHierarchy>}
+	 */
+	#normalizeHierarchy(hierarchy) {
+		hierarchy.dependencies ||= {};
+		delete hierarchy.dependencies[hierarchy.name];
+		return hierarchy;
+	}
+
+	/**
 	 * @param {string} line
 	 * @returns {Option<DeprecatedPackage>}
 	 */
@@ -206,6 +240,37 @@ export class NPM {
 
 		return new Some({ name, version, reason });
 	}
+
+	/**
+	 * @param {Manifest} manifest
+	 * @param {string} pkg
+	 * @returns {Option<Scope, string>}
+	 */
+	#scopeOf(manifest, pkg) {
+		const {
+			dependencies,
+			devDependencies,
+			optionalDependencies,
+			peerDependencies,
+		} = manifest;
+
+		const categories = {
+			prod: dependencies,
+			dev: devDependencies,
+			optional: optionalDependencies,
+			peer: peerDependencies,
+		};
+
+		for (const [scope, deps] of Object.entries(categories)) {
+			for (const got of Object.keys(deps)) {
+				if (got === pkg) {
+					return new Some(scope);
+				}
+			}
+		}
+
+		return None;
+	}
 }
 
 /**
@@ -216,6 +281,7 @@ export class NPM {
  * @typedef Dependency
  * @property {{[key: string]: Dependency}} dependencies
  * @property {string} version
+ * @property {Scope} scope
  */
 
 /**
@@ -253,6 +319,10 @@ export class NPM {
  * @property {{[key: string]: Dependency}} dependencies
  * @property {string} name
  * @property {string} version
+ */
+
+/**
+ * @typedef {"dev" | "optional" | "peer" | "prod"} Scope
  */
 
 /** @import { ExecCP } from "./cp.js" */
