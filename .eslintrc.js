@@ -906,6 +906,9 @@ export default [
 			"jsdoc/require-jsdoc": "off",
 			"jsdoc/require-returns": "off",
 
+			// eslint-plugin-unicorn
+			"unicorn/no-useless-undefined": "off",
+
 			// eslint-plugin-top
 			"top/no-top-level-side-effects": "off",
 			"top/no-top-level-state": "off",

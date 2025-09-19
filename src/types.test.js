@@ -83,7 +83,7 @@ test("types.js", (t) => {
 		});
 
 		t.test("undefined", () => {
-			const got = typeOf(undefined); // eslint-disable-line unicorn/no-useless-undefined
+			const got = typeOf(undefined);
 			const want = types.undefined;
 			assert.equal(got, want);
 		});
