@@ -208,23 +208,22 @@ export class NPM {
 }
 
 /**
- * @typedef Options
- * @property {boolean} omitDev
- * @property {boolean} omitOptional
- * @property {boolean} omitPeer
+ * @typedef {Map<string, Package>} Aliases
  */
 
 /**
- * @typedef {Map<string, Package>} Aliases
+ * @typedef Dependency
+ * @property {{[key: string]: Dependency}} dependencies
+ * @property {string} version
+ */
+
+/**
+ * @typedef {Package & Deprecation} DeprecatedPackage
  */
 
 /**
  * @typedef Deprecation
  * @property {string} reason
- */
-
-/**
- * @typedef {Package & Deprecation} DeprecatedPackage
  */
 
 /**
@@ -236,6 +235,13 @@ export class NPM {
  */
 
 /**
+ * @typedef Options
+ * @property {boolean} omitDev
+ * @property {boolean} omitOptional
+ * @property {boolean} omitPeer
+ */
+
+/**
  * @typedef Package
  * @property {string} name
  * @property {string} version
@@ -243,14 +249,8 @@ export class NPM {
 
 /**
  * @typedef PackageHierarchy
- * @property {{[key: string]: HierarchyDependency}} dependencies
+ * @property {{[key: string]: Dependency}} dependencies
  * @property {string} name
- * @property {string} version
- */
-
-/**
- * @typedef HierarchyDependency
- * @property {{[key: string]: HierarchyDependency}} dependencies
  * @property {string} version
  */
 
