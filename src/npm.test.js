@@ -27,7 +27,7 @@ test("npm.js", (t) => {
 
 		t.test("no dependencies", async () => {
 			const fs = new FS({
-				"./package.json": JSON.stringify({}),
+				"./package.json": "{}",
 			});
 
 			const npm = new NPM({ cp, fs, options });
@@ -47,6 +47,12 @@ test("npm.js", (t) => {
 					devDependencies: {
 						eslint: "9.29.0",
 					},
+					optionalDependencies: {
+						pi: "3.1.4",
+					},
+					peerDependencies: {
+						react: "19.1.1",
+					},
 				}),
 			});
 
@@ -58,7 +64,7 @@ test("npm.js", (t) => {
 			assert.equal(value.size, 0);
 		});
 
-		t.test("alias in (runtime) dependencies", async () => {
+		t.test("alias in (production) dependencies", async () => {
 			const alias = "foo";
 			const name = "bar";
 			const version = "3.1.4";
@@ -67,9 +73,6 @@ test("npm.js", (t) => {
 				"./package.json": JSON.stringify({
 					dependencies: {
 						[alias]: `npm:${name}@${version}`,
-					},
-					devDependencies: {
-						eslint: "9.29.0",
 					},
 				}),
 			});
@@ -83,17 +86,58 @@ test("npm.js", (t) => {
 			assert.deepEqual(value.get(alias), { name, version });
 		});
 
-		t.test("alias in devDependencies", async () => {
+		t.test("alias in development dependencies", async () => {
 			const alias = "hello";
 			const name = "world";
 			const version = "2.7.1";
 
 			const fs = new FS({
 				"./package.json": JSON.stringify({
-					dependencies: {
-						depreman: "0.3.9",
-					},
 					devDependencies: {
+						[alias]: `npm:${name}@${version}`,
+					},
+				}),
+			});
+
+			const npm = new NPM({ cp, fs, options });
+			const got = await npm.aliases();
+			assert.ok(got.isOk());
+
+			const value = got.value();
+			assert.equal(value.size, 1);
+			assert.deepEqual(value.get(alias), { name, version });
+		});
+
+		t.test("alias in optional dependencies", async () => {
+			const alias = "hello";
+			const name = "world";
+			const version = "2.7.1";
+
+			const fs = new FS({
+				"./package.json": JSON.stringify({
+					optionalDependencies: {
+						[alias]: `npm:${name}@${version}`,
+					},
+				}),
+			});
+
+			const npm = new NPM({ cp, fs, options });
+			const got = await npm.aliases();
+			assert.ok(got.isOk());
+
+			const value = got.value();
+			assert.equal(value.size, 1);
+			assert.deepEqual(value.get(alias), { name, version });
+		});
+
+		t.test("alias in peer dependencies", async () => {
+			const alias = "hello";
+			const name = "world";
+			const version = "2.7.1";
+
+			const fs = new FS({
+				"./package.json": JSON.stringify({
+					peerDependencies: {
 						[alias]: `npm:${name}@${version}`,
 					},
 				}),
@@ -116,7 +160,10 @@ test("npm.js", (t) => {
 			assert.ok(got.isErr());
 
 			const err = got.error();
-			assert.match(err, /could not read package\.json: .+/u);
+			assert.match(
+				err,
+				/^could not get manifest: could not read package\.json: .+/u,
+			);
 		});
 
 		t.test("corrupt manifest", async () => {
@@ -129,7 +176,10 @@ test("npm.js", (t) => {
 			assert.ok(got.isErr());
 
 			const err = got.error();
-			assert.match(err, /could not parse package\.json: .+/u);
+			assert.match(
+				err,
+				/^could not get manifest: could not parse package\.json: .+/u,
+			);
 		});
 	});
 

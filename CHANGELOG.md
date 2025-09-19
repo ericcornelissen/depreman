@@ -9,7 +9,7 @@ Versioning].
 
 ## Unreleased
 
-- _No changes yet_
+- Fix alias resolution for `optionalDependencies` and `peerDependencies`.
 
 ## 0.3.11 (2025-09-17)
 
