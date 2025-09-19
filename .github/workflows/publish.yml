@@ -65,4 +65,4 @@ jobs:
       - name: Install dependencies
         run: npm clean-install
       - name: Publish to npm
-        run: npm publish
+        run: npm publish || true
