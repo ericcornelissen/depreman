@@ -48,14 +48,9 @@ export class NPM {
 	 * @returns {Promise<Result<Aliases, string>>}
 	 */
 	async aliases() {
-		const rawManifest = await this.#fs.readFile("./package.json");
-		if (rawManifest.isErr()) {
-			return new Err(`could not read package.json: ${rawManifest.error()}`);
-		}
-
-		const manifest = parseJSON(rawManifest.value());
+		const manifest = await this.#getManifest();
 		if (manifest.isErr()) {
-			return new Err(`could not parse package.json: ${manifest.error()}`);
+			return new Err(`could not get manifest: ${manifest.error()}`);
 		}
 
 		const aliases = new Map();
@@ -117,6 +112,11 @@ export class NPM {
 			args.push("--omit", "peer");
 		}
 
+		const manifest = await this.#getManifest();
+		if (manifest.isErr()) {
+			return manifest;
+		}
+
 		const result = await this.#cp.exec(cmd, args);
 		const hierarchy = result
 			.map(({ stdout }) => stdout)
@@ -124,6 +124,21 @@ export class NPM {
 			.andThen((stdout) => parseJSON(stdout));
 		if (hierarchy.isErr()) {
 			return new Err(`npm list failed:\n${hierarchy.error()}`);
+		}
+
+		hierarchy.value().dependencies ||= {};
+
+		const { dependencies } = hierarchy.value();
+		for (const [name, info] of Object.entries(dependencies)) {
+			const scope = this.#scopeOf(manifest.value(), name);
+			info.scope = scope.value();
+
+			const transitive = Object.values(info.dependencies || {});
+			while (transitive.length > 0) {
+				const dependency = transitive.pop();
+				dependency.scope = info.scope;
+				transitive.push(...Object.values(dependency.dependencies || {}));
+			}
 		}
 
 		return hierarchy;
@@ -170,6 +185,23 @@ export class NPM {
 	}
 
 	/**
+	 * @returns {Promise<Manifest>}
+	 */
+	async #getManifest() {
+		const rawManifest = await this.#fs.readFile("./package.json");
+		if (rawManifest.isErr()) {
+			return new Err(`could not read package.json: ${rawManifest.error()}`);
+		}
+
+		const manifest = parseJSON(rawManifest.value());
+		if (manifest.isErr()) {
+			return new Err(`could not parse package.json: ${manifest.error()}`);
+		}
+
+		return manifest;
+	}
+
+	/**
 	 * @param {string} line
 	 * @returns {Option<DeprecatedPackage>}
 	 */
@@ -190,6 +222,37 @@ export class NPM {
 		const version = pkg.slice(i + 1);
 
 		return new Some({ name, version, reason });
+	}
+
+	/**
+	 * @param {Manifest} manifest
+	 * @param {string} pkg
+	 * @returns {Option<Scope, string>}
+	 */
+	#scopeOf(manifest, pkg) {
+		const {
+			dependencies,
+			devDependencies,
+			optionalDependencies,
+			peerDependencies,
+		} = manifest;
+
+		const categories = {
+			prod: dependencies,
+			dev: devDependencies,
+			optional: optionalDependencies,
+			peer: peerDependencies,
+		};
+
+		for (const [scope, deps] of Object.entries(categories)) {
+			for (const got of Object.keys(deps || {})) {
+				if (got === pkg) {
+					return new Some(scope);
+				}
+			}
+		}
+
+		return None;
 	}
 }
 
@@ -221,15 +284,28 @@ export class NPM {
 
 /**
  * @typedef PackageHierarchy
- * @property {{[key: string]: HierarchyDependency}} dependencies
+ * @property {{[key: string]: Dependency}} dependencies
  * @property {string} name
  * @property {string} version
  */
 
 /**
- * @typedef HierarchyDependency
- * @property {{[key: string]: HierarchyDependency}} dependencies
+ * @typedef Dependency
+ * @property {{[key: string]: Dependency}} dependencies
  * @property {string} version
+ * @property {Scope} scope
+ */
+
+/**
+ * @typedef Manifest
+ * @property {{[key: string]: string} | undefined} dependencies
+ * @property {{[key: string]: string} | undefined} devDependencies
+ * @property {{[key: string]: string} | undefined} optionalDependencies
+ * @property {{[key: string]: string} | undefined} peerDependencies
+ */
+
+/**
+ * @typedef {"dev" | "optional" | "peer" | "prod"} Scope
  */
 
 /**

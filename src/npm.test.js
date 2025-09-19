@@ -116,7 +116,10 @@ test("npm.js", (t) => {
 			assert.ok(got.isErr());
 
 			const err = got.error();
-			assert.match(err, /could not read package\.json: .+/u);
+			assert.match(
+				err,
+				/^could not get manifest: could not read package\.json: .+/u,
+			);
 		});
 
 		t.test("corrupt manifest", async () => {
@@ -129,7 +132,10 @@ test("npm.js", (t) => {
 			assert.ok(got.isErr());
 
 			const err = got.error();
-			assert.match(err, /could not parse package\.json: .+/u);
+			assert.match(
+				err,
+				/^could not get manifest: could not parse package\.json: .+/u,
+			);
 		});
 	});
 
@@ -229,29 +235,133 @@ test("npm.js", (t) => {
 	t.test("hierarchy", (t) => {
 		t.test("success", async () => {
 			const options = {};
-			const want = {
-				version: "0.3.9",
-				name: "depreman",
-				dependencies: {
-					eslint: {
-						version: "9.29.0",
-						dependencies: {},
-					},
-				},
-			};
 
 			const cp = new CP({
 				"npm list": {
-					stdout: JSON.stringify(want),
+					stdout: JSON.stringify({
+						version: "0.3.9",
+						name: "depreman",
+						dependencies: {
+							chalk: {
+								version: "5.4.1",
+							},
+							eslint: {
+								version: "9.29.0",
+								dependencies: {
+									"@eslint/config-array": {
+										version: "0.21.0",
+										dependencies: {
+											"@eslint/object-schema": {
+												version: "2.1.6",
+											},
+										},
+									},
+								},
+							},
+							pi: {
+								pi: "3.1.4",
+							},
+							which: {
+								version: "5.0.0",
+								dependencies: {
+									isexe: {
+										version: "3.1.1",
+									},
+								},
+							},
+						},
+					}),
 				},
 			});
+			const fs = new FS({
+				"./package.json": JSON.stringify({
+					dependencies: {
+						chalk: "^5.4.1",
+					},
+					devDependencies: {
+						eslint: "^9.29.0",
+					},
+					peerDependencies: {
+						which: "^5.0.0",
+					},
+					optionalDependencies: {
+						pi: "^3.1.4",
+					},
+				}),
+			});
 
-			const npm = new NPM({ cp, options });
+			const npm = new NPM({ cp, fs, options });
 			const got = await npm.hierarchy();
 			assert.ok(got.isOk());
 
 			const value = got.value();
-			assert.deepEqual(value, want);
+			assert.deepEqual(value, {
+				version: "0.3.9",
+				name: "depreman",
+				dependencies: {
+					chalk: {
+						version: "5.4.1",
+						scope: "prod",
+					},
+					eslint: {
+						version: "9.29.0",
+						scope: "dev",
+						dependencies: {
+							"@eslint/config-array": {
+								version: "0.21.0",
+								scope: "dev",
+								dependencies: {
+									"@eslint/object-schema": {
+										version: "2.1.6",
+										scope: "dev",
+									},
+								},
+							},
+						},
+					},
+					pi: {
+						pi: "3.1.4",
+						scope: "optional",
+					},
+					which: {
+						version: "5.0.0",
+						scope: "peer",
+						dependencies: {
+							isexe: {
+								version: "3.1.1",
+								scope: "peer",
+							},
+						},
+					},
+				},
+			});
+		});
+
+		t.test("no dependencies", async () => {
+			const options = {};
+
+			const cp = new CP({
+				"npm list": {
+					stdout: JSON.stringify({
+						version: "0.3.11",
+						name: "dependencyless",
+					}),
+				},
+			});
+			const fs = new FS({
+				"./package.json": "{}",
+			});
+
+			const npm = new NPM({ cp, fs, options });
+			const got = await npm.hierarchy();
+			assert.ok(got.isOk());
+
+			const value = got.value();
+			assert.deepEqual(value, {
+				version: "0.3.11",
+				name: "dependencyless",
+				dependencies: {},
+			});
 		});
 
 		t.test("options", (t) => {
@@ -261,6 +371,9 @@ test("npm.js", (t) => {
 						"npm list": {
 							stdout: "{}",
 						},
+					}),
+					fs: new FS({
+						"./package.json": "{}",
 					}),
 				};
 			}
@@ -356,7 +469,7 @@ test("npm.js", (t) => {
 			});
 		});
 
-		t.test("npm error", async () => {
+		t.test("cli error", async () => {
 			const options = {};
 			const stderr = "Something went wrong";
 
@@ -366,8 +479,11 @@ test("npm.js", (t) => {
 					stderr,
 				},
 			});
+			const fs = new FS({
+				"./package.json": "{}",
+			});
 
-			const npm = new NPM({ cp, options });
+			const npm = new NPM({ cp, fs, options });
 			const got = await npm.hierarchy();
 			assert.ok(got.isErr());
 
@@ -375,7 +491,7 @@ test("npm.js", (t) => {
 			assert.equal(err, `npm list failed:\n${stderr}`);
 		});
 
-		t.test("corrupt output", async () => {
+		t.test("corrupt cli output", async () => {
 			const options = {};
 
 			const cp = new CP({
@@ -383,8 +499,11 @@ test("npm.js", (t) => {
 					stdout: "not JSON",
 				},
 			});
+			const fs = new FS({
+				"./package.json": "{}",
+			});
 
-			const npm = new NPM({ cp, options });
+			const npm = new NPM({ cp, fs, options });
 			const got = await npm.hierarchy();
 			assert.ok(got.isErr());
 
@@ -392,7 +511,7 @@ test("npm.js", (t) => {
 			assert.match(err, /npm list failed:\n.+/u);
 		});
 
-		t.test("npm CLI usage", async () => {
+		t.test("cli usage", async () => {
 			const options = {};
 
 			const cp = new CP({
@@ -400,8 +519,11 @@ test("npm.js", (t) => {
 					stdout: "{}",
 				},
 			});
+			const fs = new FS({
+				"./package.json": "{}",
+			});
 
-			const npm = new NPM({ cp, options });
+			const npm = new NPM({ cp, fs, options });
 			await npm.hierarchy();
 			assert.equal(cp.exec.mock.callCount(), 1);
 
@@ -410,6 +532,46 @@ test("npm.js", (t) => {
 			assert.ok(call.arguments[1].includes("list"));
 			assert.ok(call.arguments[1].includes("--all"));
 			assert.ok(call.arguments[1].includes("--json"));
+		});
+
+		t.test("no manifest", async () => {
+			const options = {};
+
+			const cp = new CP({});
+			const fs = new FS({});
+
+			const npm = new NPM({ cp, fs, options });
+			const got = await npm.hierarchy();
+			assert.ok(got.isErr());
+
+			const err = got.error();
+			assert.match(err, /^could not \w+ package\.json: .+/u);
+		});
+
+		t.test("dependency missing from manifest", async () => {
+			const options = {};
+
+			const cp = new CP({
+				"npm list": {
+					stdout: JSON.stringify({
+						version: "0.3.9",
+						name: "depreman",
+						dependencies: {
+							chalk: {
+								version: "5.4.1",
+							},
+						},
+					}),
+				},
+			});
+			const fs = new FS({
+				"./package.json": "{}",
+			});
+
+			const npm = new NPM({ cp, fs, options });
+			await assert.rejects(
+				async () => await npm.hierarchy()
+			);
 		});
 	});
 
