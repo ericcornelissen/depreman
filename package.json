@@ -81,7 +81,7 @@
     "lockfile-lint": "4.14.0",
     "ls-engines": "0.9.3",
     "npm-package-json-lint": "9.0.0",
-    "publint": "0.3.11",
+    "publint": "0.3.13",
     "which": "5.0.0"
   }
 }
