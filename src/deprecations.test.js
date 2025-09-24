@@ -174,47 +174,6 @@ test("deprecations.js", (t) => {
 					},
 				],
 			},
-			"dependency on self": {
-				deprecations: [
-					{
-						name: "foobar",
-						version: "3.1.4",
-						reason: "This package is no longer supported.",
-					},
-				],
-				hierarchy: {
-					name: "self",
-					version: "1.0.0",
-					dependencies: {
-						self: {
-							version: "1.0.0",
-							dependencies: {
-								foobar: {
-									version: "3.1.4",
-								},
-							},
-						},
-						foobar: {
-							version: "3.1.4",
-						},
-						deadend: {
-							version: "2.7.1",
-						},
-					},
-				},
-				want: [
-					{
-						name: "foobar",
-						version: "3.1.4",
-						reason: "This package is no longer supported.",
-						paths: [
-							[
-								{ name: "foobar", version: "3.1.4" },
-							],
-						],
-					},
-				],
-			},
 		};
 
 		for (const [name, testCase] of Object.entries(testCases)) {

@@ -116,15 +116,15 @@ export class NPM {
 		}
 
 		const result = await this.#cp.exec(cmd, args);
-		const hierarchy = result
+		return result
 			.map(({ stdout }) => stdout)
-			.mapErr(({ stderr }) => stderr)
-			.andThen((stdout) => parseJSON(stdout));
-		if (hierarchy.isErr()) {
-			return new Err(`npm list failed:\n${hierarchy.error()}`);
-		}
-
-		return hierarchy;
+			.andThen((stdout) => parseJSON(stdout))
+			.map(hierarchy => {
+				hierarchy.dependencies ||= {};
+				delete hierarchy.dependencies[hierarchy.name];
+				return hierarchy;
+			})
+			.mapErr(({ stderr }) => `npm list failed:\n${stderr}`);
 	}
 
 	/**
