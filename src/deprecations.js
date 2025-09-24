@@ -49,9 +49,14 @@ function findPackagePaths(pkg, hierarchy, aliases, path = []) {
 	const { dependencies } = hierarchy;
 	const paths = [];
 	for (const [depName, depInfo] of Object.entries(dependencies)) {
-		const dep = aliases.has(depName)
-			? aliases.get(depName)
-			: { name: depName, version: depInfo.version };
+		const dep = {
+			name: depName,
+			scope: depInfo.scope,
+			version: depInfo.version,
+
+			// Override name and version if there exists an alias
+			...aliases.get(depName),
+		};
 
 		const depPath = [...path, dep];
 		if (dep.name === pkg.name && dep.version === pkg.version) {
@@ -77,6 +82,7 @@ function findPackagePaths(pkg, hierarchy, aliases, path = []) {
 /**
  * @typedef Package
  * @property {string} name
+ * @property {Scope} scope
  * @property {string} version
  */
 
@@ -91,5 +97,6 @@ function findPackagePaths(pkg, hierarchy, aliases, path = []) {
  * @property {function(): Promise<Result<PackageHierarchy, string>>} hierarchy
  */
 
+/** @import { Scope } from "./config.js" */
 /** @import { Aliases, PackageHierarchy } from "./npm.js" */
 /** @import { Result } from "./result.js" */

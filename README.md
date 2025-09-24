@@ -75,7 +75,8 @@ the `+` wildcard can be used to match 1-or-more dependencies in a hierarchy.
 Use the `"#ignore"` directive when a deprecation for a given dependency should
 be ignored and assign it a reason as a string (or a boolean if you prefer).
 Optionally, use the `"#expire"` directive to set a date (`YYYY-MM-DD`) on which
-the rule expires.
+the rule expires. Use the `#scope` directive to select in which scopes (e.g.
+`dev`) the deprecation should be ignored.
 
 For example:
 
@@ -109,10 +110,14 @@ For example:
   "*": {
     "ignored@v6": {
       "#ignore": "ignore deprecation warnings anywhere in the tree"
+    },
+    "dev-only@v7": {
+      "#ignore": "only if it is used as a development dependency",
+      "#scope": ["dev"]
     }
   },
 
-  "no-reason@v7": {
+  "no-reason@v8": {
     "#ignore": true
   }
 }
