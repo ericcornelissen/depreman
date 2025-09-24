@@ -16,9 +16,10 @@ import * as date from "./date.js";
 import * as semver from "./semver.js";
 import { typeOf, types } from "./types.js";
 
-const kUsed = Symbol.for("#used"); // eslint-disable-line top/no-top-level-side-effects
-const kIgnore = "#ignore";
 const kExpire = "#expire";
+const kIgnore = "#ignore";
+const kScope = "#scope";
+const kUsed = Symbol.for("#used"); // eslint-disable-line top/no-top-level-side-effects
 
 /**
  * @param {Config} config
@@ -80,13 +81,14 @@ export function unusedIgnores(config, path=[]) {
 
 /**
  * @param {Config} config
- * @param {string[]} path
+ * @param {Package[]} path
+ * @param {Package} pkg
  * @returns {boolean | string}
  * @throws {Error}
  */
-function isIgnored(config, path) {
+function isIgnored(config, path, pkg={}) {
 	if (path.length === 0) {
-		return getDecision(config);
+		return getDecision(config, pkg);
 	}
 
 	const [current, ...remaining] = path;
@@ -97,7 +99,7 @@ function isIgnored(config, path) {
 
 		// Match 0-or-more
 		if (rule === "*") {
-			const reason = isIgnored(config, remaining) || isIgnored(config[rule], path);
+			const reason = isIgnored(config, remaining, current) || isIgnored(config[rule], path, current);
 			if (reason) {
 				return reason;
 			}
@@ -107,7 +109,7 @@ function isIgnored(config, path) {
 
 		// Match 1-or-more
 		if (rule === "+") {
-			const reason = isIgnored(config, remaining) || isIgnored(config[rule], remaining);
+			const reason = isIgnored(config, remaining, current) || isIgnored(config[rule], remaining, current);
 			if (reason) {
 				return reason;
 			}
@@ -115,10 +117,10 @@ function isIgnored(config, path) {
 			continue;
 		}
 
-		// Match name+semver
+		// Match exact
 		const [name, version] = parseRule(rule);
 		if (name === current.name && semver.satisfies(current.version, version).value()) {
-			const reason = isIgnored(config[rule], remaining);
+			const reason = isIgnored(config[rule], remaining, current);
 			if (reason) {
 				return reason;
 			}
@@ -130,12 +132,13 @@ function isIgnored(config, path) {
 
 /**
  * @param {Config} config
+ * @param {Package} pkg
  * @returns {boolean | string}
  * @throws {Error}
  */
-function getDecision(config) {
+function getDecision(config, pkg) {
 	const decision = parseDecision(config);
-	if (decision && !isExpired(config)) {
+	if (decision && isInScope(config, pkg.scope) && !isExpired(config)) {
 		return decision;
 	}
 
@@ -186,6 +189,20 @@ function isExpired(config) {
 }
 
 /**
+ * @param {Config} config
+ * @param {Scope} scope
+ * @returns {boolean}
+ */
+function isInScope(config, scope) {
+	const scopes = config[kScope] ?? config["*"]?.[kScope];
+	if (scopes === undefined) {
+		return true;
+	}
+
+	return scopes.includes(scope);
+}
+
+/**
  * @param {string} pkg
  * @returns {[string, string]}
  * @throws {Error}
@@ -210,5 +227,5 @@ function parseRule(pkg) {
  * @property {{path: string[]}} kept
  */
 
-/** @import { Config } from "./config.js" */
-/** @import { DeprecatedPackage } from "./deprecations.js" */
+/** @import { Config, Scope } from "./config.js" */
+/** @import { DeprecatedPackage, Package } from "./deprecations.js" */

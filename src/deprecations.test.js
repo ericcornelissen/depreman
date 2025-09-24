@@ -43,9 +43,11 @@ test("deprecations.js", (t) => {
 					dependencies: {
 						foobar: {
 							version: "3.1.4",
+							scope: "prod",
 						},
 						deadend: {
 							version: "2.7.1",
+							scope: "dev",
 						},
 					},
 				},
@@ -56,7 +58,11 @@ test("deprecations.js", (t) => {
 						reason: "This package is no longer supported.",
 						paths: [
 							[
-								{ name: "foobar", version: "3.1.4" },
+								{
+									name: "foobar",
+									scope: "prod",
+									version: "3.1.4",
+								},
 							],
 						],
 					},
@@ -79,17 +85,21 @@ test("deprecations.js", (t) => {
 					dependencies: {
 						foo: {
 							version: "1.0.0",
+							scope: "dev",
 							dependencies: {
 								bar: {
 									version: "2.7.1",
+									scope: "dev",
 								},
 								baz: {
 									version: "1.0.0",
+									scope: "dev",
 								},
 							},
 						},
 						bar: {
 							version: "3.1.4",
+							scope: "prod",
 						},
 					},
 				},
@@ -100,8 +110,16 @@ test("deprecations.js", (t) => {
 						reason: "This package is no longer supported.",
 						paths: [
 							[
-								{ name: "foo", version: "1.0.0" },
-								{ name: "bar", version: "2.7.1" },
+								{
+									name: "foo",
+									scope: "dev",
+									version: "1.0.0",
+								},
+								{
+									name: "bar",
+									scope: "dev",
+									version: "2.7.1",
+								},
 							],
 						],
 					},
@@ -111,8 +129,16 @@ test("deprecations.js", (t) => {
 						reason: "This package is not supported anymore.",
 						paths: [
 							[
-								{ name: "foo", version: "1.0.0" },
-								{ name: "baz", version: "1.0.0" },
+								{
+									name: "foo",
+									scope: "dev",
+									version: "1.0.0",
+								},
+								{
+									name: "baz",
+									scope: "dev",
+									version: "1.0.0",
+								},
 							],
 						],
 					},
@@ -145,9 +171,11 @@ test("deprecations.js", (t) => {
 					dependencies: {
 						foo: {
 							version: "3.1.4",
+							scope: "prod",
 						},
 						hello: {
 							version: "2.7.1",
+							scope: "prod",
 						},
 					},
 				},
@@ -158,7 +186,11 @@ test("deprecations.js", (t) => {
 						reason: "This package is no longer supported.",
 						paths: [
 							[
-								{ name: "bar", version: "3.1.4" },
+								{
+									name: "bar",
+									scope: "prod",
+									version: "3.1.4",
+								},
 							],
 						],
 					},
@@ -168,7 +200,45 @@ test("deprecations.js", (t) => {
 						reason: "This package is not supported anymore.",
 						paths: [
 							[
-								{ name: "world", version: "2.7.1" },
+								{
+									name: "world",
+									scope: "prod",
+									version: "2.7.1",
+								},
+							],
+						],
+					},
+				],
+			},
+			"missing scope information": {
+				deprecations: [
+					{
+						name: "foobar",
+						version: "3.1.4",
+						reason: "This package is no longer supported.",
+					},
+				],
+				hierarchy: {
+					name: "self",
+					version: "1.0.0",
+					dependencies: {
+						foobar: {
+							version: "3.1.4",
+						},
+					},
+				},
+				want: [
+					{
+						name: "foobar",
+						version: "3.1.4",
+						reason: "This package is no longer supported.",
+						paths: [
+							[
+								{
+									name: "foobar",
+									scope: undefined,
+									version: "3.1.4",
+								},
 							],
 						],
 					},

@@ -114,6 +114,20 @@ function validateDirectives(config, root) {
 						problems.push(`unexpected type for '#ignore': ${type}`);
 					}
 					break;
+				case "#scope":
+					if (type === types.array) {
+						if (value.length === 0) {
+							problems.push("the '#scope' directive may not be empty");
+						}
+
+						const wrong = value.find(scope => !isScope(scope));
+						if (wrong !== undefined) {
+							problems.push(`unexpected '#scope' entry: ${wrong}`);
+						}
+					} else {
+						problems.push(`unexpected type for '#scope': ${type}`);
+					}
+					break;
 				default:
 					problems.push(`unknown directive '${key}'`);
 			}
@@ -132,12 +146,25 @@ function isDirective(key) {
 }
 
 /**
+ * @param {string} value
+ * @returns {boolean}
+ */
+function isScope(value) {
+	return ["dev", "optional", "peer", "prod"].includes(value);
+}
+
+/**
  * @typedef Config
- * @property {boolean | string} ["#ignore"]
  * @property {string} ["#expire"]
+ * @property {boolean | string} ["#ignore"]
+ * @property {Scope[]} ["#scope"]
  * @property {Config} ["*"]
  * @property {Config} ["+"]
  * @property {Config} [key]
+ */
+
+/**
+ * @typedef {"dev" | "optional" | "peer" | "prod"} Scope
  */
 
 /** @import { ReadFS } from "./fs.js" */

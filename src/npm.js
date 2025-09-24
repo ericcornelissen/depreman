@@ -321,10 +321,7 @@ export class NPM {
  * @property {string} version
  */
 
-/**
- * @typedef {"dev" | "optional" | "peer" | "prod"} Scope
- */
-
+/** @import { Scope } from "./config.js" */
 /** @import { ExecCP } from "./cp.js" */
 /** @import { ReadFS } from "./fs.js" */
 /** @import { Option } from "./option.js" */

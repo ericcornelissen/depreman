@@ -860,6 +860,162 @@ test("ignore.js", (t) => {
 					},
 				],
 			},
+			"ignore with scope, deprecation in scope": {
+				config: {
+					"*": {
+						"bar@2.0.0": {
+							"#ignore": "Goodbye world?",
+							"#scope": ["dev"]
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "Hello world!",
+						paths: [
+							[
+								{
+									name: "foo",
+									version: "1.0.0",
+									scope: "dev",
+								},
+								{
+									name: "bar",
+									version: "2.0.0",
+									scope: "dev",
+								},
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "Hello world!",
+						ignored: [
+							{
+								path: [
+									{
+										name: "foo",
+										version: "1.0.0",
+										scope: "dev",
+									},
+									{
+										name: "bar",
+										version: "2.0.0",
+										scope: "dev",
+									},
+								],
+								reason: "Goodbye world?",
+							},
+						],
+						kept: [],
+					},
+				],
+			},
+			"ignore with scope, deprecation out of scope": {
+				config: {
+					"*": {
+						"bar@2.0.0": {
+							"#ignore": "Goodbye world?",
+							"#scope": ["dev"]
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "Hello world!",
+						paths: [
+							[
+								{
+									name: "foo",
+									version: "1.0.0",
+									scope: "prod",
+								},
+								{
+									name: "bar",
+									version: "2.0.0",
+									scope: "prod",
+								},
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "bar",
+						version: "2.0.0",
+						reason: "Hello world!",
+						ignored: [],
+						kept: [
+							{
+								path: [
+									{
+										name: "foo",
+										version: "1.0.0",
+										scope: "prod",
+									},
+									{
+										name: "bar",
+										version: "2.0.0",
+										scope: "prod",
+									},
+								],
+							},
+						],
+					},
+				],
+			},
+			"ignore with scope under `*` wildcard": {
+				config: {
+					"foobar@^3.0.0": {
+						"*": {
+							"#ignore": "Goodbye world?",
+							"#scope": ["peer"]
+						},
+					},
+				},
+				deprecations: [
+					{
+						name: "foobar",
+						version: "3.1.4",
+						reason: "Hello world!",
+						paths: [
+							[
+								{
+									name: "foobar",
+									version: "3.1.4",
+									scope: "prod",
+								},
+							],
+						],
+					},
+				],
+				want: [
+					{
+						name: "foobar",
+						version: "3.1.4",
+						reason: "Hello world!",
+						ignored: [],
+						kept: [
+							{
+								path: [
+									{
+										name: "foobar",
+										version: "3.1.4",
+										scope: "prod",
+									},
+								],
+							},
+						],
+					},
+				],
+			},
 			"name mismatch": {
 				config: {
 					"foobaz@1.0.0": {

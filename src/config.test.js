@@ -49,6 +49,22 @@ test("config.js", (t) => {
 					},
 				},
 			},
+			"config with scope, one": {
+				config: {
+					"package@1.0.0": {
+						"#ignore": "until 2025-01-01",
+						"#scope": ["prod"],
+					},
+				},
+			},
+			"config with scope, multiple": {
+				config: {
+					"package@1.0.0": {
+						"#ignore": "until 2025-01-01",
+						"#scope": ["dev", "optional", "peer"],
+					},
+				},
+			},
 			"config with '*' wildcard": {
 				config: {
 					"package@1.0.0": {
@@ -119,6 +135,42 @@ test("config.js", (t) => {
 					},
 				},
 				message: "foobar@3.1.4: unexpected type for '#expire': boolean",
+			},
+			"incorrect type for '#scope'": {
+				config: {
+					"foobar@3.1.4": {
+						"#ignore": true,
+						"#scope": "not an array",
+					},
+				},
+				message: "foobar@3.1.4: unexpected type for '#scope': string",
+			},
+			"empty '#scope' list": {
+				config: {
+					"foobar@3.1.4": {
+						"#ignore": true,
+						"#scope": [],
+					},
+				},
+				message: "foobar@3.1.4: the '#scope' directive may not be empty",
+			},
+			"invalid '#scope' entry": {
+				config: {
+					"foobar@3.1.4": {
+						"#ignore": true,
+						"#scope": ["prod", "not a scope"],
+					},
+				},
+				message: "foobar@3.1.4: unexpected '#scope' entry: not a scope",
+			},
+			"incorrect '#scope' entry type": {
+				config: {
+					"foobar@3.1.4": {
+						"#ignore": true,
+						"#scope": ["dev", false],
+					},
+				},
+				message: "foobar@3.1.4: unexpected '#scope' entry: false",
 			},
 			"a leaf without '#ignore'": {
 				config: {
