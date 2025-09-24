@@ -31,10 +31,6 @@ export async function getDeprecatedPackages(pm) {
 		return new Err(err.error());
 	}
 
-	if (hierarchy.value().dependencies) {
-		delete hierarchy.value().dependencies[hierarchy.value().name];
-	}
-
 	for (const pkg of packages.value()) {
 		pkg.paths = findPackagePaths(pkg, hierarchy.value(), aliases.value());
 	}

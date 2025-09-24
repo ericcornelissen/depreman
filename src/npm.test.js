@@ -277,31 +277,77 @@ test("npm.js", (t) => {
 	});
 
 	t.test("hierarchy", (t) => {
-		t.test("success", async () => {
-			const options = {};
-			const want = {
-				version: "0.3.9",
-				name: "depreman",
-				dependencies: {
-					eslint: {
-						version: "9.29.0",
-						dependencies: {},
-					},
-				},
-			};
+		t.test("success", (t) => {
+			t.test("with hierarchy", async () => {
+				const options = {};
 
-			const cp = new CP({
-				"npm list": {
-					stdout: JSON.stringify(want),
-				},
+				const hierarchy = {
+					version: "0.3.9",
+					name: "depreman",
+					dependencies: {
+						depreman: {
+							eslint: {
+								version: "9.29.0",
+								dependencies: {},
+							},
+						},
+						eslint: {
+							version: "9.29.0",
+							dependencies: {},
+						},
+					},
+				};
+				const want = {
+					version: "0.3.9",
+					name: "depreman",
+					dependencies: {
+						eslint: {
+							version: "9.29.0",
+							dependencies: {},
+						},
+					},
+				};
+
+				const cp = new CP({
+					"npm list": {
+						stdout: JSON.stringify(hierarchy),
+					},
+				});
+
+				const npm = new NPM({ cp, options });
+				const got = await npm.hierarchy();
+				assert.ok(got.isOk());
+
+				const value = got.value();
+				assert.deepEqual(value, want);
 			});
 
-			const npm = new NPM({ cp, options });
-			const got = await npm.hierarchy();
-			assert.ok(got.isOk());
+			t.test("without hierarchy", async () => {
+				const options = {};
 
-			const value = got.value();
-			assert.deepEqual(value, want);
+				const hierarchy = {
+					version: "0.3.9",
+					name: "depreman",
+				};
+				const want = {
+					version: "0.3.9",
+					name: "depreman",
+					dependencies: {},
+				};
+
+				const cp = new CP({
+					"npm list": {
+						stdout: JSON.stringify(hierarchy),
+					},
+				});
+
+				const npm = new NPM({ cp, options });
+				const got = await npm.hierarchy();
+				assert.ok(got.isOk());
+
+				const value = got.value();
+				assert.deepEqual(value, want);
+			});
 		});
 
 		t.test("options", (t) => {
