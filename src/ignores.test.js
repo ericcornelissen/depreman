@@ -537,13 +537,7 @@ test("ignore.js", (t) => {
 				config: {
 					"package@1.0.0": {
 						"#ignore": "expired",
-						"#expire": (() => {
-							const date = new Date();
-							const year = date.getFullYear();
-							const month = date.getMonth() + 1;
-							const day = date.getDate();
-							return `${year - 1}-${month}-${day}`;
-						})(),
+						"#expire": lastYear(),
 					},
 				},
 				deprecations: [
@@ -578,13 +572,7 @@ test("ignore.js", (t) => {
 				config: {
 					"package@1.0.0": {
 						"#ignore": "not expired",
-						"#expire": (() => {
-							const date = new Date();
-							const year = date.getFullYear();
-							const month = date.getMonth() + 1;
-							const day = date.getDate();
-							return `${year + 1}-${month}-${day}`;
-						})(),
+						"#expire": nextYear(),
 					},
 				},
 				deprecations: [
@@ -621,13 +609,7 @@ test("ignore.js", (t) => {
 					"package@1.0.0": {
 						"*": {
 							"#ignore": "expired",
-							"#expire": (() => {
-								const date = new Date();
-								const year = date.getFullYear();
-								const month = date.getMonth() + 1;
-								const day = date.getDate();
-								return `${year - 1}-${month}-${day}`;
-							})(),
+							"#expire": lastYear(),
 						},
 					},
 				},
@@ -1182,3 +1164,25 @@ test("ignore.js", (t) => {
 		}
 	});
 });
+
+/**
+ * @returns {string}
+ */
+function lastYear() {
+	const date = new Date();
+	const year = date.getFullYear();
+	const month = date.getMonth() + 1;
+	const day = date.getDate();
+	return `${year - 1}-${month}-${day}`;
+}
+
+/**
+ * @returns {string}
+ */
+function nextYear() {
+	const date = new Date();
+	const year = date.getFullYear();
+	const month = date.getMonth() + 1;
+	const day = date.getDate();
+	return `${year + 1}-${month}-${day}`;
+}
