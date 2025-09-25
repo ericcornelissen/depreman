@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { None, Some } from "./option.js";
+
 /**
  * @template O, P, E, F
  * @typedef Result
@@ -22,6 +24,7 @@
  * @property {function(): boolean} isOk
  * @property {function((ok: O) => P): Result<P, E>} map
  * @property {function((err: E) => F): Result<O, F>} mapErr
+ * @property {function(): Option<O>} ok
  * @property {function(): O} value
  */
 
@@ -94,6 +97,13 @@ export class Ok {
 	 */
 	mapErr() {
 		return this;
+	}
+
+	/**
+	 * @returns {Option<O>}
+	 */
+	ok() {
+		return new Some(this.#value);
 	}
 
 	/**
@@ -173,6 +183,13 @@ export class Err {
 	}
 
 	/**
+	 * @returns {Option<never>}
+	 */
+	ok() {
+		return None;
+	}
+
+	/**
 	 * @returns {never}
 	 * @throws {TypeError}
 	 */
@@ -184,3 +201,8 @@ export class Err {
 		);
 	}
 }
+
+/**
+ * @template T
+ * @typedef {import("./option.js").Option<T>} Option
+ */

@@ -17,6 +17,7 @@ import { mock, test } from "node:test";
 
 import * as fc from "fast-check";
 
+import { None } from "./option.js";
 import { Err, Ok } from "./result.js";
 
 test("result.js", (t) => {
@@ -189,6 +190,16 @@ test("result.js", (t) => {
 					}),
 				);
 			});
+		});
+
+		t.test("ok", () => {
+			fc.assert(
+				fc.property(arbitrary.err(), (err) => {
+					const got = err.ok();
+					const want = None;
+					assert.equal(got, want);
+				}),
+			);
 		});
 
 		t.test("value", () => {
@@ -379,6 +390,19 @@ test("result.js", (t) => {
 					}),
 				);
 			});
+		});
+
+		t.test("ok", () => {
+			fc.assert(
+				fc.property(arbitrary.ok(), (ok) => {
+					const some = ok.ok();
+					assert.ok(some.isSome());
+
+					const got = some.value();
+					const want = ok.value();
+					assert.equal(got, want);
+				}),
+			);
 		});
 
 		t.test("value", () => {
