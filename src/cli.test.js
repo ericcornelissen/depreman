@@ -31,6 +31,7 @@ test("cli.js", (t) => {
 		"--package-manager=npm",
 		"--package-manager=yarn",
 		"--report-unused",
+		"--version",
 	];
 
 	const arbitrary = {
@@ -289,6 +290,20 @@ test("cli.js", (t) => {
 						const got = parseArgv(argv);
 						assert.ok(got.isOk());
 						assert.ok(got.value().reportUnused);
+					},
+				),
+			);
+		});
+
+		t.test("--version", () => {
+			fc.assert(
+				fc.property(
+					arbitrary.flags({ include: ["--version"] }),
+					(args) => {
+						const argv = [...base, ...args];
+						const got = parseArgv(argv);
+						assert.ok(got.isOk());
+						assert.ok(got.value().version);
 					},
 				),
 			);

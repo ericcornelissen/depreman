@@ -34,6 +34,17 @@ test("end-to-end", async (t) => {
 		assert.equal(result.stderr, "");
 	});
 
+	await t.test("--version", () => {
+		const result = cli({
+			args: ["--version"],
+			project: fixture("example"),
+		});
+
+		assert.equal(result.exitCode, 0);
+		assert.notEqual(result.stdout, "");
+		assert.equal(result.stderr, "");
+	});
+
 	await t.test("--omit=dev", () => {
 		const result = cli({
 			args: ["--omit=dev"],
