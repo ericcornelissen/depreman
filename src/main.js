@@ -34,29 +34,26 @@ const EXIT_CODE_FAILURE = 1;
 const EXIT_CODE_UNEXPECTED = 2;
 
 /**
- * @returns {void}
+ * @param {string[]} argv
+ * @returns {Promise<ExitCode>}
  */
-function help() {
-	stdout.write(`depreman [-h|--help] [--version] [--errors-only] [--report-unused]
-         [--omit=<dev|optional|peer> ...] [--package-manager=<npm|yarn>]
+export async function cli(argv) {
+	const options = parseArgv(argv);
+	if (options.isErr()) {
+		stderr.write(`${options.error()}\n`);
+		return EXIT_CODE_UNEXPECTED;
+	}
 
-Manage deprecation warnings. Create an '.ndmrc' file with a JSON-based config
-to ignore deprecation warnings for your dependencies.
+	if (options.value().help) {
+		help();
+		return EXIT_CODE_SUCCESS;
+	}
 
-   -h, --help
-      Show this help message.
-   --errors-only
-      Only output deprecation warnings that are not ignored.
-   --omit=<dev|optional|peer>
-      Omit deprecation warnings for development, optional, or peer dependencies.
-   --package-manager=<npm|yarn>
-      Which package manager to use, 'npm' (default) or 'yarn'.
-   --report-unused
-      Report and fail for unused ignore directives.
+	if (options.value().version) {
+		return await versions();
+	}
 
-Need more help? Found a bug? Missing something? See:
-https://github.com/ericcornelissen/depreman/issues/new/choose
-`);
+	return await depreman(options.value());
 }
 
 /**
@@ -95,26 +92,29 @@ async function depreman(options) {
 }
 
 /**
- * @param {string[]} argv
- * @returns {Promise<ExitCode>}
+ * @returns {void}
  */
-export async function cli(argv) {
-	const options = parseArgv(argv);
-	if (options.isErr()) {
-		stderr.write(`${options.error()}\n`);
-		return EXIT_CODE_UNEXPECTED;
-	}
+function help() {
+	stdout.write(`depreman [-h|--help] [--version] [--errors-only] [--report-unused]
+         [--omit=<dev|optional|peer> ...] [--package-manager=<npm|yarn>]
 
-	if (options.value().help) {
-		help();
-		return EXIT_CODE_SUCCESS;
-	}
+Manage deprecation warnings. Create an '.ndmrc' file with a JSON-based config
+to ignore deprecation warnings for your dependencies.
 
-	if (options.value().version) {
-		return await versions();
-	}
+   -h, --help
+      Show this help message.
+   --errors-only
+      Only output deprecation warnings that are not ignored.
+   --omit=<dev|optional|peer>
+      Omit deprecation warnings for development, optional, or peer dependencies.
+   --package-manager=<npm|yarn>
+      Which package manager to use, 'npm' (default) or 'yarn'.
+   --report-unused
+      Report and fail for unused ignore directives.
 
-	return await depreman(options.value());
+Need more help? Found a bug? Missing something? See:
+https://github.com/ericcornelissen/depreman/issues/new/choose
+`);
 }
 
 /**
