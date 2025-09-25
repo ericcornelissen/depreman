@@ -26,7 +26,4 @@ export function parseJSON(raw) {
 	}
 }
 
-/**
- * @template O, E
- * @typedef {import("./result.js").Result<O, E>} Result
- */
+/** @import { Result } from "./result.js" */

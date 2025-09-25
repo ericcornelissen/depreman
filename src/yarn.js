@@ -176,9 +176,5 @@ function parseLocator(locator) {
  * @property {string} version
  */
 
-/**
- * @template O, E
- * @typedef {import("./result.js").Result<O, E>} Result
- */
-
-/** @typedef {import("./cp.js").ExecCP} ExecCP */
+/** @import { ExecCP } from "./cp.js" */
+/** @import { Result } from "./result.js" */

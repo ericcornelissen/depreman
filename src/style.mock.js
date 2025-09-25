@@ -24,4 +24,4 @@ export const MockStyler = {
 	},
 };
 
-/** @typedef {import("./style.js").Styler} Styler */
+/** @import { Styler } from "./style.js" */

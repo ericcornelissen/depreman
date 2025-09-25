@@ -255,15 +255,7 @@ export class NPM {
  * @property {string} version
  */
 
-/**
- * @template T
- * @typedef {import("./option.js").Option<T>} Option
- */
-
-/**
- * @template O, E
- * @typedef {import("./result.js").Result<O, E>} Result
- */
-
-/** @typedef {import("./cp.js").ExecCP} ExecCP */
-/** @typedef {import("./fs.js").ReadFS} ReadFS */
+/** @import { ExecCP } from "./cp.js" */
+/** @import { ReadFS } from "./fs.js" */
+/** @import { Option } from "./option.js" */
+/** @import { Result } from "./result.js" */

@@ -22,7 +22,7 @@ const kExpire = "#expire";
 
 /**
  * @param {Config} config
- * @param {Deprecation[]} deprecations
+ * @param {DeprecatedPackage[]} deprecations
  * @returns {DeprecationVerdict[]}
  * @throws {Error}
  */
@@ -210,5 +210,5 @@ function parseRule(pkg) {
  * @property {{path: string[]}} kept
  */
 
-/** @typedef {import("./config.js").Config} Config */
-/** @typedef {import("./deprecations.js").DeprecatedPackage} Deprecation */
+/** @import { Config } from "./config.js" */
+/** @import { DeprecatedPackage } from "./deprecations.js" */

@@ -140,14 +140,6 @@ function isDirective(key) {
  * @property {Config} [key]
  */
 
-/** @typedef {import("./fs.js").ReadFS} ReadFS */
-
-/**
- * @template T
- * @typedef {import("./option.js").Option<T>} Option
- */
-
-/**
- * @template O, E
- * @typedef {import("./result.js").Result<O, E>} Result
- */
+/** @import { ReadFS } from "./fs.js" */
+/** @import { Option } from "./option.js" */
+/** @import { Result } from "./result.js" */

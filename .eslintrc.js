@@ -397,6 +397,10 @@ export default [
 				"jsdoc/no-restricted-syntax": "off",
 				"jsdoc/no-types": "off",
 				"jsdoc/no-undefined-types": "error",
+				"jsdoc/prefer-import-tag": ["error", {
+					enableFixer: false,
+					exemptTypedefs: false,
+				}],
 				"jsdoc/reject-any-type": "error",
 				"jsdoc/reject-function-type": "error",
 				"jsdoc/require-asterisk-prefix": ["error", "always"],

@@ -119,15 +119,7 @@ function dirname() {
  * @property {Version} [yarn]
  */
 
-/** @typedef {import("./cp.js").ExecCP} ExecCP */
-/** @typedef {import("./fs.js").ReadFS} ReadFS */
-
-/**
- * @template T
- * @typedef {import("./option.js").Option<T>} Option
- */
-
-/**
- * @template O, E
- * @typedef {import("./result.js").Result<O, E>} Result
- */
+/** @import { ExecCP } from "./cp.js" */
+/** @import { ReadFS } from "./fs.js" */
+/** @import { Option } from "./option.js" */
+/** @import { Result } from "./result.js" */
