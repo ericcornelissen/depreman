@@ -13,10 +13,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * @template T
+ * @template T, O
  * @typedef Option
  * @property {function(): boolean} isNone
  * @property {function(): boolean} isSome
+ * @property {function(Option<O>): T | O} or
  * @property {function(): T} value
  */
 
@@ -50,6 +51,13 @@ export class Some {
 	/**
 	 * @returns {T}
 	 */
+	or() {
+		return this;
+	}
+
+	/**
+	 * @returns {T}
+	 */
 	value() {
 		return this.#value;
 	}
@@ -71,6 +79,15 @@ export const None = {
 	 */
 	isSome() {
 		return false;
+	},
+
+	/**
+	 * @template T
+	 * @param {Option<T>} other
+	 * @returns {T}
+	 */
+	or(other) {
+		return other;
 	},
 
 	/**
