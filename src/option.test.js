@@ -33,6 +33,26 @@ test("option.js", (t) => {
 			assert.equal(got, want);
 		});
 
+		t.test("or", () => {
+			t.test("None", () => {
+				const got = None.or(None);
+				const want = None;
+				assert.equal(got, want);
+			});
+
+			t.test("Some", () => {
+				fc.assert(
+					fc.property(fc.anything(), (value) => {
+						const some = new Some(value);
+
+						const got = None.or(some);
+						const want = some;
+						assert.equal(got, want);
+					}),
+				);
+			});
+		});
+
 		t.test("value", () => {
 			assert.throws(
 				() => None.value(),
@@ -67,6 +87,37 @@ test("option.js", (t) => {
 					assert.equal(got, want);
 				}),
 			);
+		});
+
+		t.test("or", () => {
+			t.test("None", () => {
+				fc.assert(
+					fc.property(fc.anything(), (value) => {
+						const some = new Some(value);
+
+						const got = some.or(None);
+						const want = some;
+						assert.equal(got, want);
+					}),
+				);
+			});
+
+			t.test("Some", () => {
+				fc.assert(
+					fc.property(
+						fc.anything(),
+						fc.anything(),
+						(valueA, valueB) => {
+							const someA = new Some(valueA);
+							const someB = new Some(valueB);
+
+							const got = someA.or(someB);
+							const want = someA;
+							assert.equal(got, want);
+						},
+					),
+				);
+			});
 		});
 
 		t.test("value", () => {
