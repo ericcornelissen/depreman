@@ -23,8 +23,10 @@ import { getDeprecatedPackages } from "./deprecations.js";
 import { FS } from "./fs.js";
 import { removeIgnored, unusedIgnores } from "./ignores.js";
 import { NPM } from "./npm.js";
+import { Object } from "./object.js";
 import { printAndExit } from "./output.js";
 import * as style from "./style.js";
+import { getVersions } from "./version.js";
 import { Yarn } from "./yarn.js";
 
 const EXIT_CODE_SUCCESS = 0;
@@ -35,7 +37,7 @@ const EXIT_CODE_UNEXPECTED = 2;
  * @returns {void}
  */
 function help() {
-	stdout.write(`depreman [-h|--help] [--errors-only] [--report-unused]
+	stdout.write(`depreman [-h|--help] [--version] [--errors-only] [--report-unused]
          [--omit=<dev|optional|peer> ...] [--package-manager=<npm|yarn>]
 
 Manage deprecation warnings. Create an '.ndmrc' file with a JSON-based config
@@ -108,7 +110,30 @@ export async function cli(argv) {
 		return EXIT_CODE_SUCCESS;
 	}
 
+	if (options.value().version) {
+		return await versions();
+	}
+
 	return await depreman(options.value());
+}
+
+/**
+ * @returns {Promise<ExitCode>}
+ */
+async function versions() {
+	const cp = new CP(nodeCp);
+	const fs = new FS(nodeFs);
+	const info = await getVersions({ cp, fs });
+	if (info.isErr()) {
+		stderr.write(`could not get version: ${info.error()}\n`);
+		return EXIT_CODE_UNEXPECTED;
+	}
+
+	for (const [what, version] of Object.entries(info.value())) {
+		stdout.write(`${what}: ${version}\n`);
+	}
+
+	return EXIT_CODE_SUCCESS;
 }
 
 /** @typedef {import("./cli.js").Config} Options */

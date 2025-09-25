@@ -9,13 +9,13 @@ body:
         Before you submit your report, make sure the bug has not already been
         reported. Also check for closed bug reports, e.g. in case it has been
         fixed in a new version.
-  - type: input
+  - type: textarea
     id: version
     attributes:
       label: Version
       description: |
-        What version are you using? You can use `npm ls depreman` for this.
-      placeholder: ex. v0.3.9
+        Enter the output of `depreman --version` (or `npm ls depreman` as
+        fallback).
     validations:
       required: true
   - type: textarea

@@ -43,6 +43,7 @@ function parse(argv) {
 		omitPeer: removeFromList(argv, "--omit=peer"),
 		packageManager: packageManager(argv),
 		reportUnused: removeFromList(argv, "--report-unused"),
+		version: removeFromList(argv, "--version"),
 	};
 
 	return [config, argv];
@@ -102,6 +103,7 @@ function packageManager(argv) {
  * @property {boolean} omitPeer
  * @property {"npm" | "yarn"} packageManager
  * @property {boolean} reportUnused
+ * @property {boolean} version
  */
 
 /**
