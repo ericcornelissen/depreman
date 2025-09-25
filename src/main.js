@@ -136,5 +136,6 @@ async function versions() {
 	return EXIT_CODE_SUCCESS;
 }
 
-/** @typedef {import("./cli.js").Config} Options */
 /** @typedef {0 | 1 | 2} ExitCode */
+
+/** @import { Config as Options } from "./cli.js" */

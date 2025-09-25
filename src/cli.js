@@ -106,12 +106,5 @@ function packageManager(argv) {
  * @property {boolean} version
  */
 
-/**
- * @template T
- * @typedef {import("./option.js").Option<T>} Option
- */
-
-/**
- * @template O, E
- * @typedef {import("./result.js").Result<O, E>} Result
- */
+/** @import { Option } from "./option.js" */
+/** @import { Result } from "./result.js" */

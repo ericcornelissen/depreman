@@ -37,5 +37,3 @@ export class FS {
 		});
 	}
 }
-
-/** @typedef {import("./fs.js").ReadFS} ReadFS */

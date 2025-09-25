@@ -35,7 +35,4 @@ export function satisfies(version, range) {
 	return new Ok(semverSatisfies(version, range));
 }
 
-/**
- * @template O, E
- * @typedef {import("./result.js").Result<O, E>} Result
- */
+/** @import { Result } from "./result.js" */

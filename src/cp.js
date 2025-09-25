@@ -76,7 +76,4 @@ export class CP {
  * @property {function(Error, string, string): void} execCallback
  */
 
-/**
- * @template O, E
- * @typedef {import("./result.js").Result<O, E>} Result
- */
+/** @import { Result } from "./result.js" */

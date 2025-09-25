@@ -130,7 +130,4 @@ function isValid(date) {
  * @property {number} day
  */
 
-/**
- * @template O, E
- * @typedef {import("./result.js").Result<O, E>} Result
- */
+/** @import { Result } from "./result.js" */

@@ -70,7 +70,4 @@ export class FS {
  * @property {function(string, {encoding: string}): Promise<string>} readFile
  */
 
-/**
- * @template O, E
- * @typedef {import("./result.js").Result<O, E>} Result
- */
+/** @import { Result } from "./result.js" */

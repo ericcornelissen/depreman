@@ -280,9 +280,9 @@ test("deprecations.js", (t) => {
 class PackageManager {
 	/**
 	 * @param {object} p
-	 * @param {import("./npm.js").Aliases} p.aliases
-	 * @param {import("./npm.js").DeprecatedPackage} p.deprecations
-	 * @param {import("./npm.js").PackageHierarchy} p.hierarchy
+	 * @param {Aliases} p.aliases
+	 * @param {DeprecatedPackage} p.deprecations
+	 * @param {PackageHierarchy} p.hierarchy
 	 */
 	constructor({ aliases, deprecations, hierarchy }) {
 		this.aliases = () => aliases;
@@ -290,3 +290,5 @@ class PackageManager {
 		this.hierarchy = () => hierarchy;
 	}
 }
+
+/** @import { Aliases, DeprecatedPackage, PackageHierarchy } from "./npm.js" */

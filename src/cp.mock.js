@@ -52,5 +52,3 @@ export class CP {
  * @property {string} [stdout]
  * @property {string} [stderr]
  */
-
-/** @typedef {import("./cp.js").ExecCP} ExecCP */

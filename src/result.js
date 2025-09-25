@@ -202,7 +202,4 @@ export class Err {
 	}
 }
 
-/**
- * @template T
- * @typedef {import("./option.js").Option<T>} Option
- */
+/** @import { Option } from "./option.js" */
