@@ -24,11 +24,13 @@
  * @template T
  */
 export class Some {
+	#value;
+
 	/**
 	 * @param {T} value
 	 */
 	constructor(value) {
-		this.v = value;
+		this.#value = value;
 	}
 
 	/**
@@ -49,7 +51,7 @@ export class Some {
 	 * @returns {T}
 	 */
 	value() {
-		return this.v;
+		return this.#value;
 	}
 }
 
