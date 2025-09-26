@@ -1080,6 +1080,7 @@ export default [
 					ignoreCase: true,
 				}],
 				"markdown/no-multiple-h1": "error",
+				"markdown/no-reference-like-urls": "error",
 				"markdown/no-reversed-media-syntax": "error",
 				"markdown/no-space-in-emphasis": ["error", {
 					checkStrikethrough: true,
