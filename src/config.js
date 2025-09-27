@@ -13,6 +13,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { parseJSON } from "./json.js";
+import { Object } from "./object.js";
 import { None, Some } from "./option.js";
 import { Err } from "./result.js";
 import { typeOf, types } from "./types.js";

@@ -13,6 +13,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as date from "./date.js";
+import { Object } from "./object.js";
 import * as semver from "./semver.js";
 import { typeOf, types } from "./types.js";
 
