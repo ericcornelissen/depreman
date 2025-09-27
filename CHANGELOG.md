@@ -9,6 +9,10 @@ Versioning].
 
 ## Unreleased
 
+- _No changes yet_
+
+## 0.3.12 (2025-09-27)
+
 - Add `--version` flag.
 - Add support for selectively scoped ignoring with the `#scope` directive.
 - Fix alias resolution for `optionalDependencies` and `peerDependencies`.
