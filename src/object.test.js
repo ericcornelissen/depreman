@@ -70,6 +70,56 @@ test("object.js", (t) => {
 		});
 	});
 
+	t.test("hasOwn", (t) => {
+		t.test("return value", () => {
+			fc.assert(
+				fc.property(
+					fc.object(),
+					fc.string(),
+					(object, key) => {
+						const got = Object.hasOwn(object, key);
+						assert.equal(typeof got, "boolean");
+					},
+				),
+			);
+		});
+
+		t.test("own key", () => {
+			fc.assert(
+				fc.property(
+					fc.record({
+						object: fc.object(),
+						key: fc.string().filter(key => key !== "__proto__"),
+						value: fc.anything(),
+					}),
+					({ object, key, value }) => {
+						object[key] = value;
+
+						const got = Object.hasOwn(object, key);
+						assert.equal(got, true);
+					},
+				),
+			);
+		});
+
+		t.test("not own key", () => {
+			fc.assert(
+				fc.property(
+					fc.record({
+						object: fc.object(),
+						key: fc.string(),
+					}),
+					({ object, key }) => {
+						delete object[key];
+
+						const got = Object.hasOwn(object, key);
+						assert.equal(got, false);
+					},
+				),
+			);
+		});
+	});
+
 	t.test("keys", (t) => {
 		t.test("example", () => {
 			const obj = {

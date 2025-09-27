@@ -28,6 +28,15 @@ function entries(obj) {
 
 /**
  * @param {unknown} obj
+ * @param {string} key
+ * @returns {boolean}
+ */
+function hasOwn(obj, key) {
+	return Object.hasOwn(obj, key);
+}
+
+/**
+ * @param {unknown} obj
  * @returns {string[]}
  */
 function keys(obj) {
@@ -52,6 +61,7 @@ function values(obj) {
 
 const object = {
 	entries,
+	hasOwn,
 	keys,
 	values,
 };
