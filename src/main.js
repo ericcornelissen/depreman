@@ -45,8 +45,7 @@ export async function cli(argv) {
 	}
 
 	if (options.value().help) {
-		help();
-		return EXIT_CODE_SUCCESS;
+		return help();
 	}
 
 	if (options.value().version) {
@@ -92,7 +91,7 @@ async function depreman(options) {
 }
 
 /**
- * @returns {void}
+ * @returns {ExitCode}
  */
 function help() {
 	stdout.write(`depreman [-h|--help] [--version] [--errors-only] [--report-unused]
@@ -111,10 +110,13 @@ to ignore deprecation warnings for your dependencies.
       Which package manager to use, 'npm' (default) or 'yarn'.
    --report-unused
       Report and fail for unused ignore directives.
+   --version
+      Show the version of depreman and relevant software.
 
 Need more help? Found a bug? Missing something? See:
 https://github.com/ericcornelissen/depreman/issues/new/choose
 `);
+	return EXIT_CODE_SUCCESS;
 }
 
 /**
