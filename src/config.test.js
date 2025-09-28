@@ -52,7 +52,7 @@ test("config.js", (t) => {
 			"config with scope, one": {
 				config: {
 					"package@1.0.0": {
-						"#ignore": "until 2025-01-01",
+						"#ignore": "if production",
 						"#scope": ["prod"],
 					},
 				},
@@ -60,7 +60,7 @@ test("config.js", (t) => {
 			"config with scope, multiple": {
 				config: {
 					"package@1.0.0": {
-						"#ignore": "until 2025-01-01",
+						"#ignore": "if not production",
 						"#scope": ["dev", "optional", "peer"],
 					},
 				},
@@ -117,7 +117,17 @@ test("config.js", (t) => {
 				message: "package@1.0.0: unknown directive '#foo'\n"
 					+ "package@1.0.0: unknown directive '#bar'",
 			},
-			"incorrect type for '#ignore'": {
+			"incorrect type for '#ignore', number": {
+				config: {
+					"foo@3.0.0": {
+						"bar@1.4.0": {
+							"#ignore": 42,
+						},
+					},
+				},
+				message: "foo@3.0.0: bar@1.4.0: unexpected type for '#ignore': number",
+			},
+			"incorrect type for '#ignore', array": {
 				config: {
 					"foo@3.0.0": {
 						"bar@1.4.0": {
@@ -126,6 +136,24 @@ test("config.js", (t) => {
 					},
 				},
 				message: "foo@3.0.0: bar@1.4.0: unexpected type for '#ignore': array",
+			},
+			"incorrect type for '#ignore', object": {
+				config: {
+					"foo@3.0.0": {
+						"bar@1.4.0": {
+							"#ignore": {},
+						},
+					},
+				},
+				message: "foo@3.0.0: bar@1.4.0: unexpected type for '#ignore': object",
+			},
+			"incorrect value for '#ignore', empty string": {
+				config: {
+					"foobar@3.1.4": {
+						"#ignore": "",
+					},
+				},
+				message: "foobar@3.1.4: cannot use empty string for '#ignore'",
 			},
 			"incorrect type for '#expire'": {
 				config: {

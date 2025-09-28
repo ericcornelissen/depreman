@@ -113,6 +113,8 @@ function validateDirectives(config, root) {
 				case "#ignore":
 					if (!(type === types.boolean || type === types.string)) {
 						problems.push(`unexpected type for '#ignore': ${type}`);
+					} else if (value.length === 0) {
+						problems.push("cannot use empty string for '#ignore'");
 					}
 					break;
 				case "#scope":
