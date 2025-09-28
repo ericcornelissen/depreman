@@ -135,7 +135,6 @@ function isIgnored(config, path, pkg={}) {
  * @param {Config} config
  * @param {Package} pkg
  * @returns {boolean | string}
- * @throws {Error}
  */
 function getDecision(config, pkg) {
 	const decision = parseDecision(config);
@@ -149,29 +148,18 @@ function getDecision(config, pkg) {
 /**
  * @param {Config} config
  * @returns {boolean | string}
- * @throws {Error}
  */
 function parseDecision(config) {
 	let ignore = false;
 	if (Object.hasOwn(config, kIgnore)) {
 		ignore = config[kIgnore];
 		config[kUsed] = true;
-	} else if (Object.hasOwn(config["*"] || {}, kIgnore)) {
+	} else if (Object.hasOwn(config["*"], kIgnore)) {
 		ignore = config["*"][kIgnore];
 		config["*"][kUsed] = true;
 	}
 
-	switch (typeOf(ignore)) {
-		case types.boolean:
-		case types.string:
-			if (ignore.length === 0) {
-				throw new Error(`cannot use empty string for '${kIgnore}', use 'true' instead`);
-			} else {
-				return ignore;
-			}
-		default:
-			throw new Error(`invalid '${kIgnore}' value: ${ignore}`);
-	}
+	return ignore;
 }
 
 /**
