@@ -71,19 +71,6 @@ test("object.js", (t) => {
 	});
 
 	t.test("hasOwn", (t) => {
-		t.test("return value", () => {
-			fc.assert(
-				fc.property(
-					fc.object(),
-					fc.string(),
-					(object, key) => {
-						const got = Object.hasOwn(object, key);
-						assert.equal(typeof got, "boolean");
-					},
-				),
-			);
-		});
-
 		t.test("own key", () => {
 			fc.assert(
 				fc.property(
@@ -116,6 +103,26 @@ test("object.js", (t) => {
 						assert.equal(got, false);
 					},
 				),
+			);
+		});
+
+		t.test("undefined", () => {
+			fc.assert(
+				fc.property(fc.string(), (key) => {
+						const got = Object.hasOwn(undefined, key);
+						const want = false;
+						assert.deepEqual(got, want);
+				}),
+			);
+		});
+
+		t.test("null", () => {
+			fc.assert(
+				fc.property(fc.string(), (key) => {
+					const got = Object.hasOwn(null, key);
+					const want = false;
+					assert.deepEqual(got, want);
+				}),
 			);
 		});
 	});

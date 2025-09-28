@@ -32,6 +32,10 @@ function entries(obj) {
  * @returns {boolean}
  */
 function hasOwn(obj, key) {
+	if (typeOf(obj) === "undefined" || typeOf(obj) === "null") {
+		return false;
+	}
+
 	return Object.hasOwn(obj, key);
 }
 
