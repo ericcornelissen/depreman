@@ -458,6 +458,7 @@ export default [
 						{ context: "FunctionDeclaration", tag: "returns" },
 					],
 				}],
+				"jsdoc/require-template-description": "off",
 				"jsdoc/require-throws": "error",
 				"jsdoc/require-throws-description": "off",
 				"jsdoc/require-throws-type": "error",

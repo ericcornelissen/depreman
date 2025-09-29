@@ -56,6 +56,15 @@ export class CP {
 }
 
 /**
+ * @typedef cp
+ * @property {function(string, ExecCallback): void} exec
+ */
+
+/**
+ * @typedef {function(Error, string, string): void} ExecCallback
+ */
+
+/**
  * @typedef ExecCP
  * @property {Exec} exec
  */
@@ -68,12 +77,6 @@ export class CP {
  * @typedef Output
  * @property {string} stderr
  * @property {string} stdout
- */
-
-/**
- * @typedef cp
- * @property {function(string, execCallback): void} exec
- * @property {function(Error, string, string): void} execCallback
  */
 
 /** @import { Result } from "./result.js" */
