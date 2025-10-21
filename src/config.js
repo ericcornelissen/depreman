@@ -157,13 +157,7 @@ function isScope(value) {
 }
 
 /**
- * @typedef Config
- * @property {string} ["#expire"]
- * @property {boolean | string} ["#ignore"]
- * @property {Scope[]} ["#scope"]
- * @property {Config} ["*"]
- * @property {Config} ["+"]
- * @property {Config} [key]
+ * @typedef {{"#expire": string, "#ignore": boolean | string, "#scope": Scope[], "*": Config, "+": Config, [key: string]: Config}} Config
  */
 
 /**
