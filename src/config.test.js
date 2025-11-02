@@ -100,6 +100,48 @@ test("config.js", (t) => {
 		}
 
 		const errCases = {
+			"rule without a version": {
+				config: {
+					"package-without-version": {
+						"#ignore": true
+					},
+				},
+				message: "invalid rule name 'package-without-version'",
+			},
+			"rule without a version, scoped package": {
+				config: {
+					"@scoped/dependency-without-version": {
+						"#ignore": true
+					},
+				},
+				message: "invalid rule name '@scoped/dependency-without-version'",
+			},
+			"rule with empty version": {
+				config: {
+					"package-with-missing-version@": {
+						"#ignore": true
+					},
+				},
+				message: "missing version for 'package-with-missing-version'",
+			},
+			"rule with empty version, scoped package": {
+				config: {
+					"@scoped/package-with-missing-version@": {
+						"#ignore": true
+					},
+				},
+				message: "missing version for '@scoped/package-with-missing-version'",
+			},
+			"nested rule without a version": {
+				config: {
+					"package-with-version@1.0.0": {
+						"package-without-version": {
+							"#ignore": true
+						},
+					},
+				},
+				message: "package-with-version@1.0.0: invalid rule name 'package-without-version'",
+			},
 			"directive in the root": {
 				config: {
 					"#ignore": true,
