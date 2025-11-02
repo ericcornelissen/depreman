@@ -15,6 +15,7 @@
 import * as nodeCp from "node:child_process";
 import * as nodeFs from "node:fs/promises";
 import { stdout, stderr } from "node:process";
+import { debuglog } from "node:util";
 
 import { parseArgv } from "./cli.js";
 import { getConfiguration } from "./config.js";
@@ -38,20 +39,29 @@ const EXIT_CODE_UNEXPECTED = 2;
  * @returns {Promise<ExitCode>}
  */
 export async function cli(argv) {
+	const debug = debuglog("depreman-cli");
+
+	debug("parsing arguments");
 	const options = parseArgv(argv);
 	if (options.isErr()) {
+		debug("parsing arguments failed");
 		stderr.write(`${options.error()}\n`);
 		return EXIT_CODE_UNEXPECTED;
 	}
 
+	debug("checking for --help");
 	if (options.value().help) {
+		debug("outputting help");
 		return help();
 	}
 
+	debug("checking for --version");
 	if (options.value().version) {
+		debug("outputting version");
 		return await versions();
 	}
 
+	debug("running depreman");
 	return await depreman(options.value());
 }
 
@@ -60,6 +70,8 @@ export async function cli(argv) {
  * @returns {Promise<ExitCode>}
  */
 async function depreman(options) {
+	const debug = debuglog("depreman");
+
 	try {
 		const cp = new CP(nodeCp);
 		const fs = new FS(nodeFs);
@@ -67,17 +79,24 @@ async function depreman(options) {
 			? new Yarn({ cp, options })
 			: new NPM({ cp, fs, options });
 
+		debug("getting config and deprecation warnings");
 		const [config, deprecations] = await Promise.all([
 			getConfiguration(fs),
 			getDeprecatedPackages(pm),
 		]);
 
+		debug("checking for errors in config and deprecation warnings");
 		if (deprecations.and(config).isErr()) {
 			throw new Error(deprecations.and(config).error());
 		}
 
+		debug("removing ignored deprecation warnings");
 		const result = removeIgnored(config.value(), deprecations.value());
+
+		debug("collecting unused ignore directives", options.reportUnused);
 		const unused = options.reportUnused ? unusedIgnores(config.value()) : [];
+
+		debug("creating report and exit code");
 		const { ok, report } = printAndExit(result, unused, options, style.create());
 		if (report) {
 			stdout.write(`${report}\n`);
