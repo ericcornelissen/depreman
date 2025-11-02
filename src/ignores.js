@@ -93,11 +93,7 @@ function isIgnored(config, path, pkg={}) {
 	}
 
 	const [current, ...remaining] = path;
-	for (const rule in config) {
-		if (rule.startsWith("#")) {
-			continue;
-		}
-
+	for (const rule of Object.keys(config)) {
 		// Match 0-or-more
 		if (rule === "*") {
 			const reason = isIgnored(config, remaining, current) || isIgnored(config[rule], path, current);
@@ -194,14 +190,9 @@ function isInScope(config, scope) {
 /**
  * @param {string} pkg
  * @returns {[string, string]}
- * @throws {Error}
  */
 function parseRule(pkg) {
 	const i = pkg.lastIndexOf("@");
-	if (i === -1) {
-		throw new Error(`invalid rule name '${pkg}'`);
-	}
-
 	const name = pkg.slice(0, i);
 	const version = pkg.slice(i + 1);
 	return [name, version];

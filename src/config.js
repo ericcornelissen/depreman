@@ -54,6 +54,7 @@ function validateConfig(config, root=true) {
 	const problems = [
 		...validateChildren(config, root),
 		...validateDirectives(config, root),
+		...validateKeys(config),
 	];
 
 	if (problems.length > 0) {
@@ -141,11 +142,46 @@ function validateDirectives(config, root) {
 }
 
 /**
+ * @param {Config} config
+ * @returns {string[]}
+ */
+function validateKeys(config) {
+	const problems = [];
+	for (const key of Object.keys(config)) {
+		if (isDirective(key) || isWildcard(key)) {
+			continue;
+		}
+
+		const i = key.lastIndexOf("@");
+		if (i === -1 || i === 0) {
+			problems.push(`invalid rule name '${key}'`);
+			continue;
+		}
+
+		const version = key.slice(i);
+		if (version.length === 1) {
+			problems.push(`missing version for '${key.slice(0, i)}'`);
+			continue;
+		}
+	}
+
+	return problems;
+}
+
+/**
  * @param {string} key
  * @returns {boolean}
  */
 function isDirective(key) {
 	return key.startsWith("#");
+}
+
+/**
+ * @param {string} key
+ * @returns {boolean}
+ */
+function isWildcard(key) {
+	return key === "*" || key === "+";
 }
 
 /**

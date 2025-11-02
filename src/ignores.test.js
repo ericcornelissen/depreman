@@ -1132,61 +1132,6 @@ test("ignore.js", (t) => {
 				}
 			});
 		}
-
-		const badTestCases = {
-			"invalid rule identifier, no version": {
-				config: {
-					"package": {
-						"#ignore": "Hello world!",
-					},
-				},
-				deprecations: [
-					{
-						name: "package",
-						version: "1.0.0",
-						reason: "foobar",
-						paths: [
-							[
-								{ name: "package", version: "1.0.0" },
-							],
-						],
-					},
-				],
-				want: /^Error: invalid rule name 'package'$/u,
-			},
-			"invalid rule identifier, no package name": {
-				config: {
-					"3.1.4": {
-						"#ignore": "Hello world!",
-					},
-				},
-				deprecations: [
-					{
-						name: "package",
-						version: "3.1.4",
-						reason: "foobar",
-						paths: [
-							[
-								{ name: "package", version: "3.1.4" },
-							],
-						],
-					},
-				],
-				want: /^Error: invalid rule name '3.1.4'$/u,
-			},
-		};
-
-		for (const [name, testCase] of Object.entries(badTestCases)) {
-			const { config, deprecations, want } = testCase;
-			t.test(name, () => {
-				assert.throws(
-					() => {
-						removeIgnored(config, deprecations);
-					},
-					want,
-				);
-			});
-		}
 	});
 
 	t.test("unusedIgnores", (t) => {
