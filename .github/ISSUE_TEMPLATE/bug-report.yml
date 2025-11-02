@@ -43,3 +43,17 @@ body:
       placeholder: ex. run `depreman` on the repository <https://github.com/ericcornelissen/depreman>
     validations:
       required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Debug log
+      description: |
+        Provide the output of a run of depreman exhibiting the bug with debug
+        logs enabled by setting the environment variable `NODE_DEBUG=depreman*`.
+      placeholder: |
+        ```
+        $ NODE_DEBUG=depreman* npx depreman
+        ...
+        ```
+    validations:
+      required: true
