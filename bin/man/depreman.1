@@ -1,0 +1,56 @@
+.TH "depreman" "1" "November 2025" "v0.3.12" "User Commands"
+.SH NAME
+depreman \- manage npm deprecation warnings
+.SH SYNOPSIS
+.B depreman
+[OPTION]...
+.SH DESCRIPTION
+.P
+Manage the npm registry deprecation warnings of the current npm or yarn project.
+.P
+Reads from '.ndmrc' in the current directory, a JSON\-based file of deprecation
+warnings to ignore based on the package\'s location in the dependency hierarchy.
+.P
+Need more help? Found a bug? Missing something? See:
+<https://github.com/ericcornelissen/depreman/issues/new/choose>
+.SH OPTIONS
+.TP
+.B -h, --help
+Show the help message.
+.TP
+.B --errors-only
+Only output deprecation warnings that are not ignored.
+.TP
+.B --omit=<dev|optional|peer>
+Omit deprecation warnings for development, optional, or peer dependencies.
+.TP
+.B --package-manager=<npm|yarn>
+Which package manager to use, 'npm' (default) or 'yarn'.
+.TP
+.B --report-unused
+Report and fail for unused ignore directives.
+.TP
+.B --version
+Show the version of this and relevant software.
+.SH EXIT STATUS
+.TP
+.B 0
+No deprecation warnings found.
+.TQ
+.B 1
+At least one (not ignored) deprecation warning found.
+.TQ
+.B 2
+An unexpected error occurred, the program failed to complete.
+.SH AUTHOR
+.P
+Written by Eric Cornelissen.
+.SH COPYRIGHT
+.P
+Copyright (C) 2025 Eric Cornelissen
+.P
+License AGPLv3: GNU Affero GPL version 3
+<https://www.gnu.org/licenses/agpl-3.0.html>
+.P
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by applicable law.

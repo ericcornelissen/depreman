@@ -9,7 +9,7 @@ Versioning].
 
 ## Unreleased
 
-- _No changes yet_
+- Add a manpage.
 
 ## 0.3.12 (2025-09-27)
 

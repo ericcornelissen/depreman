@@ -21,24 +21,31 @@ found in this document.
    ```
 
 1. Pick a new version number in accordance with [Semantic Versioning]. For this
-   example we'll use `0.3.1`.
+   example we'll use `0.3.4`.
 
 1. Update the version number in the package manifest and lockfile:
 
    ```shell
-   npm version --no-git-tag-version 0.3.1
+   npm version --no-git-tag-version 0.3.4
    ```
 
    If that fails, change the value of the version field in `package.json` to the
    new version:
 
    ```diff
-   -  "version": "0.3.0",
-   +  "version": "0.3.1",
+   -  "version": "0.3.3",
+   +  "version": "0.3.4",
    ```
 
    and update the version number in `package-lock.json` using `npm install`
    (after updating `package.json`), which will sync the version number.
+
+1. Update the date and version number in the man page at `bin/man/depreman.1`:
+
+   ```diff
+   -  .TH "depreman" "1" "November 2024" "v0.3.3" "User Commands"
+   +  .TH "depreman" "1" "December 2024" "v0.3.4" "User Commands"
+   ```
 
 1. Update the `CHANGELOG.md`, manually add the following text after the
    `## [Unreleased]` line:
@@ -46,7 +53,7 @@ found in this document.
    ```markdown
    - _No changes yet_
 
-   ## 0.3.1 (YYYY-MM-DD)
+   ## 0.3.4 (YYYY-MM-DD)
    ```
 
    The date should follow the year-month-day format where single-digit months

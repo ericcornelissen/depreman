@@ -19,6 +19,7 @@
     "deprecations"
   ],
   "bin": "./bin/cli.js",
+  "man": "./bin/man/depreman.1",
   "type": "module",
   "engines": {
     "node": "^20 || ^22 || ^24",
