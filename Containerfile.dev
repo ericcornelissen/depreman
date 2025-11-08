@@ -18,7 +18,7 @@
 FROM docker.io/node:24.4.1-alpine3.22
 
 RUN apk add --no-cache \
-  bash git \
+  bash git mandoc \
   && \
   git config --global --add safe.directory /depreman
 
