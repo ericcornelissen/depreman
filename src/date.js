@@ -80,7 +80,7 @@ export class DepremanDate {
 	 */
 	is(other) {
 		if (!(other instanceof DepremanDate)) {
-			throw new TypeError("other is not a date");
+			throw new TypeError("other is not a date"); // eslint-disable-line functional/no-throw-statements
 		}
 
 		return this.#year === other.#year
@@ -95,7 +95,7 @@ export class DepremanDate {
 	 */
 	isBefore(other) {
 		if (!(other instanceof DepremanDate)) {
-			throw new TypeError("other is not a date");
+			throw new TypeError("other is not a date"); // eslint-disable-line functional/no-throw-statements
 		}
 
 		if (this.#year < other.#year) {

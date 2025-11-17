@@ -41,7 +41,7 @@ export class CP {
 				}
 			}
 
-			throw new Error(`command not found '${want}'`);
+			throw new Error(`command not found '${want}'`); // eslint-disable-line functional/no-throw-statements
 		});
 	}
 }

@@ -72,8 +72,14 @@ async function depreman(options) {
 			getDeprecatedPackages(pm),
 		]);
 
-		if (deprecations.and(config).isErr()) {
-			throw new Error(deprecations.and(config).error());
+		if (config.isErr()) {
+			stderr.write(`configuration error: ${config.error()}\n`);
+			return EXIT_CODE_UNEXPECTED;
+		}
+
+		if (deprecations.isErr()) {
+			stderr.write(`error obtaining deprecations: ${deprecations.error()}\n`);
+			return EXIT_CODE_UNEXPECTED;
 		}
 
 		const result = removeIgnored(config.value(), deprecations.value());

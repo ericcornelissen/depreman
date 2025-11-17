@@ -6,6 +6,7 @@ import top from "@ericcornelissen/eslint-plugin-top";
 import json from "@eslint/json";
 import markdown from "@eslint/markdown";
 import depend from "eslint-plugin-depend";
+import functional from "eslint-plugin-functional";
 import imports from "eslint-plugin-import";
 import jsdoc from "eslint-plugin-jsdoc";
 import regexp from "eslint-plugin-regexp";
@@ -26,6 +27,7 @@ export default [
 		},
 		plugins: {
 			depend,
+			functional,
 			imports,
 			jsdoc,
 			regexp,
@@ -254,6 +256,11 @@ export default [
 						"eslint-plugin-unicorn",
 					],
 				}],
+			},
+
+			// eslint-plugin-functional
+			...{
+				"functional/no-throw-statements": "error",
 			},
 
 			// eslint-plugin-import
