@@ -26,7 +26,6 @@ const kUsed = Symbol.for("#used"); // eslint-disable-line top/no-top-level-side-
  * @param {Config} config
  * @param {DeprecatedPackage[]} deprecations
  * @returns {DeprecationVerdict[]}
- * @throws {Error}
  */
 export function removeIgnored(config, deprecations) {
 	const result = [];
@@ -85,7 +84,6 @@ export function unusedIgnores(config, path=[]) {
  * @param {Package[]} path
  * @param {Package} pkg
  * @returns {boolean | string}
- * @throws {Error}
  */
 function isIgnored(config, path, pkg={}) {
 	if (path.length === 0) {

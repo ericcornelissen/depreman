@@ -95,6 +95,6 @@ export const None = {
 	 * @throws {TypeError}
 	 */
 	value() {
-		throw new TypeError("None has no value");
+		throw new TypeError("None has no value"); // eslint-disable-line functional/no-throw-statements
 	},
 }

@@ -64,7 +64,7 @@ export class Ok {
 	 * @throws {TypeError}
 	 */
 	error() {
-		throw new TypeError("Ok has no error");
+		throw new TypeError("Ok has no error"); // eslint-disable-line functional/no-throw-statements
 	}
 
 	/**
@@ -194,7 +194,7 @@ export class Err {
 	 * @throws {TypeError}
 	 */
 	value() {
-		throw (
+		throw ( // eslint-disable-line functional/no-throw-statements
 			typeof this.#error === "string"
 				? new TypeError(this.#error)
 				: new TypeError("Err has no value")
