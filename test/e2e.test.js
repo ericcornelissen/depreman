@@ -19,7 +19,7 @@ import * as path from "node:path";
 import * as process from "node:process";
 import { test } from "node:test";
 
-import isCI from "is-ci";
+import { isCI } from "ci-info";
 import which from "which";
 
 test("end-to-end", async (t) => {
