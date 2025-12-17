@@ -81,7 +81,7 @@
     "lcov-total": "2.1.1",
     "licensee": "11.1.1",
     "lockfile-lint": "4.14.0",
-    "ls-engines": "0.9.3",
+    "ls-engines": "0.9.4",
     "npm-package-json-lint": "9.0.0",
     "publint": "0.3.14",
     "which": "6.0.0"
