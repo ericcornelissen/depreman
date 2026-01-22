@@ -964,6 +964,7 @@ export default [
 			// eslint-plugin-import
 			"imports/no-anonymous-default-export": "off",
 			"imports/no-default-export": "off",
+			"imports/no-named-as-default-member": "off",
 		},
 	},
 	{
@@ -1126,5 +1127,5 @@ export default [
 		],
 	},
 
-	...yml.configs["flat/base"],
+	...yml.configs.base,
 ];
