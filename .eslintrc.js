@@ -765,6 +765,7 @@ export default [
 				"unicorn/explicit-length-check": "error",
 				"unicorn/filename-case": "error",
 				"unicorn/import-style": "off",
+				"unicorn/isolated-functions": "error",
 				"unicorn/new-for-builtins": "error",
 				"unicorn/no-abusive-eslint-disable": "error",
 				"unicorn/no-accessor-recursion": "error",
