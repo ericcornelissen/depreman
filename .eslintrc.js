@@ -1089,9 +1089,13 @@ export default [
 			},
 			rules: {
 				"markdown/fenced-code-language": "error",
+				"markdown/fenced-code-meta": ["error", "never"],
 				"markdown/heading-increment": "error",
 				"markdown/no-bare-urls": "error",
-				"markdown/no-duplicate-definitions": "error",
+				"markdown/no-duplicate-definitions": ["error", {
+					allowDefinitions: [],
+					allowFootnoteDefinitions: [],
+				}],
 				"markdown/no-duplicate-headings": "error",
 				"markdown/no-empty-definitions": ["error", {
 					allowDefinitions: [],
@@ -1119,7 +1123,10 @@ export default [
 				"markdown/no-space-in-emphasis": ["error", {
 					checkStrikethrough: true,
 				}],
-				"markdown/no-unused-definitions": "error",
+				"markdown/no-unused-definitions": ["error", {
+					allowDefinitions: [],
+					allowFootnoteDefinitions: [],
+				}],
 				"markdown/require-alt-text": "error",
 				"markdown/table-column-count": ["error", {
 					checkMissingCells: true,
