@@ -9,6 +9,7 @@ Versioning].
 
 ## Unreleased
 
+- Add support for Node.js v26.
 - Add a manpage.
 
 ## 0.3.12 (2025-09-27)
