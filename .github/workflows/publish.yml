@@ -64,5 +64,9 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: Install dependencies
         run: npm clean-install
+      - name: Package the project
+        env:
+          NODE_DEBUG: strip-directives
+        run: npm run package
       - name: Publish to npm
         run: npm publish || true
