@@ -43,8 +43,8 @@ found in this document.
 1. Update the date and version number in the man page at `bin/man/depreman.1`:
 
    ```diff
-   -  .TH "depreman" "1" "November 2024" "v0.3.3" "User Commands"
-   +  .TH "depreman" "1" "December 2024" "v0.3.4" "User Commands"
+   -  .TH "depreman" "1" "November 2025" "v0.3.3" "User Commands"
+   +  .TH "depreman" "1" "December 2025" "v0.3.4" "User Commands"
    ```
 
 1. Update the `CHANGELOG.md`, manually add the following text after the
@@ -57,13 +57,13 @@ found in this document.
    ```
 
    The date should follow the year-month-day format where single-digit months
-   and days should be prefixed with a `0` (e.g. `2022-01-01`).
+   and days should be prefixed with a `0` (e.g. `2025-01-01`).
 
 1. Commit the changes to a new release branch and push using:
 
    ```shell
    git checkout -b release-$(sha1sum package.json | head -c 7)
-   git add CHANGELOG.md package.json package-lock.json
+   git add bin/man/depreman.1 CHANGELOG.md package.json package-lock.json
    git commit --signoff --message "Version bump"
    git push origin release-$(sha1sum package.json | head -c 7)
    ```

@@ -9,6 +9,10 @@ Versioning].
 
 ## Unreleased
 
+- _No changes yet_
+
+## 0.3.13 (2026-05-07)
+
 - Add support for Node.js v26.
 - Add a manpage.
 
