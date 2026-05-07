@@ -15,14 +15,14 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM docker.io/node:24.13.0-alpine3.22
+FROM docker.io/node:26.0.0-alpine3.23
 
-RUN apk add --no-cache \
-  bash git mandoc \
-  && \
-  git config --global --add safe.directory /depreman
+RUN apk add --no-cache bash git mandoc \
+ && git config --global --add safe.directory /depreman
 
-RUN corepack enable && yarn set version 4.1.0
+RUN npm install -g corepack \
+ && corepack enable \
+ && yarn set version 4.1.0
 
 WORKDIR /depreman
 COPY package.json package-lock.json .npmrc ./
