@@ -7,9 +7,9 @@ appreciate your efforts to responsibly disclose your findings. Due to the
 non-funded and open-source nature of the project, we take a best-efforts
 approach when it comes to engaging with security reports.
 
-This document should be considered expired after 2026-06-01. If you are
-reading this after that date you should find an up-to-date version in the
-official source repository.
+This document should be considered expired after 2027-01-01. If you are reading
+this after that date, try to find an up-to-date version in the official source
+repository.
 
 ## Supported Versions
 
@@ -22,32 +22,32 @@ with security updates.
 
 ## Reporting a Vulnerability
 
-To report a security issue in the latest version of a supported version range,
-either (in order of preference):
+To report a security issue in a supported version or the development head of the
+project, either (in order of preference):
 
 - [Report it through GitHub][new github advisory], or
-- Send an email to [security@ericcornelissen.dev] with the terms "SECURITY" and
-  "depreman" in the subject line.
+- Send an email to [ericornelissen+security@gmail.com] with the terms "SECURITY"
+  and "depreman" in the subject line.
 
 Please do not open a regular issue or Pull Request in the public repository.
 
-To report a security issue in an unsupported version of the project, or if the
+If a security issue only affects an unsupported version of the project, or the
 latest version of a supported version range isn't affected, please report it
 publicly. For example, as a regular issue in the public repository. If in doubt,
 report the issue privately.
 
 [new github advisory]: https://github.com/ericcornelissen/depreman/security/advisories/new
-[security@ericcornelissen.dev]: mailto:security@ericcornelissen.dev?subject=SECURITY%20%28depreman%29
+[ericornelissen+security@gmail.com]: mailto:ericornelissen+security@gmail.com?subject=SECURITY%20%28depreman%29
 
-### What to Report
+### When to Report
 
 Consider if the issue you found really is a security concern. Below you can find
 guidelines for what is and is not considered a security issue. Any issue that
 does not fall into one of the listed categories should be reported based on your
 own judgement. If in doubt, report the issue privately.
 
-Any issue that is explicitly out of scope can still be reported, but should be
-reported publicly because it is not considered sensitive.
+Any issue that is out of scope should still be reported, but can be reported
+publicly because it is not considered sensitive.
 
 #### In Scope
 
@@ -59,8 +59,9 @@ reported publicly because it is not considered sensitive.
 
 #### Out of Scope
 
+- Bugs in code not part of a published artifact.
 - Insecure defaults or confusing API design.
-- Known vulnerabilities in third-party `dependencies` or `devDependencies`.
+- Known vulnerabilities in third-party dependencies.
 
 ### What to Include in a Report
 
@@ -77,7 +78,7 @@ Try to include as many of the following items as possible in a security report:
 
 [cwe]: https://cwe.mitre.org/
 
-### Threat Model
+## Threat Model
 
 The CLI considers CLI arguments, program configuration files, package managers
 (npm or yarn), JavaScript runtime, and host OS as trusted. All other inputs, for
