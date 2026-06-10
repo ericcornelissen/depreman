@@ -750,7 +750,6 @@ export default [
 
 			// eslint-plugin-unicorn
 			...{
-				"unicorn/better-regex": "error",
 				"unicorn/catch-error-name": "error",
 				"unicorn/consistent-assert": "error",
 				"unicorn/consistent-date-clone": "error",
