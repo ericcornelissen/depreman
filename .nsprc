@@ -1,3 +1,11 @@
 {
-  "GHSA-c2qf-rxjj-qqgw": "fixed version is within the supported version range"
+  "GHSA-c2qf-rxjj-qqgw": {
+    "active": true,
+    "notes": "fixed version is within the supported version range"
+  },
+  "GHSA-h67p-54hq-rp68": {
+    "active": true,
+    "expiry": "2027-01-01",
+    "notes": "pending https://github.com/yarnpkg/berry/issues/7186"
+  }
 }
