@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025  Eric Cornelissen
+// Copyright (C) 2024-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -18,11 +18,11 @@ import { test } from "node:test";
 import { FS } from "./fs.mock.js";
 
 import {
-	getConfiguration,
+	getConfig,
 } from "./config.js";
 
 test("config.js", (t) => {
-	t.test("getConfiguration", (t) => {
+	t.test("getConfig", (t) => {
 		const okCases = {
 			"empty config": {
 				config: {},
@@ -91,7 +91,7 @@ test("config.js", (t) => {
 					"./.ndmrc": JSON.stringify(testCase.config),
 				});
 
-				const got = await getConfiguration(fs);
+				const got = await getConfig(fs);
 				assert.ok(got.isOk());
 
 				const want = testCase.config;
@@ -307,7 +307,7 @@ test("config.js", (t) => {
 					"./.ndmrc": JSON.stringify(testCase.config),
 				});
 
-				const got = await getConfiguration(fs);
+				const got = await getConfig(fs);
 				assert.ok(got.isErr());
 				assert.equal(got.error(), testCase.message);
 			});
@@ -318,7 +318,7 @@ test("config.js", (t) => {
 				"./.ndmrc": JSON.stringify({}),
 			});
 
-			await getConfiguration(fs);
+			await getConfig(fs);
 			assert.equal(fs.readFile.mock.callCount(), 1);
 
 			const got = fs.readFile.mock.calls[0];
@@ -331,7 +331,7 @@ test("config.js", (t) => {
 				"./.ndmrc": "I'm not valid JSON",
 			});
 
-			const got = await getConfiguration(fs);
+			const got = await getConfig(fs);
 			assert.ok(got.isErr());
 			assert.match(
 				got.error(),
@@ -342,7 +342,7 @@ test("config.js", (t) => {
 		t.test("file not found", async () => {
 			const fs = new FS({});
 
-			const got = await getConfiguration(fs);
+			const got = await getConfig(fs);
 			assert.ok(got.isErr());
 			assert.equal(
 				got.error(),

@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -22,13 +22,13 @@ import { Object } from "./object.js";
 test("object.js", (t) => {
 	t.test("entries", (t) => {
 		t.test("example", () => {
-			const obj = {
+			const object = {
 				foo: "bar",
 				"hello world": "!",
 				digit: 42,
 			};
 
-			const got = Object.entries(obj);
+			const got = Object.entries(object);
 			const want = [
 				["foo", "bar"],
 				["hello world", "!"],
@@ -129,12 +129,12 @@ test("object.js", (t) => {
 
 	t.test("keys", (t) => {
 		t.test("example", () => {
-			const obj = {
+			const object = {
 				foo: "bar",
 				"hello world": "!",
 			};
 
-			const got = Object.keys(obj);
+			const got = Object.keys(object);
 			const want = [
 				"foo",
 				"hello world",
@@ -177,12 +177,12 @@ test("object.js", (t) => {
 
 	t.test("values", (t) => {
 		t.test("example", () => {
-			const obj = {
+			const object = {
 				foo: "bar",
 				digit: 42,
 			};
 
-			const got = Object.values(obj);
+			const got = Object.values(object);
 			const want = [
 				"bar",
 				42,

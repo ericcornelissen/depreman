@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -56,8 +56,9 @@ export class Yarn {
 		}
 
 		const { stdout } = result.error();
+		const lines = stdout.trim().split("\n");
 		const deprecations = [];
-		for (const line of stdout.trim().split("\n")) {
+		for (const line of lines) {
 			const json = parseJSON(line);
 			if (json.isErr()) {
 				const error = json.error();
@@ -69,7 +70,8 @@ export class Yarn {
 				continue;
 			}
 
-			for (const version of advisory.children["Tree Versions"]) {
+			const versions = advisory.children["Tree Versions"];
+			for (const version of versions) {
 				deprecations.push({
 					name: advisory.value,
 					version,
@@ -99,9 +101,10 @@ export class Yarn {
 		}
 
 		const { stdout } = result.value();
+		const lines = stdout.trim().split("\n");
 		const dependencies = new Map();
 		let root = null;
-		for (const line of stdout.trim().split("\n")) {
+		for (const line of lines) {
 			const json = parseJSON(line);
 			if (json.isErr()) {
 				const error = json.error();
@@ -119,15 +122,17 @@ export class Yarn {
 		const hierarchy = { dependencies: {} };
 		const queue = [[root, hierarchy]];
 		while (queue.length > 0) {
-			const [id, obj] = queue.pop();
-			for (const dependency of (dependencies.get(id) || [])) {
+			const [id, object] = queue.pop();
+
+			const transitives = dependencies.get(id) || [];
+			for (const dependency of transitives) {
 				const { name, version } = parseLocator(dependency);
-				obj.dependencies[name] = {
+				object.dependencies[name] = {
 					version,
 					dependencies: {},
 				};
 
-				queue.push([dependency, obj.dependencies[name]]);
+				queue.push([dependency, object.dependencies[name]]);
 			}
 		}
 

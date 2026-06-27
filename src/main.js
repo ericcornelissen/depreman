@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025  Eric Cornelissen
+// Copyright (C) 2024-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -17,7 +17,7 @@ import * as nodeFs from "node:fs/promises";
 import { stdout, stderr } from "node:process";
 
 import { parseArgv } from "./cli.js";
-import { getConfiguration } from "./config.js";
+import { getConfig } from "./config.js";
 import { CP } from "./cp.js";
 import { getDeprecatedPackages } from "./deprecations.js";
 import { FS } from "./fs.js";
@@ -52,7 +52,12 @@ export async function cli(argv) {
 		return await versions();
 	}
 
-	return await depreman(options.value());
+	try {
+		return await depreman(options.value());
+	} catch (error) {
+		stderr.write(`error: ${error.message}\n`);
+		return EXIT_CODE_UNEXPECTED;
+	}
 }
 
 /**
@@ -60,40 +65,35 @@ export async function cli(argv) {
  * @returns {Promise<ExitCode>}
  */
 async function depreman(options) {
-	try {
-		const cp = new CP(nodeCp);
-		const fs = new FS(nodeFs);
-		const pm = options.packageManager === "yarn"
-			? new Yarn({ cp, options })
-			: new NPM({ cp, fs, options });
+	const cp = new CP(nodeCp);
+	const fs = new FS(nodeFs);
+	const pm = options.packageManager === "yarn"
+		? new Yarn({ cp, options })
+		: new NPM({ cp, fs, options });
 
-		const [config, deprecations] = await Promise.all([
-			getConfiguration(fs),
-			getDeprecatedPackages(pm),
-		]);
+	const [config, deprecations] = await Promise.all([
+		getConfig(fs),
+		getDeprecatedPackages(pm),
+	]);
 
-		if (config.isErr()) {
-			stderr.write(`configuration error: ${config.error()}\n`);
-			return EXIT_CODE_UNEXPECTED;
-		}
-
-		if (deprecations.isErr()) {
-			stderr.write(`error obtaining deprecations: ${deprecations.error()}\n`);
-			return EXIT_CODE_UNEXPECTED;
-		}
-
-		const result = removeIgnored(config.value(), deprecations.value());
-		const unused = options.reportUnused ? unusedIgnores(config.value()) : [];
-		const { ok, report } = printAndExit(result, unused, options, style.create());
-		if (report) {
-			stdout.write(`${report}\n`);
-		}
-
-		return ok ? EXIT_CODE_SUCCESS : EXIT_CODE_FAILURE;
-	} catch (error) {
-		stderr.write(`error: ${error.message}\n`);
+	if (config.isErr()) {
+		stderr.write(`configuration error: ${config.error()}\n`);
 		return EXIT_CODE_UNEXPECTED;
 	}
+
+	if (deprecations.isErr()) {
+		stderr.write(`error obtaining deprecations: ${deprecations.error()}\n`);
+		return EXIT_CODE_UNEXPECTED;
+	}
+
+	const result = removeIgnored(config.value(), deprecations.value());
+	const unused = options.reportUnused ? unusedIgnores(config.value()) : [];
+	const { ok, report } = printAndExit(result, unused, options, style.create());
+	if (report) {
+		stdout.write(`${report}\n`);
+	}
+
+	return ok ? EXIT_CODE_SUCCESS : EXIT_CODE_FAILURE;
 }
 
 /**

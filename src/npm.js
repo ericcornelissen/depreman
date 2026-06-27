@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -55,13 +55,13 @@ export class NPM {
 		}
 
 		const aliases = new Map();
-		for (const deps of [
+		for (const dependencies of [
 			manifest.value().dependencies,
 			manifest.value().devDependencies,
 			manifest.value().optionalDependencies,
 			manifest.value().peerDependencies,
 		]) {
-			for (const [name, rhs] of Object.entries(deps)) {
+			for (const [name, rhs] of Object.entries(dependencies)) {
 				const aliasMatch = /npm:(?<alias>@?[^@]+)@(?<version>.+)/u.exec(rhs);
 				if (aliasMatch) {
 					const { alias, version } = aliasMatch.groups;
@@ -98,6 +98,11 @@ export class NPM {
 	 * @returns {Promise<Result<PackageHierarchy, string>>}
 	 */
 	async hierarchy() {
+		const manifest = await this.#getManifest();
+		if (manifest.isErr()) {
+			return manifest;
+		}
+
 		const cmd = "npm";
 		const args = [
 			"list",
@@ -113,11 +118,6 @@ export class NPM {
 		}
 		if (this.#options.omitPeer) {
 			args.push("--omit", "peer");
-		}
-
-		const manifest = await this.#getManifest();
-		if (manifest.isErr()) {
-			return manifest;
 		}
 
 		const result = await this.#cp.exec(cmd, args);
@@ -228,15 +228,15 @@ export class NPM {
 			return None;
 		}
 
-		const str = line.slice(prefix.length);
+		const string = line.slice(prefix.length);
 
-		let i = str.indexOf(":");
-		const pkg = str.slice(0, i);
-		const reason = str.slice(i + 1).trim();
+		let index = string.indexOf(":");
+		const pkg = string.slice(0, index);
+		const reason = string.slice(index + 1).trim();
 
-		i = pkg.lastIndexOf("@");
-		const name = pkg.slice(0, i);
-		const version = pkg.slice(i + 1);
+		index = pkg.lastIndexOf("@");
+		const name = pkg.slice(0, index);
+		const version = pkg.slice(index + 1);
 
 		return new Some({ name, version, reason });
 	}
@@ -261,8 +261,8 @@ export class NPM {
 			peer: peerDependencies,
 		};
 
-		for (const [scope, deps] of Object.entries(categories)) {
-			for (const got of Object.keys(deps)) {
+		for (const [scope, list] of Object.entries(categories)) {
+			for (const got of Object.keys(list)) {
 				if (got === pkg) {
 					return new Some(scope);
 				}

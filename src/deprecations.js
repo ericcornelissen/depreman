@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025  Eric Cornelissen
+// Copyright (C) 2024-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -48,21 +48,21 @@ export async function getDeprecatedPackages(pm) {
 function findPackagePaths(pkg, hierarchy, aliases, path = []) {
 	const { dependencies } = hierarchy;
 	const paths = [];
-	for (const [depName, depInfo] of Object.entries(dependencies)) {
-		const dep = {
-			name: depName,
-			scope: depInfo.scope,
-			version: depInfo.version,
+	for (const [name, info] of Object.entries(dependencies)) {
+		const dependency = {
+			name,
+			scope: info.scope,
+			version: info.version,
 
 			// Override name and version if there exists an alias
-			...aliases.get(depName),
+			...aliases.get(name),
 		};
 
-		const depPath = [...path, dep];
-		if (dep.name === pkg.name && dep.version === pkg.version) {
-			paths.push(depPath);
+		const dependencyPath = [...path, dependency];
+		if (dependency.name === pkg.name && dependency.version === pkg.version) {
+			paths.push(dependencyPath);
 		} else {
-			paths.push(...findPackagePaths(pkg, depInfo, aliases, depPath));
+			paths.push(...findPackagePaths(pkg, info, aliases, dependencyPath));
 		}
 	}
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -69,13 +69,11 @@ test("cli.js", (t) => {
 					...options.include.map(() => fc.nat({ max })),
 				),
 			}).map(({ args, indices }) => {
-				indices.sort();
-				indices.reverse();
-
-				for (const i in indices) {
-					const index = indices[i] % (args.length + 1);
-					const flag = options.include[i];
-					args = args.toSpliced(index, 0, flag);
+				indices.sort((a, b) => b - a);
+				for (const index in indices) {
+					const targetIndex = indices[index] % (args.length + 1);
+					const flag = options.include[index];
+					args = args.toSpliced(targetIndex, 0, flag);
 				}
 
 				return args;
@@ -331,8 +329,8 @@ test("cli.js", (t) => {
 			fc.assert(
 				fc.property(
 					fc.array(fc.string(), { minLength: 1 })
-						.map(arr => arr.map(str => `--${str}`))
-						.filter(arr => arr.every(str => !flags.includes(str)))
+						.map(strings => strings.map(string => `--${string}`))
+						.filter(strings => strings.every(string => !flags.includes(string)))
 						.chain(args => arbitrary.flags({ include: args })),
 					(args) => {
 						const argv = [...base, ...args];
@@ -350,7 +348,7 @@ test("cli.js", (t) => {
 			fc.assert(
 				fc.property(
 					fc.array(fc.string(), { minLength: 1 })
-						.filter(arr => arr.every(str => !str.startsWith("-")))
+						.filter(strings => strings.every(string => !string.startsWith("-")))
 						.chain(args => arbitrary.flags({ include: args })),
 					(args) => {
 						const argv = [...base, ...args];

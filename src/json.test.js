@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -40,15 +40,15 @@ test("json.js", (t) => {
 		t.test("non-json", () => {
 			fc.assert(
 				fc.property(fc.string(), (value) => {
-					let parsed = false;
+					let didParse = false;
 					try {
 						JSON.parse(value);
-						parsed = true;
+						didParse = true;
 					} catch {
 						// Nothing to do
 					}
 
-					if (parsed) {
+					if (didParse) {
 						fc.pre(false);
 					}
 

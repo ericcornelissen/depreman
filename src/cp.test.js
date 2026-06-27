@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -31,7 +31,7 @@ test("cp.js", (t) => {
 						args: fc.array(fc.string()),
 						error: fc.oneof(
 							fc.constant(null),
-							fc.string().map(msg => new Error(msg)),
+							fc.string().map(messages => new Error(messages)),
 						),
 						stdout: fc.string(),
 						stderr: fc.string(),
@@ -92,7 +92,7 @@ test("cp.js", (t) => {
 					fc.record({
 						cmd: fc.string(),
 						args: fc.array(fc.string()),
-						error: fc.string().map(msg => new Error(msg)),
+						error: fc.string().map(message => new Error(message)),
 						stdout: fc.string(),
 						stderr: fc.string(),
 					}),

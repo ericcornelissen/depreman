@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -72,12 +72,12 @@ function validate(args) {
  * @returns {boolean}
  */
 function removeFromList(haystack, needle) {
-	const i = haystack.indexOf(needle);
-	if (i === -1) {
+	const index = haystack.indexOf(needle);
+	if (index === -1) {
 		return false;
 	}
 
-	haystack.splice(i, 1);
+	haystack.splice(index, 1);
 	return true;
 }
 

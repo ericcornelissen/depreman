@@ -1,6 +1,6 @@
 // MIT No Attribution
 //
-// Copyright 2024-2025 Eric Cornelissen
+// Copyright 2024-2026 Eric Cornelissen
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
 // software and associated documentation files (the "Software"), to deal in the Software
@@ -69,9 +69,10 @@ async function hasLicenseHeader(entry) {
 		.startsWith(`${header}\n`);
 }
 
-async function* jsFiles(dir, exclude) {
-	for (let entry of await fs.readdir(dir)) {
-		entry = path.join(dir, entry);
+async function* jsFiles(directory, exclude) {
+	const entries = await fs.readdir(directory);
+	for (let entry of entries) {
+		entry = path.join(directory, entry);
 		if (exclude.includes(entry)) {
 			continue;
 		}
