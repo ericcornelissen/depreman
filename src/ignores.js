@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025  Eric Cornelissen
+// Copyright (C) 2024-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -62,7 +62,8 @@ export function removeIgnored(config, deprecations) {
  */
 export function unusedIgnores(config, path=[]) {
 	const unused = [];
-	if (Object.hasOwn(config, kIgnore) && !config[kUsed]) {
+	const isUsed = config[kUsed];
+	if (Object.hasOwn(config, kIgnore) && !isUsed) {
 		unused.push(path);
 	}
 
@@ -91,10 +92,10 @@ function isIgnored(config, path, pkg={}) {
 	}
 
 	const [current, ...remaining] = path;
-	for (const rule of Object.keys(config)) {
+	for (const [rule, ruleConfig] of Object.entries(config)) {
 		// Match 0-or-more
 		if (rule === "*") {
-			const reason = isIgnored(config, remaining, current) || isIgnored(config[rule], path, current);
+			const reason = isIgnored(config, remaining, current) || isIgnored(ruleConfig, path, current);
 			if (reason) {
 				return reason;
 			}
@@ -104,7 +105,7 @@ function isIgnored(config, path, pkg={}) {
 
 		// Match 1-or-more
 		if (rule === "+") {
-			const reason = isIgnored(config, remaining, current) || isIgnored(config[rule], remaining, current);
+			const reason = isIgnored(config, remaining, current) || isIgnored(ruleConfig, remaining, current);
 			if (reason) {
 				return reason;
 			}
@@ -115,7 +116,7 @@ function isIgnored(config, path, pkg={}) {
 		// Match exact
 		const [name, version] = parseRule(rule);
 		if (name === current.name && semver.satisfies(current.version, version).value()) {
-			const reason = isIgnored(config[rule], remaining, current);
+			const reason = isIgnored(ruleConfig, remaining, current);
 			if (reason) {
 				return reason;
 			}
@@ -144,16 +145,17 @@ function getDecision(config, pkg) {
  * @returns {boolean | string}
  */
 function parseDecision(config) {
-	let ignore = false;
 	if (Object.hasOwn(config, kIgnore)) {
-		ignore = config[kIgnore];
 		config[kUsed] = true;
-	} else if (Object.hasOwn(config["*"], kIgnore)) {
-		ignore = config["*"][kIgnore];
-		config["*"][kUsed] = true;
+		return config[kIgnore];
 	}
 
-	return ignore;
+	if (Object.hasOwn(config["*"], kIgnore)) {
+		config["*"][kUsed] = true;
+		return config["*"][kIgnore];
+	}
+
+	return false;
 }
 
 /**
@@ -190,9 +192,9 @@ function isInScope(config, scope) {
  * @returns {[string, string]}
  */
 function parseRule(pkg) {
-	const i = pkg.lastIndexOf("@");
-	const name = pkg.slice(0, i);
-	const version = pkg.slice(i + 1);
+	const index = pkg.lastIndexOf("@");
+	const name = pkg.slice(0, index);
+	const version = pkg.slice(index + 1);
 	return [name, version];
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025  Eric Cornelissen
+// Copyright (C) 2024-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -39,7 +39,7 @@ test("date.js", (t) => {
 		invalidDate: () =>
 			fc.oneof(
 				// Strings not following the 'x-y-z' format
-				fc.string().filter(str => str.split("-").length !== 3),
+				fc.string().filter(string => string.split("-").length !== 3),
 
 				// Strings following the 'x-y-z' format but not 'yyyy-mm-dd'
 				fc.tuple(fc.string(), fc.string(), fc.string())
@@ -222,9 +222,9 @@ test("date.js", (t) => {
 					arbitrary.rawDate(),
 					(rawDate) => {
 						const { year, month, day } = rawDate;
-						const str = `${year}-${month}-${day}`;
+						const string = `${year}-${month}-${day}`;
 
-						const result = parse(str);
+						const result = parse(string);
 						assert.ok(result.isOk());
 
 						const got = result.value();
@@ -241,12 +241,12 @@ test("date.js", (t) => {
 			fc.assert(
 				fc.property(
 					arbitrary.invalidDate(),
-					(str) => {
-						const result = parse(str);
+					(string) => {
+						const result = parse(string);
 						assert.ok(result.isErr());
 
 						const err = result.error();
-						assert.equal(err, `invalid date '${str}' (must be 'yyyy-mm-dd')`);
+						assert.equal(err, `invalid date '${string}' (must be 'yyyy-mm-dd')`);
 					},
 				),
 			);
@@ -254,13 +254,15 @@ test("date.js", (t) => {
 	});
 
 	t.test("today", () => {
+		const date = new Date();
+
 		const got = today();
 		assert.ok(got instanceof DepremanDate);
 
 		const want = new DepremanDate({
-			year: (new Date()).getFullYear(),
-			month: (new Date()).getMonth() + 1,
-			day: (new Date()).getDate(),
+			year: date.getFullYear(),
+			month: date.getMonth() + 1,
+			day: date.getDate(),
 		});
 		assert.ok(got.is(want));
 	});

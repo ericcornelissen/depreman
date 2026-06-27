@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025  Eric Cornelissen
+// Copyright (C) 2024-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -1126,8 +1126,8 @@ test("ignore.js", (t) => {
 
 					values.push(
 						...Object.entries(value)
-							.filter(e => !e[0].startsWith("#"))
-							.map(e => e[1]),
+							.filter(entry => !entry[0].startsWith("#"))
+							.map(entry => entry[1]),
 					);
 				}
 			});

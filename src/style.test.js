@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -30,10 +30,10 @@ test("style.js", (t) => {
 			fc.assert(
 				fc.property(
 					fc.string(),
-					(msg) => {
+					(message) => {
 						const styler = create();
-						const got = styler.dim(msg);
-						assert.ok(got.includes(msg));
+						const got = styler.dim(message);
+						assert.ok(got.includes(message));
 					},
 				),
 			);
@@ -43,10 +43,10 @@ test("style.js", (t) => {
 			fc.assert(
 				fc.property(
 					fc.string(),
-					(msg) => {
+					(message) => {
 						const styler = create();
-						const got = styler.italic(msg);
-						assert.ok(got.includes(msg));
+						const got = styler.italic(message);
+						assert.ok(got.includes(message));
 					},
 				),
 			);
@@ -60,9 +60,9 @@ test("style.mock.js", (t) => {
 			fc.assert(
 				fc.property(
 					fc.string(),
-					(msg) => {
-						const got = MockStyler.dim(msg);
-						assert.ok(got.includes(msg));
+					(message) => {
+						const got = MockStyler.dim(message);
+						assert.ok(got.includes(message));
 					},
 				),
 			);
@@ -72,9 +72,9 @@ test("style.mock.js", (t) => {
 			fc.assert(
 				fc.property(
 					fc.string(),
-					(msg) => {
-						const got = MockStyler.italic(msg);
-						assert.ok(got.includes(msg));
+					(message) => {
+						const got = MockStyler.italic(message);
+						assert.ok(got.includes(message));
 					},
 				),
 			);

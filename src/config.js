@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025  Eric Cornelissen
+// Copyright (C) 2024-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -22,7 +22,7 @@ import { typeOf, types } from "./types.js";
  * @param {ReadFS} fs
  * @returns {Promise<Result<Config, string>>}
  */
-export async function getConfiguration(fs) {
+export async function getConfig(fs) {
 	const rawConfig = await fs.readFile("./.ndmrc");
 	if (rawConfig.isErr()) {
 		return new Err(`could not get .ndmrc: ${rawConfig.error()}`);
@@ -43,17 +43,17 @@ export async function getConfiguration(fs) {
 
 /**
  * @param {Config} config
- * @param {boolean} root
+ * @param {boolean} isRoot
  * @returns {Option<string[]>}
  */
-function validateConfig(config, root=true) {
+function validateConfig(config, isRoot=true) {
 	if (typeOf(config) !== types.object) {
 		return new Some(["config must be an object"]);
 	}
 
 	const problems = [
-		...validateChildren(config, root),
-		...validateDirectives(config, root),
+		...validateChildren(config, isRoot),
+		...validateDirectives(config, isRoot),
 		...validateKeys(config),
 	];
 
@@ -66,12 +66,12 @@ function validateConfig(config, root=true) {
 
 /**
  * @param {Config} config
- * @param {boolean} root
+ * @param {boolean} isRoot
  * @returns {string[]}
  */
-function validateChildren(config, root) {
+function validateChildren(config, isRoot) {
 	const children = Object.entries(config).filter(([key]) => !isDirective(key));
-	if (children.length === 0 && !Object.hasOwn(config, "#ignore") && !root) {
+	if (children.length === 0 && !Object.hasOwn(config, "#ignore") && !isRoot) {
 		return ["ineffective leaf (no '#ignore' found)"];
 	}
 
@@ -90,55 +90,77 @@ function validateChildren(config, root) {
 
 /**
  * @param {Config} config
- * @param {boolean} root
+ * @param {boolean} isRoot
  * @returns {string[]}
  */
-function validateDirectives(config, root) {
+function validateDirectives(config, isRoot) {
 	const directives = Object.entries(config).filter(([key]) => isDirective(key));
 
 	const problems = [];
 	for (const [key, value] of directives) {
-		if (root) {
+		if (isRoot) {
 			problems.push(`unexpected directive '${key}' in the root`);
 		} else {
-			const type = typeOf(value);
-			switch (key) {
-				case "#expire":
-					if (!Object.hasOwn(config, "#ignore")) {
-						problems.push(`has '#expire' without '#ignore'`);
-					} else if (type !== types.string) {
-						problems.push(`unexpected type for '#expire': ${type}`);
-					}
-
-					break;
-				case "#ignore":
-					if (!(type === types.boolean || type === types.string)) {
-						problems.push(`unexpected type for '#ignore': ${type}`);
-					} else if (value.length === 0) {
-						problems.push("cannot use empty string for '#ignore'");
-					}
-					break;
-				case "#scope":
-					if (type === types.array) {
-						if (value.length === 0) {
-							problems.push("the '#scope' directive may not be empty");
-						}
-
-						const wrong = value.find(scope => !isScope(scope));
-						if (wrong !== undefined) {
-							problems.push(`unexpected '#scope' entry: ${wrong}`);
-						}
-					} else {
-						problems.push(`unexpected type for '#scope': ${type}`);
-					}
-					break;
-				default:
-					problems.push(`unknown directive '${key}'`);
+			const problem = validateDirective(config, key, value);
+			if (problem.isSome()) {
+				problems.push(problem.value());
 			}
 		}
 	}
 
 	return problems;
+}
+
+/**
+ * @param {Config} config
+ * @param {string} key
+ * @param {unknown} value
+ * @returns {Option<string>}
+ */
+function validateDirective(config, key, value) {
+	const type = typeOf(value);
+	switch (key) {
+		case "#expire":
+			if (!Object.hasOwn(config, "#ignore")) {
+				return new Some("has '#expire' without '#ignore'");
+			}
+
+			if (type !== types.string) {
+				return new Some(`unexpected type for '#expire': ${type}`);
+			}
+
+			break;
+		case "#ignore":
+			if (!(type === types.boolean || type === types.string)) {
+				return new Some(`unexpected type for '#ignore': ${type}`);
+			}
+
+			if (value.length === 0) {
+				return new Some("cannot use empty string for '#ignore'");
+			}
+
+			break;
+		case "#scope": {
+			if (type !== types.array) {
+				return new Some(`unexpected type for '#scope': ${type}`);
+			}
+
+			if (value.length === 0) {
+				return new Some("the '#scope' directive may not be empty");
+			}
+
+			const wrong = value.find(scope => !isScope(scope));
+			if (wrong !== undefined) {
+				return new Some(`unexpected '#scope' entry: ${wrong}`);
+			}
+
+			break;
+		}
+		default:
+			return new Some(`unknown directive '${key}'`);
+	}
+
+	return None;
 }
 
 /**
@@ -152,16 +174,15 @@ function validateKeys(config) {
 			continue;
 		}
 
-		const i = key.lastIndexOf("@");
-		if (i === -1 || i === 0) {
+		const index = key.lastIndexOf("@");
+		if (index === -1 || index === 0) {
 			problems.push(`invalid rule name '${key}'`);
 			continue;
 		}
 
-		const version = key.slice(i);
+		const version = key.slice(index);
 		if (version.length === 1) {
-			problems.push(`missing version for '${key.slice(0, i)}'`);
-			continue;
+			problems.push(`missing version for '${key.slice(0, index)}'`);
 		}
 	}
 

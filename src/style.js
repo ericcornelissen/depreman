@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -23,19 +23,19 @@ export function create() {
 
 class CliStyler {
 	/**
-	 * @param {string} msg
+	 * @param {string} message
 	 * @returns {string}
 	 */
-	dim(msg) {
-		return chalk.dim(msg);
+	dim(message) {
+		return chalk.dim(message);
 	}
 
 	/**
-	 * @param {string} msg
+	 * @param {string} message
 	 * @returns {string}
 	 */
-	italic(msg) {
-		return chalk.italic(msg);
+	italic(message) {
+		return chalk.italic(message);
 	}
 }
 

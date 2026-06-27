@@ -1,6 +1,6 @@
 // MIT No Attribution
 //
-// Copyright 2024-2025 Eric Cornelissen
+// Copyright 2024-2026 Eric Cornelissen
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
 // software and associated documentation files (the "Software"), to deal in the Software
@@ -24,9 +24,9 @@ import * as process from "node:process";
 const manifestPath = path.resolve(".", "package.json");
 const rawManifest = fs.readFileSync(manifestPath).toString();
 const manifest = JSON.parse(rawManifest);
-const runtimeDeps = manifest.dependencies;
+const { dependencies } = manifest;
 
-const violations = Object.entries(runtimeDeps)
+const violations = Object.entries(dependencies)
 	.map(([dependency, supported]) => ({
 		dependency,
 		installed: getInstalledVersion(dependency),

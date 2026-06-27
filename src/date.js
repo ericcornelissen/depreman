@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025  Eric Cornelissen
+// Copyright (C) 2024-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -21,20 +21,20 @@ const MIN_MONTH = 1, MAX_MONTH = 12;
 const MIN_DAY = 1, MAX_DAY = 31;
 
 /**
- * @param {string} str
+ * @param {string} string
  * @returns {Result<DepremanDate, string>}
  */
-export function parse(str) {
-	const parsed = DATE_EXPR.exec(str);
+export function parse(string) {
+	const parsed = DATE_EXPR.exec(string);
 	if (parsed === null) {
-		return new Err(`invalid date '${str}' (must be 'yyyy-mm-dd')`);
+		return new Err(`invalid date '${string}' (must be 'yyyy-mm-dd')`);
 	}
 
 	const { yyyy, mm, dd } = parsed.groups;
 	const rawDate = {
-		year: Number.parseInt(yyyy, 10),
-		month: Number.parseInt(mm, 10),
-		day: Number.parseInt(dd, 10),
+		year: Number(yyyy),
+		month: Number(mm),
+		day: Number(dd),
 	};
 
 	if (!isValid(rawDate)) {
@@ -100,10 +100,14 @@ export class DepremanDate {
 
 		if (this.#year < other.#year) {
 			return true;
-		} else if (this.#year === other.#year) {
+		}
+
+		if (this.#year === other.#year) {
 			if (this.#month < other.#month) {
 				return true;
-			} else if (this.#month === other.#month && this.#day < other.#day) {
+			}
+
+			if (this.#month === other.#month && this.#day < other.#day) {
 				return true;
 			}
 		}
