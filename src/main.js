@@ -55,7 +55,7 @@ export async function cli(argv) {
 	try {
 		return await depreman(options.value());
 	} catch (error) {
-		stderr.write(`error: ${error.message}\n`);
+		stderr.write(`${error.stack}\n`);
 		return EXIT_CODE_UNEXPECTED;
 	}
 }

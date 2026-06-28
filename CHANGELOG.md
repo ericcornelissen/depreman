@@ -9,7 +9,7 @@ Versioning].
 
 ## Unreleased
 
-- _No changes yet_
+- Handle absent optional `peerDependencies` for npm.
 
 ## 0.3.13 (2026-05-07)
 

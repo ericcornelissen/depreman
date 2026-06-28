@@ -214,7 +214,14 @@ export class NPM {
 	 */
 	#normalizeHierarchy(hierarchy) {
 		hierarchy.dependencies ||= {};
+
 		delete hierarchy.dependencies[hierarchy.name];
+		for (const [name, info] of Object.entries(hierarchy.dependencies)) {
+			if (info.extraneous) {
+				delete hierarchy.dependencies[name];
+			}
+		}
+
 		return hierarchy;
 	}
 
