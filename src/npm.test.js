@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -414,6 +414,71 @@ test("npm.js", (t) => {
 					version: "0.3.9",
 					name: "depreman",
 					dependencies: {},
+				});
+			});
+
+			t.test("with optional peer dependencies", async () => {
+				const options = {};
+
+				const cp = new CP({
+					"npm list": {
+						stdout: JSON.stringify({
+							version: "0.3.9",
+							name: "depreman",
+							dependencies: {
+								chalk: {
+									version: "5.4.1",
+									dependencies: {},
+								},
+								ansi: {
+									version: "0.3.1",
+									extraneous: true,
+									dependencies: {},
+								},
+								"ansi-regex": {
+									version: "6.2.2",
+									extraneous: true,
+									dependencies: {
+										ansi: {
+											version: "0.3.1",
+										},
+									},
+								},
+							},
+						}),
+					},
+				});
+				const fs = new FS({
+					"./package.json": JSON.stringify({
+						dependencies: {
+							chalk: "^5.4.1",
+						},
+						peerDependencies: {
+							"ansi-regex": "^6.2.0",
+						},
+						"peerDependenciesMeta": {
+							"ansi-regex": {
+								optional: true
+							}
+						},
+					}),
+				});
+
+				const npm = new NPM({ cp, fs, options });
+				const got = await npm.hierarchy();
+				assert.ok(got.isOk());
+
+				const value = got.value();
+				assert.deepEqual(value, {
+					version: "0.3.9",
+					name: "depreman",
+					dependencies: {
+						chalk: {
+							version: "5.4.1",
+							scope: "prod",
+							dependencies: {},
+						},
+					},
 				});
 			});
 		});
