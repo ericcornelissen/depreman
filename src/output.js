@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025  Eric Cornelissen
+// Copyright (C) 2024-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -17,12 +17,30 @@ import { typeOf, types } from "./types.js";
 /**
  * @param {Results} result
  * @param {Unused} unused
+ * @returns {boolean}
+ */
+export function isSuccess(result, unused) {
+	if (unused.length > 0) {
+		return false;
+	}
+
+	for (const pkg of result.toSorted(byName)) {
+		if (pkg.kept.length > 0) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * @param {Results} result
+ * @param {Unused} unused
  * @param {Options} options
  * @param {Styler} chalk
- * @returns {{ok: boolean, result: string}}
+ * @returns {string}
  */
-export function printAndExit(result, unused, options, chalk) {
-	let ok = true;
+export function makeReport(result, unused, options, chalk) {
 	const output = [];
 
 	for (const pkg of result.toSorted(byName)) {
@@ -30,7 +48,6 @@ export function printAndExit(result, unused, options, chalk) {
 
 		const header = `${id} ${chalk.italic(`("${pkg.reason}")`)}:`;
 		if (pkg.kept.length > 0) {
-			ok = false;
 			output.push(header);
 		} else if (options.everything) {
 			output.push(chalk.dim(header));
@@ -52,17 +69,13 @@ export function printAndExit(result, unused, options, chalk) {
 	}
 
 	if (unused.length > 0) {
-		ok = false;
 		output.push("Unused ignore directives(s):");
 		for (const path of unused) {
 			output.push(`\t. > ${path.join(" > ")}`);
 		}
 	}
 
-	return {
-		ok,
-		report: output.join("\n"),
-	};
+	return output.join("\n");
 }
 
 /**

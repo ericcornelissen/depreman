@@ -39,23 +39,23 @@ test("json.js", (t) => {
 
 		t.test("non-json", () => {
 			fc.assert(
-				fc.property(fc.string(), (value) => {
-					let didParse = false;
-					try {
-						JSON.parse(value);
-						didParse = true;
-					} catch {
-						// Nothing to do
-					}
-
-					if (didParse) {
-						fc.pre(false);
-					}
-
-					const got = parseJSON(value);
-					assert.ok(got.isErr());
-				}),
+				fc.property(
+					fc.string().filter(string => !isJSON(string)),
+					(string) => {
+						const got = parseJSON(string);
+						assert.ok(got.isErr());
+					},
+				),
 			);
 		});
 	});
 });
+
+function isJSON(string) {
+	try {
+		JSON.parse(string);
+		return true;
+	} catch {
+		return false;
+	}
+}

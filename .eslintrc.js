@@ -258,6 +258,13 @@ export default [
 
 			// eslint-plugin-functional
 			...{
+				"functional/functional-parameters": "off",
+				"functional/immutable-data": "off",
+				"functional/no-classes": "off",
+				"functional/no-class-inheritance": "error",
+				"functional/no-conditional-statements": "off",
+				"functional/no-expression-statements": "off",
+				"functional/no-let": "error",
 				"functional/no-throw-statements": "error",
 			},
 
@@ -1058,6 +1065,9 @@ export default [
 		rules: {
 			"no-console": "off",
 			"no-await-in-loop": "off",
+
+			// eslint-plugin-functional
+			"functional/no-let": "off",
 
 			// eslint-plugin-jsdoc
 			"jsdoc/require-jsdoc": "off",
