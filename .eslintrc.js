@@ -1164,6 +1164,10 @@ export default [
 					indicatorValueIndent: 2,
 				},
 			],
+			"yml/flow-mapping-curly-newline": "error",
+			"yml/flow-mapping-curly-spacing": "error",
+			"yml/flow-sequence-bracket-newline": "error",
+			"yml/flow-sequence-bracket-spacing": "error",
 			"yml/key-name-casing": "off",
 			"yml/key-spacing": [
 				"error",
@@ -1187,6 +1191,7 @@ export default [
 				},
 			],
 			"yml/no-tab-indent": "error",
+			"yml/no-trailing-spaces": "error",
 			"yml/no-trailing-zeros": "error",
 			"yml/plain-scalar": ["error", "always"],
 			"yml/quotes": [
@@ -1200,6 +1205,7 @@ export default [
 			"yml/sort-keys": "off",
 			"yml/sort-sequence-values": "off",
 			"yml/spaced-comment": ["error", "always"],
+			"yml/vue-custom-block/no-parsing-error": "off",
 		},
 	},
 
