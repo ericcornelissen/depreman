@@ -9,6 +9,10 @@ Versioning].
 
 ## Unreleased
 
+- _No changes yet_
+
+## 0.3.4 (2026-07-10)
+
 - Add support for npm v12.
 - Handle absent optional `peerDependencies` for npm.
 
