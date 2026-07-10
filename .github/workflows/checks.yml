@@ -157,13 +157,17 @@ jobs:
       matrix:
         node:
           - 20.17.0
-          - 22.9.0
-          - 24.0.0
+          - 22.22.2
+          - 24.15.0
           - 26.0.0
         npm:
           - 9.0.0
           - 10.0.0
           - 11.0.0
+          - 12.0.0
+        exclude:
+          - node: 20.17.0
+            npm: 12.0.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -177,7 +181,9 @@ jobs:
       - name: Install dependencies
         run: npm clean-install
       - name: Install npm@${{ matrix.npm }}
-        run: npm install --global npm@${{ matrix.npm }}
+        run: |
+          npm install --global npm@~11.10.0
+          npm install --global npm@${{ matrix.npm }}
       - name: Install Yarn
         run: |
           corepack enable
