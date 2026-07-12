@@ -258,7 +258,25 @@ export default [
 
 			// eslint-plugin-functional
 			...{
+				"functional/functional-parameters": "off",
+				"functional/immutable-data": "off",
+				"functional/no-classes": "off",
+				"functional/no-class-inheritance": "error",
+				"functional/no-conditional-statements": "off",
+				"functional/no-expression-statements": "off",
+				"functional/no-let": "error",
 				"functional/no-throw-statements": "error",
+				"functional/no-loop-statements": "off",
+				"functional/no-mixed-types": "off",
+				"functional/no-promise-reject": "error",
+				"functional/no-return-void": "off",
+				"functional/no-this-expressions": "off",
+				"functional/no-try-statements": "error",
+				"functional/prefer-immutable-types": "off",
+				"functional/prefer-property-signatures": "off",
+				"functional/prefer-tacit": "off",
+				"functional/readonly-type": "off",
+				"functional/type-declaration-immutability": "off",
 			},
 
 			// eslint-plugin-jsdoc
@@ -1059,6 +1077,9 @@ export default [
 			"no-console": "off",
 			"no-await-in-loop": "off",
 
+			// eslint-plugin-functional
+			"functional/no-let": "off",
+
 			// eslint-plugin-jsdoc
 			"jsdoc/require-jsdoc": "off",
 
@@ -1080,9 +1101,14 @@ export default [
 			"max-lines": "off",
 			"no-await-in-loop": "off",
 			"no-magic-numbers": "off",
+			"no-new": "off",
 			"no-shadow": ["error", {
 				allow: ["t"],
 			}],
+
+			// eslint-plugin-functional
+			"functional/no-promise-reject": "off",
+			"functional/no-try-statements": "off",
 
 			// eslint-plugin-import
 			"imports/order": "off",
@@ -1105,6 +1131,9 @@ export default [
 		name: "Mocks",
 		files: ["**/*.mock.js"],
 		rules: {
+			// eslint-plugin-functional
+			"functional/no-throw-statements": "off",
+
 			// eslint-plugin-unicorn
 			"unicorn/consistent-boolean-name": "off",
 		},

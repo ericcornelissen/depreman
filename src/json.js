@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -19,6 +19,7 @@ import { Err, Ok } from "./result.js";
  * @returns {Result<unknown, string>}
  */
 export function parseJSON(raw) {
+	// eslint-disable-next-line functional/no-try-statements -- external API
 	try {
 		return new Ok(JSON.parse(raw));
 	} catch (error) {
