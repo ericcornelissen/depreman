@@ -237,13 +237,13 @@ export class NPM {
 
 		const string = line.slice(prefix.length);
 
-		let index = string.indexOf(":");
-		const pkg = string.slice(0, index);
-		const reason = string.slice(index + 1).trim();
+		const firstColonIndex = string.indexOf(":");
+		const pkg = string.slice(0, firstColonIndex);
+		const reason = string.slice(firstColonIndex + 1).trim();
 
-		index = pkg.lastIndexOf("@");
-		const name = pkg.slice(0, index);
-		const version = pkg.slice(index + 1);
+		const lastAtIndex = pkg.lastIndexOf("@");
+		const name = pkg.slice(0, lastAtIndex);
+		const version = pkg.slice(lastAtIndex + 1);
 
 		return new Some({ name, version, reason });
 	}

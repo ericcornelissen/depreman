@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -32,6 +32,7 @@ export class FS {
 	 * @returns {Promise<boolean>}
 	 */
 	async access(filepath) {
+		// eslint-disable-next-line functional/no-try-statements -- external API
 		try {
 			await this.#fs.access(filepath);
 			return true;
@@ -45,8 +46,9 @@ export class FS {
 	 * @returns {Promise<Result<string, string>>}
 	 */
 	async readFile(filepath) {
-		const options = { encoding: "utf8" };
+		// eslint-disable-next-line functional/no-try-statements -- external API
 		try {
+			const options = { encoding: "utf8" };
 			const content = await this.#fs.readFile(filepath, options);
 			return new Ok(content);
 		} catch (error) {

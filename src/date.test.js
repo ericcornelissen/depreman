@@ -274,7 +274,7 @@ test("date.js", (t) => {
 					arbitrary.rawDate(),
 					(raw) => {
 						assert.doesNotThrow(() => {
-							new DepremanDate(raw); // eslint-disable-line no-new
+							new DepremanDate(raw);
 						});
 					},
 				),

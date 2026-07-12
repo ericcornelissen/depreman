@@ -24,7 +24,7 @@ import { FS } from "./fs.js";
 import { removeIgnored, unusedIgnores } from "./ignores.js";
 import { NPM } from "./npm.js";
 import { Object } from "./object.js";
-import { printAndExit } from "./output.js";
+import { isSuccess, makeReport } from "./output.js";
 import * as style from "./style.js";
 import { getVersions } from "./version.js";
 import { Yarn } from "./yarn.js";
@@ -52,6 +52,7 @@ export async function cli(argv) {
 		return await versions();
 	}
 
+	// eslint-disable-next-line functional/no-try-statements
 	try {
 		return await depreman(options.value());
 	} catch (error) {
@@ -88,11 +89,12 @@ async function depreman(options) {
 
 	const result = removeIgnored(config.value(), deprecations.value());
 	const unused = options.reportUnused ? unusedIgnores(config.value()) : [];
-	const { ok, report } = printAndExit(result, unused, options, style.create());
+	const report = makeReport(result, unused, options, style.create());
 	if (report) {
 		stdout.write(`${report}\n`);
 	}
 
+	const ok = isSuccess(result, unused);
 	return ok ? EXIT_CODE_SUCCESS : EXIT_CODE_FAILURE;
 }
 

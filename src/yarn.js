@@ -103,7 +103,6 @@ export class Yarn {
 		const { stdout } = result.value();
 		const lines = stdout.trim().split("\n");
 		const dependencies = new Map();
-		let root = null;
 		for (const line of lines) {
 			const json = parseJSON(line);
 			if (json.isErr()) {
@@ -112,12 +111,15 @@ export class Yarn {
 			}
 
 			const dependency = json.value();
-			root = dependency.value;
 			dependencies.set(
 				dependency.value,
 				dependency.children.Dependencies?.map(({ locator }) => locator),
 			);
 		}
+
+		const rootLine = lines.findLast(() => true);
+		const rootJson = parseJSON(rootLine).value();
+		const root = rootJson.value;
 
 		const hierarchy = { dependencies: {} };
 		const queue = [[root, hierarchy]];
