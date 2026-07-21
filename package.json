@@ -73,7 +73,7 @@
     "eslint": "10.5.0",
     "eslint-plugin-depend": "1.4.0",
     "eslint-plugin-functional": "10.0.0",
-    "eslint-plugin-jsdoc": "63.0.0",
+    "eslint-plugin-jsdoc": "63.1.0",
     "eslint-plugin-regexp": "3.0.0",
     "eslint-plugin-unicorn": "71.1.0",
     "eslint-plugin-yml": "3.5.0",
