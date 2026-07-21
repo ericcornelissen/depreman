@@ -1090,6 +1090,7 @@ export default [
 		name: "Scripts",
 		files: ["script/*.js"],
 		rules: {
+			"guard-for-in": "off",
 			"no-console": "off",
 			"no-await-in-loop": "off",
 
@@ -1181,6 +1182,7 @@ export default [
 			"json/no-empty-keys": "error",
 			"json/no-unnormalized-keys": "error",
 			"json/no-unsafe-values": "error",
+			"json/sort-keys": "off",
 			"json/top-level-interop": "error",
 		},
 	},
