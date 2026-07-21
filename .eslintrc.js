@@ -316,11 +316,14 @@ export default [
 						noDefaults: false,
 					},
 				],
+				"jsdoc/check-values": "error",
+				"jsdoc/convert-to-jsdoc-comments": "off",
 				"jsdoc/empty-tags": "error",
 				"jsdoc/escape-inline-tags": "off",
 				"jsdoc/implements-on-classes": "error",
 				"jsdoc/imports-as-dependencies": "error",
 				"jsdoc/informative-docs": "error",
+				"jsdoc/lines-before-block": "error",
 				"jsdoc/match-description": [
 					"error",
 					{
@@ -352,6 +355,7 @@ export default [
 					},
 				],
 				"jsdoc/no-blank-block-descriptions": "error",
+				"jsdoc/no-blank-blocks": "error",
 				"jsdoc/no-defaults": "error",
 				"jsdoc/no-missing-syntax": "off",
 				"jsdoc/no-multi-asterisks": [
@@ -365,6 +369,7 @@ export default [
 				"jsdoc/no-restricted-syntax": "off",
 				"jsdoc/no-types": "off",
 				"jsdoc/no-undefined-types": "error",
+				"jsdoc/normalize-see-links": "error",
 				"jsdoc/prefer-import-tag": ["error", {
 					enableFixer: false,
 					exemptTypedefs: false,
@@ -427,6 +432,7 @@ export default [
 						{ context: "FunctionDeclaration", tag: "returns" },
 					],
 				}],
+				"jsdoc/require-template": "error",
 				"jsdoc/require-template-description": "off",
 				"jsdoc/require-throws": "error",
 				"jsdoc/require-throws-description": "off",
