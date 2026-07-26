@@ -1125,6 +1125,7 @@ export default [
 			}],
 
 			// eslint-plugin-functional
+			"functional/no-let": "off",
 			"functional/no-promise-reject": "off",
 			"functional/no-try-statements": "off",
 
