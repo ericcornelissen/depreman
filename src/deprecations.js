@@ -20,22 +20,23 @@ import { Err, Ok } from "./result.js";
  * @returns {Promise<Result<DeprecatedPackage[], string>>}
  */
 export async function getDeprecatedPackages(pm) {
-	const packages = await pm.deprecations();
-	const [aliases, hierarchy] = await Promise.all([
+	await pm.install();
+	const [aliases, deprecations, hierarchy] = await Promise.all([
 		pm.aliases(),
+		pm.deprecations(),
 		pm.hierarchy(),
 	]);
 
-	const err = packages.and(aliases).and(hierarchy);
+	const err = deprecations.and(aliases).and(hierarchy);
 	if (err.isErr()) {
 		return new Err(err.error());
 	}
 
-	for (const pkg of packages.value()) {
+	for (const pkg of deprecations.value()) {
 		pkg.paths = findPackagePaths(pkg, hierarchy.value(), aliases.value());
 	}
 
-	return new Ok(packages.value());
+	return new Ok(deprecations.value());
 }
 
 /**

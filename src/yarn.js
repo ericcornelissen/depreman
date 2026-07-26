@@ -140,6 +140,13 @@ export class Yarn {
 
 		return new Ok(hierarchy);
 	}
+
+	/**
+	 * @returns {Result<void, never>}
+	 */
+	install() {
+		return new Ok();
+	}
 }
 
 /**
