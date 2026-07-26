@@ -32,6 +32,7 @@
     "audit": "npm run audit:deprecations && npm run audit:vulnerabilities",
     "audit:deprecations": "npm run dogfeed",
     "audit:vulnerabilities": "better-npm-audit audit",
+    "audit:vulnerabilities:fix": "node script/audit-fix.js",
     "check": "npm run check:config && npm run check:dependencies && npm run check:headers && npm run check:js && npm run check:json && npm run check:licenses && npm run check:lockfile && npm run check:manifest && npm run check:md && npm run check:yml",
     "check:config": "node script/check-eslint-rules.js",
     "check:dependencies": "node script/check-runtime-dependencies.js",

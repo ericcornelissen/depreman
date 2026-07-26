@@ -1093,6 +1093,7 @@ export default [
 			"guard-for-in": "off",
 			"no-console": "off",
 			"no-await-in-loop": "off",
+			"no-magic-numbers": "off",
 
 			// eslint-plugin-functional
 			"functional/no-let": "off",

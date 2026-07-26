@@ -33,14 +33,8 @@ on:
 permissions: read-all
 
 jobs:
-  audit:
-    name: ${{ matrix.what }}
-    strategy:
-      fail-fast: false
-      matrix:
-        what:
-          - deprecations
-          - vulnerabilities
+  deprecations:
+    name: Deprecations
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
@@ -54,7 +48,57 @@ jobs:
           node-version-file: .nvmrc
       - name: Install dependencies
         run: npm clean-install
-      - name: Audit
-        run: npm run "audit:${WHAT}"
+      - name: Audit for deprecations
+        run: npm run audit:deprecations
+  vulnerabilities:
+    name: Vulnerabilities
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Install Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          cache: npm
+          node-version-file: .nvmrc
+      - name: Install dependencies
+        run: npm clean-install
+      - name: Audit for vulnerabilities
+        run: npm run audit:vulnerabilities
+      - name: Bump vulnerable dependencies
+        if: ${{ github.event_name == 'schedule' && failure() }}
+        run: npm run audit:vulnerabilities:fix
+      - name: Create automation token
+        if: ${{ github.event_name == 'schedule' && failure() }}
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: automation-token
+        with:
+          client-id: ${{ secrets.AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.AUTOMATION_APP_PRIVATE_KEY }}
+      - name: Create Pull Request
+        if: ${{ github.event_name == 'schedule' && failure() }}
         env:
-          WHAT: ${{ matrix.what }}
+          GH_TOKEN: ${{ steps.automation-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+          git checkout -B 'bump-vulnerable-dependencies'
+          git add 'package.json' 'package-lock.json'
+          git commit --message 'Bump vulnerable dependencies'
+
+          git remote set-url 'origin' "https://x-access-token:${GH_TOKEN}@github.com/${REPOSITORY}"
+          git push --force 'origin' 'bump-vulnerable-dependencies'
+
+          if gh pr view --head 'bump-vulnerable-dependencies' >/dev/null 2>&1; then
+            echo 'Pull Request already exists.'
+            exit 0
+          fi
+
+          gh pr create \
+            --base='main' --head='bump-vulnerable-dependencies' \
+            --title='Update vulnerable dependencies' \
+            --body='_This Pull Request was created automatically based on at least one known vulnerability detected in CI._'
