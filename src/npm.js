@@ -12,9 +12,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import * as os from "node:os";
+
 import { parseJSON } from "./json.js";
 import { Object } from "./object.js";
 import { None, Some } from "./option.js";
+import { Promise } from "./promise.js";
 import { Err, Ok } from "./result.js";
 import { typeOf, types } from "./types.js";
 
@@ -83,8 +86,12 @@ export class NPM {
 			return list;
 		}
 
-		const promises = list.value().map((pkg) => this.#deprecation(pkg));
-		const results = await Promise.all(promises);
+		const pool = Promise.pool(os.cpus().length);
+		for (const pkg of list.value()) {
+			pool.add(() => this.#deprecation(pkg));
+		}
+
+		const results = await pool.await();
 		for (const result of results) {
 			if (result.isErr()) {
 				return result;
