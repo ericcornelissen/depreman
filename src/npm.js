@@ -16,6 +16,7 @@ import { parseJSON } from "./json.js";
 import { Object } from "./object.js";
 import { None, Some } from "./option.js";
 import { Err, Ok } from "./result.js";
+import { typeOf, types } from "./types.js";
 
 export class NPM {
 	/**
@@ -77,20 +78,23 @@ export class NPM {
 	 * @returns {Promise<Result<DeprecatedPackage[], string>>}
 	 */
 	async deprecations() {
-		const result = await this.install();
-		if (result.isErr()) {
-			return result;
+		const list = await this.#list();
+		if (list.isErr()) {
+			return list;
 		}
 
-		const { stderr } = result.value();
-		const deprecations = [];
-		for (const line of stderr.split(/\n/u)) {
-			const deprecation = this.#parseDeprecationWarning(line);
-			if (deprecation.isSome()) {
-				deprecations.push(deprecation.value());
+		const promises = list.value().map((pkg) => this.#deprecation(pkg));
+		const results = await Promise.all(promises);
+		for (const result of results) {
+			if (result.isErr()) {
+				return result;
 			}
 		}
 
+		const deprecations = results
+			.map(result => result.value())
+			.filter(option => option.isSome())
+			.map(option => option.value());
 		return new Ok(deprecations);
 	}
 
@@ -130,28 +134,16 @@ export class NPM {
 	}
 
 	/**
-	 * @returns {Promise<Result<{stdout: string, stderr: string}, string>>}
+	 * @returns {Promise<Result<void, string>>}
 	 */
 	async install() {
-		const hasLockfile = await this.#hasLockfile();
-
 		const cmd = "npm";
 		const args = [
-			(hasLockfile ? "clean-install" : "install"),
+			"install",
 			"--no-audit",
 			"--no-fund",
 			"--no-update-notifier",
 		];
-
-		if (this.#options.omitDev) {
-			args.push("--omit", "dev");
-		}
-		if (this.#options.omitOptional) {
-			args.push("--omit", "optional");
-		}
-		if (this.#options.omitPeer) {
-			args.push("--omit", "peer");
-		}
 
 		const result = await this.#cp.exec(cmd, args);
 		if (result.isErr()) {
@@ -159,7 +151,7 @@ export class NPM {
 			return new Err(`npm install failed:\n${stderr}`);
 		}
 
-		return result;
+		return new Ok();
 	}
 
 	/**
@@ -185,7 +177,25 @@ export class NPM {
 	}
 
 	/**
-	 * @returns {Promise<Manifest>}
+	 * @param {Package} pkg
+	 * @returns {Promise<Result<Option<DeprecatedPackage>, string>>}
+	 */
+	async #deprecation(pkg) {
+		const result = await this.#view(pkg);
+		if (result.isErr()) {
+			return result;
+		}
+
+		const view = result.value();
+		return new Ok(
+			Object.hasOwn(view, "deprecated")
+				? new Some({ ...pkg, reason: view.deprecated })
+				: None
+		);
+	}
+
+	/**
+	 * @returns {Promise<Result<Manifest, string>>}
 	 */
 	async #getManifest() {
 		const rawManifest = await this.#fs.readFile("./package.json");
@@ -202,10 +212,27 @@ export class NPM {
 	}
 
 	/**
-	 * @returns {Promise<boolean>}
+	 * @returns {Promise<Result<Package[], string>>}
 	 */
-	async #hasLockfile() {
-		return await this.#fs.access("./package-lock.json");
+	async #list() {
+		const hierarchy = await this.hierarchy();
+		if (hierarchy.isErr()) {
+			return hierarchy;
+		}
+
+		const queue = Object.entries(hierarchy.value().dependencies);
+		const pkgs = new Map();
+		while (queue.length > 0) {
+			const [name, info] = queue.pop();
+
+			const pkg = { name, version: info.version };
+			const id = `${pkg.name}@${pkg.version}`;
+			pkgs.set(id, pkg);
+
+			queue.push(...Object.entries(info.dependencies));
+		}
+
+		return new Ok([...pkgs.values()]);
 	}
 
 	/**
@@ -217,35 +244,14 @@ export class NPM {
 
 		delete hierarchy.dependencies[hierarchy.name];
 		for (const [name, info] of Object.entries(hierarchy.dependencies)) {
-			if (info.extraneous) {
+			if (info.extraneous || Object.keys(info).length === 0) {
 				delete hierarchy.dependencies[name];
+			} else {
+				this.#normalizeHierarchy(hierarchy.dependencies[name]);
 			}
 		}
 
 		return hierarchy;
-	}
-
-	/**
-	 * @param {string} line
-	 * @returns {Option<DeprecatedPackage>}
-	 */
-	#parseDeprecationWarning(line) {
-		const prefix = "npm warn deprecated ";
-		if (!line.toLowerCase().startsWith(prefix)) {
-			return None;
-		}
-
-		const string = line.slice(prefix.length);
-
-		const firstColonIndex = string.indexOf(":");
-		const pkg = string.slice(0, firstColonIndex);
-		const reason = string.slice(firstColonIndex + 1).trim();
-
-		const lastAtIndex = pkg.lastIndexOf("@");
-		const name = pkg.slice(0, lastAtIndex);
-		const version = pkg.slice(lastAtIndex + 1);
-
-		return new Some({ name, version, reason });
 	}
 
 	/**
@@ -277,6 +283,30 @@ export class NPM {
 		}
 
 		return None;
+	}
+
+	/**
+	 * @param {Package} pkg
+	 * @returns {Promise<Result<PackageView, string>>}
+	 */
+	async #view(pkg) {
+		const cmd = "npm";
+		const args = [
+			"view",
+			"--json",
+			`${pkg.name}@${pkg.version}`,
+		];
+
+		const result = await this.#cp.exec(cmd, args);
+		const view = result
+			.mapErr(({ stderr }) => stderr)
+			.andThen(({ stdout }) => parseJSON(stdout))
+			.map((stdout) => typeOf(stdout) === types.array ? stdout[0] : stdout);
+		if (view.isErr()) {
+			return new Err(`npm view failed:\n${view.error()}`);
+		}
+
+		return view;
 	}
 }
 
@@ -319,6 +349,11 @@ export class NPM {
  * @typedef Package
  * @property {string} name
  * @property {string} version
+ */
+
+/**
+ * @typedef PackageView
+ * @property {string} [deprecated]
  */
 
 /**

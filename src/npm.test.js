@@ -184,14 +184,92 @@ test("npm.js", (t) => {
 	});
 
 	t.test("deprecations", (t) => {
-		const fs = new FS({});
-		const options = {};
+		t.test("with dependencies", async () => {
+			const options = {};
 
-		t.test("no log", async () => {
 			const cp = new CP({
-				"npm install": {
-					stderr: "",
+				"npm list": {
+					stdout: JSON.stringify({
+						version: "0.3.9",
+						name: "depreman",
+						dependencies: {
+							chalk: {
+								version: "5.4.1",
+								dependencies: {},
+							},
+							eslint: {
+								version: "9.29.0",
+								dependencies: {
+									"@eslint/config-array": {
+										version: "0.21.0",
+										dependencies: {
+											"@eslint/object-schema": {
+												version: "2.1.6",
+												dependencies: {},
+											},
+										},
+									},
+								},
+							},
+							pi: {
+								version: "3.1.4",
+								dependencies: {},
+							},
+							which: {
+								version: "5.0.0",
+								dependencies: {
+									isexe: {
+										version: "3.1.1",
+										dependencies: {},
+									},
+								},
+							},
+						},
+					}),
 				},
+				"npm view --json @eslint/config-array@0.21.0": {
+					stdout: JSON.stringify({}),
+				},
+				"npm view --json @eslint/object-schema@2.1.6": {
+					stdout: JSON.stringify({}),
+				},
+				"npm view --json chalk@5.4.1": {
+					stdout: JSON.stringify({}),
+				},
+				"npm view --json eslint@9.29.0": {
+					stdout: JSON.stringify({}),
+				},
+				"npm view --json pi@3.1.4": {
+					stdout: JSON.stringify({
+						deprecated: "pi is old school, use tau instead",
+					}),
+				},
+				"npm view --json which@5.0.0": {
+					stdout: JSON.stringify({}),
+				},
+				"npm view --json isexe@3.1.1": {
+					stdout: JSON.stringify([
+						{
+							deprecated: "upgrade to v4",
+						},
+					]),
+				},
+			});
+			const fs = new FS({
+				"./package.json": JSON.stringify({
+					dependencies: {
+						chalk: "^5.4.1",
+					},
+					devDependencies: {
+						eslint: "^9.29.0",
+					},
+					peerDependencies: {
+						which: "^5.0.0",
+					},
+					optionalDependencies: {
+						pi: "^3.1.4",
+					},
+				}),
 			});
 
 			const npm = new NPM({ cp, fs, options });
@@ -199,14 +277,33 @@ test("npm.js", (t) => {
 			assert.ok(got.isOk());
 
 			const value = got.value();
-			assert.equal(value.length, 0);
+			assert.deepEqual(value, [
+				{
+					name: "isexe",
+					version: "3.1.1",
+					reason: "upgrade to v4",
+				},
+				{
+					name: "pi",
+					version: "3.1.4",
+					reason: "pi is old school, use tau instead",
+				}
+			]);
 		});
 
-		t.test("no deprecation warnings", async () => {
+		t.test("without dependencies", async () => {
+			const options = {};
+
 			const cp = new CP({
-				"npm install": {
-					stderr: "This is not a deprecation warning",
+				"npm list": {
+					stdout: JSON.stringify({
+						version: "0.3.9",
+						name: "depreman",
+					}),
 				},
+			});
+			const fs = new FS({
+				"./package.json": "{}",
 			});
 
 			const npm = new NPM({ cp, fs, options });
@@ -214,65 +311,67 @@ test("npm.js", (t) => {
 			assert.ok(got.isOk());
 
 			const value = got.value();
-			assert.equal(value.length, 0);
+			assert.deepEqual(value, []);
 		});
 
-		t.test("a deprecation warning", async () => {
-			const name = "foobar";
-			const version = "3.1.4";
-			const reason = "This package is no longer supported.";
+		t.test("cli error", (t) => {
+			const options = {};
 
-			const cp = new CP({
-				"npm install": {
-					stderr: `npm warn deprecated ${name}@${version}: ${reason}`,
-				},
+			const fs = new FS({
+				"./package.json": JSON.stringify({
+					dependencies: {
+						pi: "^3.1.4",
+					},
+				}),
 			});
 
-			const npm = new NPM({ cp, fs, options });
-			const got = await npm.deprecations();
-			assert.ok(got.isOk());
+			t.test("npm list", async () => {
+				const stderr = "Something list-y went wrong";
 
-			const value = got.value();
-			assert.equal(value.length, 1);
-			assert.deepEqual(value[0], { name, version, reason });
-		});
+				const cp = new CP({
+					"npm list": {
+						error: true,
+						stderr,
+					},
+				});
 
-		t.test("full install log", async () => {
-			const name = "foobar";
-			const version = "3.1.4";
-			const reason = "This package is no longer supported.";
+				const npm = new NPM({ cp, fs, options });
+				const got = await npm.deprecations();
+				assert.ok(got.isErr());
 
-			const cp = new CP({
-				"npm install": {
-					stderr: `npm warn deprecated ${name}@${version}: ${reason}\n\nadded 2 packages in 1s`,
-				},
+				const err = got.error();
+				assert.equal(err, `npm list failed:\n${stderr}`);
 			});
 
-			const npm = new NPM({ cp, fs, options });
-			const got = await npm.deprecations();
-			assert.ok(got.isOk());
+			t.test("npm view", async () => {
+				const stderr = "Something view-y went wrong";
 
-			const value = got.value();
-			assert.equal(value.length, 1);
-			assert.deepEqual(value[0], { name, version, reason });
-		});
+				const cp = new CP({
+					"npm list": {
+						stdout: JSON.stringify({
+							version: "0.3.9",
+							name: "depreman",
+							dependencies: {
+								pi: {
+									version: "3.1.4",
+									dependencies: {},
+								},
+							},
+						}),
+					},
+					"npm view": {
+						error: true,
+						stderr,
+					},
+				});
 
-		t.test("npm error", async () => {
-			const stderr = "Something went wrong";
+				const npm = new NPM({ cp, fs, options });
+				const got = await npm.deprecations();
+				assert.ok(got.isErr());
 
-			const cp = new CP({
-				"npm install": {
-					error: true,
-					stderr,
-				},
+				const err = got.error();
+				assert.equal(err, `npm view failed:\n${stderr}`);
 			});
-
-			const npm = new NPM({ cp, fs, options });
-			const got = await npm.deprecations();
-			assert.ok(got.isErr());
-
-			const err = got.error();
-			assert.equal(err, `npm install failed:\n${stderr}`);
 		});
 	});
 
@@ -306,7 +405,7 @@ test("npm.js", (t) => {
 									},
 								},
 								pi: {
-									pi: "3.1.4",
+									version: "3.1.4",
 									dependencies: {},
 								},
 								which: {
@@ -371,7 +470,7 @@ test("npm.js", (t) => {
 							},
 						},
 						pi: {
-							pi: "3.1.4",
+							version: "3.1.4",
 							scope: "optional",
 							dependencies: {},
 						},
@@ -426,10 +525,6 @@ test("npm.js", (t) => {
 							version: "0.3.9",
 							name: "depreman",
 							dependencies: {
-								chalk: {
-									version: "5.4.1",
-									dependencies: {},
-								},
 								ansi: {
 									version: "0.3.1",
 									extraneous: true,
@@ -444,6 +539,19 @@ test("npm.js", (t) => {
 										},
 									},
 								},
+								chalk: {
+									version: "5.4.1",
+									dependencies: {},
+								},
+								eslint: {
+									version: "9.29.0",
+									dependencies: {
+										jiti: {},
+										minimatch: {
+											version: "10.2.4"
+										},
+									},
+								},
 							},
 						}),
 					},
@@ -451,7 +559,10 @@ test("npm.js", (t) => {
 				const fs = new FS({
 					"./package.json": JSON.stringify({
 						dependencies: {
-							chalk: "^5.4.1",
+							chalk: "^5.4.0",
+						},
+						devDependencies: {
+							eslint: "^9.20.0",
 						},
 						peerDependencies: {
 							"ansi-regex": "^6.2.0",
@@ -477,6 +588,17 @@ test("npm.js", (t) => {
 							version: "5.4.1",
 							scope: "prod",
 							dependencies: {},
+						},
+						eslint: {
+							version: "9.29.0",
+							scope: "dev",
+							dependencies: {
+								minimatch: {
+									version: "10.2.4",
+									scope: "dev",
+									dependencies: {},
+								},
+							},
 						},
 					},
 				});
@@ -699,12 +821,9 @@ test("npm.js", (t) => {
 	t.test("install", (t) => {
 		t.test("success", async () => {
 			const options = {};
-			const want = "npm warn deprecated foobar@3.1.4: This package is no longer supported.";
 
 			const cp = new CP({
-				"npm": {
-					stderr: want,
-				},
+				"npm install": {},
 			});
 			const fs = new FS({
 				"./package-lock.json": "{}",
@@ -713,112 +832,6 @@ test("npm.js", (t) => {
 			const npm = new NPM({ cp, fs, options });
 			const got = await npm.install();
 			assert.ok(got.isOk());
-
-			const value = got.value();
-			assert.deepEqual(value, { stdout: "", stderr: want });
-		});
-
-		t.test("options", (t) => {
-			function setup() {
-				return {
-					cp: new CP({
-						"npm": {},
-					}),
-					fs: new FS({
-						"./package-lock.json": "{}",
-					}),
-				};
-			}
-
-			t.test("omitDev", (t) => {
-				t.test("true", async () => {
-					const { cp, fs } = setup();
-					const options = {
-						omitDev: true,
-					};
-
-					const npm = new NPM({ cp, fs, options });
-					await npm.install();
-					assert.equal(cp.exec.mock.callCount(), 1);
-
-					const call = cp.exec.mock.calls[0];
-					assert.ok(call.arguments[1].join(" ").includes("--omit dev"));
-				});
-
-				t.test("false", async () => {
-					const { cp, fs } = setup();
-					const options = {
-						omitDev: false,
-					};
-
-					const npm = new NPM({ cp, fs, options });
-					await npm.install();
-					assert.equal(cp.exec.mock.callCount(), 1);
-
-					const call = cp.exec.mock.calls[0];
-					assert.ok(!call.arguments[1].join(" ").includes("--omit dev"));
-				});
-			});
-
-			t.test("omitOptional", (t) => {
-				t.test("true", async () => {
-					const { cp, fs } = setup();
-					const options = {
-						omitOptional: true,
-					};
-
-					const npm = new NPM({ cp, fs, options });
-					await npm.install();
-					assert.equal(cp.exec.mock.callCount(), 1);
-
-					const call = cp.exec.mock.calls[0];
-					assert.ok(call.arguments[1].join(" ").includes("--omit optional"));
-				});
-
-				t.test("false", async () => {
-					const { cp, fs } = setup();
-					const options = {
-						omitOptional: false,
-					};
-
-					const npm = new NPM({ cp, fs, options });
-					await npm.install();
-					assert.equal(cp.exec.mock.callCount(), 1);
-
-					const call = cp.exec.mock.calls[0];
-					assert.ok(!call.arguments[1].join(" ").includes("--omit optional"));
-				});
-			});
-
-			t.test("omitPeer", (t) => {
-				t.test("true", async () => {
-					const { cp, fs } = setup();
-					const options = {
-						omitPeer: true,
-					};
-
-					const npm = new NPM({ cp, fs, options });
-					await npm.install();
-					assert.equal(cp.exec.mock.callCount(), 1);
-
-					const call = cp.exec.mock.calls[0];
-					assert.ok(call.arguments[1].join(" ").includes("--omit peer"));
-				});
-
-				t.test("false", async () => {
-					const { cp, fs } = setup();
-					const options = {
-						omitPeer: false,
-					};
-
-					const npm = new NPM({ cp, fs, options });
-					await npm.install();
-					assert.equal(cp.exec.mock.callCount(), 1);
-
-					const call = cp.exec.mock.calls[0];
-					assert.ok(!call.arguments[1].join(" ").includes("--omit peer"));
-				});
-			});
 		});
 
 		t.test("npm error", async () => {
@@ -841,48 +854,24 @@ test("npm.js", (t) => {
 			assert.equal(err, `npm install failed:\n${stderr}`);
 		});
 
-		t.test("npm CLI usage", (t) => {
-			t.test("with lockfile", async () => {
-				const options = {};
+		t.test("npm CLI usage", async () => {
+			const options = {};
 
-				const cp = new CP({
-					"npm": {},
-				});
-				const fs = new FS({
-					"./package-lock.json": "{}",
-				});
-
-				const npm = new NPM({ cp, fs, options });
-				await npm.install();
-				assert.equal(cp.exec.mock.callCount(), 1);
-
-				const call = cp.exec.mock.calls[0];
-				assert.equal(call.arguments[0], "npm");
-				assert.ok(call.arguments[1].includes("clean-install"));
-				assert.ok(call.arguments[1].includes("--no-audit"));
-				assert.ok(call.arguments[1].includes("--no-fund"));
-				assert.ok(call.arguments[1].includes("--no-update-notifier"));
+			const cp = new CP({
+				"npm": {},
 			});
+			const fs = new FS({});
 
-			t.test("without lockfile", async () => {
-				const options = {};
+			const npm = new NPM({ cp, fs, options });
+			await npm.install();
+			assert.equal(cp.exec.mock.callCount(), 1);
 
-				const cp = new CP({
-					"npm": {},
-				});
-				const fs = new FS({});
-
-				const npm = new NPM({ cp, fs, options });
-				await npm.install();
-				assert.equal(cp.exec.mock.callCount(), 1);
-
-				const call = cp.exec.mock.calls[0];
-				assert.equal(call.arguments[0], "npm");
-				assert.ok(call.arguments[1].includes("install"));
-				assert.ok(call.arguments[1].includes("--no-audit"));
-				assert.ok(call.arguments[1].includes("--no-fund"));
-				assert.ok(call.arguments[1].includes("--no-update-notifier"));
-			});
+			const call = cp.exec.mock.calls[0];
+			assert.equal(call.arguments[0], "npm");
+			assert.ok(call.arguments[1].includes("install"));
+			assert.ok(call.arguments[1].includes("--no-audit"));
+			assert.ok(call.arguments[1].includes("--no-fund"));
+			assert.ok(call.arguments[1].includes("--no-update-notifier"));
 		});
 	});
 });

@@ -978,7 +978,7 @@ export default [
 				"unicorn/prefer-iterable-in-constructor": "error",
 				"unicorn/prefer-iterator-concat": "error",
 				"unicorn/prefer-iterator-helpers": "error",
-				"unicorn/prefer-iterator-to-array": "error",
+				"unicorn/prefer-iterator-to-array": "off",
 				"unicorn/prefer-iterator-to-array-at-end": "error",
 				"unicorn/prefer-keyboard-event-key": "error",
 				"unicorn/prefer-location-assign": "off",
@@ -1117,6 +1117,7 @@ export default [
 			"max-lines-per-function": "off",
 			"max-lines": "off",
 			"no-await-in-loop": "off",
+			"no-empty-function": "off",
 			"no-magic-numbers": "off",
 			"no-new": "off",
 			"no-shadow": ["error", {

@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -236,5 +236,13 @@ ${JSON.stringify(root)}
 			assert.ok(call.arguments[1].includes("--recursive"));
 			assert.ok(call.arguments[1].includes("--json"));
 		});
+	});
+
+	t.test("install", async () => {
+		const cp = new CP({});
+
+		const yarn = new Yarn({ cp });
+		const got = await yarn.install();
+		assert.ok(got.isOk());
 	});
 });
