@@ -11,7 +11,11 @@ Versioning].
 
 - _No changes yet_
 
-## 0.3.4 (2026-07-10)
+## 0.3.15 (2026-07-27)
+
+- Always get up-to-date deprecation warnings for npm.
+
+## 0.3.14 (2026-07-10)
 
 - Add support for npm v12.
 - Handle absent optional `peerDependencies` for npm.
