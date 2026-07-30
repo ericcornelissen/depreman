@@ -314,15 +314,67 @@ test("npm.js", (t) => {
 			assert.deepEqual(value, []);
 		});
 
-		t.test("cli error", (t) => {
+		t.test("with aliased dependency", async () => {
 			const options = {};
 
+			const cp = new CP({
+				"npm list": {
+					stdout: JSON.stringify({
+						version: "0.3.9",
+						name: "depreman",
+						dependencies: {
+							foo: {
+								version: "1.2.3",
+								dependencies: {},
+							},
+						},
+					}),
+				},
+				"npm view --json bar@1.2.3": {
+					stdout: JSON.stringify([
+						{
+							deprecated: "upgrade to v2",
+						}
+					]),
+				},
+			});
 			const fs = new FS({
 				"./package.json": JSON.stringify({
 					dependencies: {
-						pi: "^3.1.4",
+						"foo": "npm:bar@1.2.3",
 					},
 				}),
+			});
+
+			const npm = new NPM({ cp, fs, options });
+			const got = await npm.deprecations();
+			assert.ok(got.isOk());
+
+			const value = got.value();
+			assert.deepEqual(value, [
+				{
+					name: "bar",
+					version: "1.2.3",
+					reason: "upgrade to v2",
+				},
+			]);
+		});
+
+		t.test("error", (t) => {
+			const options = {};
+
+			t.test("malformed manifest", async () => {
+				const cp = new CP({});
+				const fs = new FS({
+					"./package.json": "not valid JSON",
+				});
+
+				const npm = new NPM({ cp, fs, options });
+				const got = await npm.deprecations();
+				assert.ok(got.isErr());
+
+				const err = got.error();
+				assert.match(err, /^could not get manifest:/u);
 			});
 
 			t.test("npm list", async () => {
@@ -333,6 +385,13 @@ test("npm.js", (t) => {
 						error: true,
 						stderr,
 					},
+				});
+				const fs = new FS({
+					"./package.json": JSON.stringify({
+						dependencies: {
+							pi: "^3.1.4",
+						},
+					}),
 				});
 
 				const npm = new NPM({ cp, fs, options });
@@ -363,6 +422,13 @@ test("npm.js", (t) => {
 						error: true,
 						stderr,
 					},
+				});
+				const fs = new FS({
+					"./package.json": JSON.stringify({
+						dependencies: {
+							pi: "^3.1.4",
+						},
+					}),
 				});
 
 				const npm = new NPM({ cp, fs, options });
