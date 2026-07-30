@@ -81,14 +81,19 @@ export class NPM {
 	 * @returns {Promise<Result<DeprecatedPackage[], string>>}
 	 */
 	async deprecations() {
-		const list = await this.#list();
-		if (list.isErr()) {
-			return list;
+		const [aliases, list] = await Promise.all([
+			this.aliases(),
+			this.#list(),
+		]);
+
+		const err = aliases.and(list);
+		if (err.isErr()) {
+			return err;
 		}
 
 		const pool = Promise.pool(os.cpus().length);
 		for (const pkg of list.value()) {
-			pool.add(() => this.#deprecation(pkg));
+			pool.add(() => this.#deprecation(aliases.value().get(pkg.name) ?? pkg));
 		}
 
 		const results = await pool.await();

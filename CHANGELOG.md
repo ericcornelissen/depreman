@@ -10,6 +10,7 @@ Versioning].
 ## Unreleased
 
 - Drop support for Node.js v20.
+- Fix support for aliased dependencies.
 
 ## 0.3.15 (2026-07-27)
 
