@@ -9,7 +9,7 @@ Versioning].
 
 ## Unreleased
 
-- _No changes yet_
+- Drop support for Node.js v20.
 
 ## 0.3.15 (2026-07-27)
 

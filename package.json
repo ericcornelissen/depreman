@@ -22,7 +22,7 @@
   "man": "./bin/man/depreman.1",
   "type": "module",
   "engines": {
-    "node": "^20 || ^22 || ^24 || ^26",
+    "node": "^22 || ^24 || ^26",
     "npm": "^9 || ^10 || ^11 || ^12",
     "yarn": "^4.1.0"
   },
@@ -61,7 +61,7 @@
     "verify": "npm run check && npm run coverage"
   },
   "dependencies": {
-    "chalk": "^5.0.0",
+    "chalk": "^6.0.0",
     "semver": "^7.0.0"
   },
   "devDependencies": {
