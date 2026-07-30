@@ -239,7 +239,7 @@ export class NPM {
 			queue.push(...Object.entries(info.dependencies));
 		}
 
-		return new Ok([...pkgs.values()]);
+		return new Ok(pkgs.values().toArray());
 	}
 
 	/**

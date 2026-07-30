@@ -978,7 +978,7 @@ export default [
 				"unicorn/prefer-iterable-in-constructor": "error",
 				"unicorn/prefer-iterator-concat": "error",
 				"unicorn/prefer-iterator-helpers": "error",
-				"unicorn/prefer-iterator-to-array": "off",
+				"unicorn/prefer-iterator-to-array": "error",
 				"unicorn/prefer-iterator-to-array-at-end": "error",
 				"unicorn/prefer-keyboard-event-key": "error",
 				"unicorn/prefer-location-assign": "off",
