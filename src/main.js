@@ -25,6 +25,7 @@ import { removeIgnored, unusedIgnores } from "./ignores.js";
 import { NPM } from "./npm.js";
 import { Object } from "./object.js";
 import { isSuccess, makeReport } from "./output.js";
+import { Promise } from "./promise.js";
 import * as style from "./style.js";
 import { getVersions } from "./version.js";
 import { Yarn } from "./yarn.js";

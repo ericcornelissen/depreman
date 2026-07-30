@@ -13,6 +13,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { Object } from "./object.js";
+import { Promise } from "./promise.js";
 import { Err, Ok } from "./result.js";
 
 /**

@@ -22,6 +22,64 @@ import * as fc from "fast-check";
 import { Promise as $Promise } from "./promise.js";
 
 test("promise.js", (t) => {
+	t.test("all", (t) => {
+		t.test("no promises", async () => {
+			const got = await $Promise.all([]);
+			assert.deepEqual(got, []);
+		});
+
+		t.test("1 or more resolving promise", async () => {
+			await fc.assert(
+				fc.asyncProperty(
+					fc.array(fc.integer(), { minLength: 1 }),
+					async (values) => {
+						const promises = [];
+						for (const value of values) {
+							const promise = Promise.resolve(value);
+							promises.push(promise);
+						}
+
+						const got = await $Promise.all(promises);
+						assert.equal(got.length, values.length);
+						for (const value of values) {
+							const found = got.includes(value);
+							assert.ok(found);
+						}
+					},
+				),
+			);
+		});
+
+		t.test("1 or more rejecting promise", async () => {
+			await fc.assert(
+				fc.asyncProperty(
+					fc.array(
+						fc.tuple(
+							fc.constantFrom("resolve", "reject"),
+							fc.integer(),
+						),
+						{ minLength: 1 }
+					),
+					async (entries) => {
+						fc.pre(entries.some(([kind]) => kind === "reject"));
+
+						const promises = [];
+						for (const [kind, value] of entries) {
+							const promise = kind === "resolve"
+								? Promise.resolve(value)
+								: Promise.reject(value);
+							promises.push(promise);
+						}
+
+						await assert.rejects(
+							async () => await $Promise.all(promises),
+						);
+					},
+				),
+			);
+		});
+	});
+
 	t.test("pool", (t) => {
 		t.test("await empty pool", async () => {
 			const pool = $Promise.pool(42);
