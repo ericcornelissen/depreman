@@ -14,6 +14,15 @@
 
 /**
  * @template T
+ * @param {Promise<T>[]} promises
+ * @returns {Promise<T[]>}
+ */
+async function all(promises) {
+	return await Promise.all(promises)
+}
+
+/**
+ * @template T
  * @param {number} maximum
  * @param {function(T[])} finished
  * @returns {function(function(): Promise<T>)}
@@ -98,6 +107,7 @@ function withResolvers() {
 }
 
 const promise = {
+	all,
 	pool,
 	withResolvers
 };

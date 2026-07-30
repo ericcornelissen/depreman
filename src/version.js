@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -16,6 +16,7 @@ import * as path from "node:path";
 import * as url from "node:url";
 
 import { parseJSON } from "./json.js";
+import { Promise } from "./promise.js";
 import { Err, Ok } from "./result.js";
 
 /**
