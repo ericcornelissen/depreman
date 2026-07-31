@@ -9,6 +9,10 @@ Versioning].
 
 ## Unreleased
 
+- _No changes yet_
+
+## 0.4.0 (2026-07-31)
+
 - Drop support for Node.js v20.
 - Fix support for aliased dependencies.
 
