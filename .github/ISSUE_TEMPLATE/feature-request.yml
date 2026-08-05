@@ -3,42 +3,71 @@ description: Request a new feature.
 labels:
   - enhancement
 body:
-  - type: markdown
+  - id: pre-check
+    type: checkboxes
     attributes:
-      value: |
-        Before you submit your request, check that it has not already been
-        requested.
-  - type: textarea
-    id: version
+      label: Pre-check
+      description: |
+        Before you submit your request, make sure the features has not already
+        been requested. Also check for closed feature requests, for example in
+        case it has been added in a new version.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - id: related
+    type: textarea
+    attributes:
+      label: Related
+      description: |
+        List any related items, describe the relation.
+    validations:
+      required: false
+  - id: version
+    type: textarea
     attributes:
       label: Version
       description: |
-        Enter the output of `depreman --version` (or `npm ls depreman` as
-        fallback).
+        Enter the output of `depreman --version`, `npx depreman --version`, or
+        `npm ls depreman`.
+      placeholder: |
+        ex.
+        ```
+        depreman: 0.3.15
+        node: 26.0.0
+        npm: 12.0.2
+        yarn: 4.1.0
+        ```
     validations:
       required: true
-  - type: textarea
-    id: summary
+  - id: summary
+    type: textarea
     attributes:
       label: Summary
       description: |
         Provide a short description of the feature you want to see and why.
     validations:
       required: true
-  - type: textarea
-    id: expected-behavior
+  - id: interface
+    type: textarea
     attributes:
-      label: Expected behavior
+      label: Interface
       description: |
-        Describe how you would use `depreman` with this feature and how the
-        feature should function.
+        Describe how the feature would be used. For example, through a CLI flag.
     validations:
       required: true
-  - type: textarea
-    id: usage-example
+  - id: example
+    type: textarea
     attributes:
       label: Usage example
       description: |
         Provide an example use case where this feature would be useful.
     validations:
       required: true
+  - id: open-ended
+    type: textarea
+    attributes:
+      label: Further details
+      description: |
+        Share any additional information you think is relevant.
+    validations:
+      required: false
