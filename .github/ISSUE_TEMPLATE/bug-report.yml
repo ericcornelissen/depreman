@@ -3,43 +3,87 @@ description: File a bug report.
 labels:
   - bug
 body:
-  - type: markdown
+  - id: pre-check
+    type: checkboxes
     attributes:
-      value: |
+      label: Pre-check
+      description: >
         Before you submit your report, make sure the bug has not already been
-        reported. Also check for closed bug reports, e.g. in case it has been
-        fixed in a new version.
-  - type: textarea
-    id: version
+        reported. Also check for closed bug reports, for example in case it has
+        been fixed in a new version.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - id: related
+    type: textarea
+    attributes:
+      label: Related
+      description: |
+        List any related items, describe the relation.
+    validations:
+      required: false
+  - id: version
+    type: textarea
     attributes:
       label: Version
       description: |
-        Enter the output of `depreman --version` (or `npm ls depreman` as
-        fallback).
+        Enter the output of `depreman --version`, `npx depreman --version`, or
+        `npm ls depreman`.
+      placeholder: |
+        ex.
+        ```
+        depreman: 0.3.15
+        node: 26.0.0
+        npm: 12.0.2
+        yarn: 4.1.0
+        ```
     validations:
       required: true
-  - type: textarea
-    id: summary
+  - id: summary
+    type: textarea
     attributes:
       label: Summary
       description: |
         Provide a short description of the bug. What goes wrong and when?
     validations:
       required: true
-  - type: textarea
-    id: expected-behavior
+  - id: expected
+    type: textarea
     attributes:
       label: Expected behavior
       description: |
         Describe what you expected to happen.
     validations:
       required: true
-  - type: textarea
-    id: reproducing-example
+  - id: reproducer
+    type: textarea
     attributes:
       label: Reproducing example
       description: |
         Provide a (minimal) scenario that triggers the bug.
-      placeholder: ex. run `depreman` on the repository <https://github.com/ericcornelissen/depreman>
+      placeholder: >
+        ex. run `depreman` on <https://github.com/ericcornelissen/depreman> at
+        commit 5df9a54.
     validations:
       required: true
+  - id: observation
+    type: textarea
+    attributes:
+      label: Observation
+      description: |
+        Paste the CLI arguments and full output of a run below.
+      value: |
+        ```text
+        $ depreman
+
+        ```
+    validations:
+      required: false
+  - id: open-ended
+    type: textarea
+    attributes:
+      label: Further details
+      description: |
+        Share any additional information you think is relevant.
+    validations:
+      required: false

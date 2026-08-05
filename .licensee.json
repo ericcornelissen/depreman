@@ -15,7 +15,6 @@
     ]
   },
   "packages": {
-    "jsonp": "0.2.1"
   },
   "corrections": true
 }

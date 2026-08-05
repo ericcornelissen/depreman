@@ -118,7 +118,7 @@ jobs:
     permissions:
       security-events: write # To upload SARIF results
     container:
-      image: semgrep/semgrep:1.162.0
+      image: semgrep/semgrep@sha256:bdf7013b2c3634a487671158da77c554f531742326b543a9464d2adf6c433ac8
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -128,7 +128,7 @@ jobs:
         run: semgrep --sarif --output semgrep.sarif
       - name: Upload Semgrep report to GitHub
         uses: github/codeql-action/upload-sarif@87557b9c84dde89fdd9b10e88954ac2f4248e463 # v4.36.1
-        if: ${{ failure() || success() }}
+        if: failure() || success()
         with:
           sarif_file: semgrep.sarif
   test-unit:
@@ -192,6 +192,9 @@ jobs:
 
           echo 'npm --version'
           npm --version
+
+          echo 'yarn --version'
+          yarn --version
       - name: Test
         run: npm run test:e2e
   test-os:

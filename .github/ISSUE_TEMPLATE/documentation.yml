@@ -5,23 +5,37 @@ labels:
 body:
   - type: markdown
     attributes:
-      value: |
-        Report mistakes or gaps in the documentation. This can be in the docs on
-        GitHub or the CLI help message.
-  - type: input
-    id: where
+      value: >
+        Report mistakes or gaps in the documentation. This covers the README.md,
+        the CLI help message, and the manpage.
+  - id: version
+    type: textarea
+    attributes:
+      label: Version
+      description: |
+        Enter the output of `depreman --version`, `npx depreman --version`, or
+        `npm ls depreman`.
+      placeholder: |
+        depreman: 0.3.15
+        node: 26.0.0
+        npm: 12.0.2
+        yarn: 4.1.0
+    validations:
+      required: true
+  - id: where
+    type: input
     attributes:
       label: Where
       description: |
-        What piece of documentation does this concern? Include the version of
-        `depreman` if relevant (you can use `npm ls depreman` for this).
-      placeholder: ex. the CLI help message in v0.3.9
+        What piece of documentation does this concern?
+      placeholder: |
+        ex. the CLI help message in v0.3.9
     validations:
       required: true
-  - type: textarea
-    id: problem
+  - id: summary
+    type: textarea
     attributes:
-      label: Problem
+      label: Summary
       description: |
         Describe the problem with this documentation.
     validations:
