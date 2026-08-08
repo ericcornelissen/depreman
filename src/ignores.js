@@ -63,7 +63,7 @@ export function removeIgnored(config, deprecations) {
 export function unusedIgnores(config, path=[]) {
 	const unused = [];
 	const isUsed = config[kUsed];
-	if (Object.hasOwn(config, kIgnore) && !isUsed) {
+	if (!isUsed && Object.hasOwn(config, kIgnore)) {
 		unused.push(path);
 	}
 
