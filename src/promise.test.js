@@ -21,14 +21,14 @@ import * as fc from "fast-check";
 
 import { Promise as $Promise } from "./promise.js";
 
-test("promise.js", (t) => {
-	t.test("all", (t) => {
-		t.test("no promises", async () => {
+test("promise.js", async (t) => {
+	await t.test("all", async (t) => {
+		await t.test("no promises", async () => {
 			const got = await $Promise.all([]);
 			assert.deepEqual(got, []);
 		});
 
-		t.test("1 or more resolving promise", async () => {
+		await t.test("1 or more resolving promise", async () => {
 			await fc.assert(
 				fc.asyncProperty(
 					fc.array(fc.integer(), { minLength: 1 }),
@@ -41,16 +41,13 @@ test("promise.js", (t) => {
 
 						const got = await $Promise.all(promises);
 						assert.equal(got.length, values.length);
-						for (const value of values) {
-							const found = got.includes(value);
-							assert.ok(found);
-						}
+						assert.ok(values.every(value => got.includes(value)));
 					},
 				),
 			);
 		});
 
-		t.test("1 or more rejecting promise", async () => {
+		await t.test("1 or more rejecting promise", async () => {
 			await fc.assert(
 				fc.asyncProperty(
 					fc.array(
@@ -73,6 +70,10 @@ test("promise.js", (t) => {
 
 						await assert.rejects(
 							async () => await $Promise.all(promises),
+							(error) => {
+								assert.ok(entries.some(([kind, value]) => kind === "reject" && value === error));
+								return true;
+							},
 						);
 					},
 				),
@@ -80,15 +81,15 @@ test("promise.js", (t) => {
 		});
 	});
 
-	t.test("pool", (t) => {
-		t.test("await empty pool", async () => {
+	await t.test("pool", async (t) => {
+		await t.test("await empty pool", async () => {
 			const pool = $Promise.pool(42);
 
 			const got = await pool.await();
 			assert.deepEqual(got, []);
 		});
 
-		t.test("queue within pool size", async () => {
+		await t.test("queue within pool size", async () => {
 			const pool = $Promise.pool(2);
 			pool.add(() => Promise.resolve("foobar"));
 
@@ -96,7 +97,7 @@ test("promise.js", (t) => {
 			assert.ok(got.includes("foobar"));
 		});
 
-		t.test("queue at pool size", async () => {
+		await t.test("queue at pool size", async () => {
 			const pool = $Promise.pool(2);
 			pool.add(() => Promise.resolve("foo"));
 			pool.add(() => Promise.resolve("bar"));
@@ -106,7 +107,7 @@ test("promise.js", (t) => {
 			assert.ok(got.includes("bar"));
 		});
 
-		t.test("queue beyond pool size", async () => {
+		await t.test("queue beyond pool size", async () => {
 			const pool = $Promise.pool(2);
 			pool.add(() => Promise.resolve("foo"));
 			pool.add(() => Promise.resolve("bar"));
@@ -118,7 +119,7 @@ test("promise.js", (t) => {
 			assert.ok(got.includes("baz"));
 		});
 
-		t.test("await pool before jobs have resolved", async () => {
+		await t.test("await pool before jobs have resolved", async () => {
 			const pool = $Promise.pool(4);
 
 			const p1 = Promise.withResolvers();
@@ -144,7 +145,7 @@ test("promise.js", (t) => {
 			assert.ok(got.includes("bar"));
 		});
 
-		t.test("pool size, job is queued", async () => {
+		await t.test("pool size, job is queued", async () => {
 			const pool = $Promise.pool(1);
 
 			const p1 = Promise.withResolvers();
@@ -168,7 +169,7 @@ test("promise.js", (t) => {
 			assert.ok(got.includes("bar"));
 		});
 
-		t.test("pool size, job queued later", async () => {
+		await t.test("pool size, job queued later", async () => {
 			const pool = $Promise.pool(1);
 
 			const p1 = Promise.withResolvers();
@@ -187,7 +188,7 @@ test("promise.js", (t) => {
 			assert.ok(got.includes("bar"));
 		});
 
-		t.test("cannot add after awaiting", () => {
+		await t.test("cannot add after awaiting", () => {
 			const pool = $Promise.pool(8);
 
 			pool.add(() => Promise.resolve());
@@ -204,7 +205,7 @@ test("promise.js", (t) => {
 			);
 		});
 
-		t.test("cannot await after awaiting", async () => {
+		await t.test("cannot await after awaiting", async () => {
 			const pool = $Promise.pool(8);
 
 			pool.add(() => Promise.resolve());
@@ -222,8 +223,8 @@ test("promise.js", (t) => {
 		});
 	});
 
-	t.test("withResolvers", (t) => {
-		t.test("resolve", async () => {
+	await t.test("withResolvers", async (t) => {
+		await t.test("resolve", async () => {
 			await fc.assert(
 				fc.asyncProperty(
 					fc.anything(),
@@ -238,7 +239,7 @@ test("promise.js", (t) => {
 			);
 		});
 
-		t.test("reject", async () => {
+		await t.test("reject", async () => {
 			await fc.assert(
 				fc.asyncProperty(
 					fc.anything(),

@@ -20,12 +20,12 @@ import { FS } from "./fs.mock.js";
 
 import { NPM } from "./npm.js";
 
-test("npm.js", (t) => {
-	t.test("aliases", (t) => {
+test("npm.js", async (t) => {
+await t.test("aliases", async (t) => {
 		const cp = new CP({});
 		const options = {};
 
-		t.test("no dependencies", async () => {
+		await t.test("no dependencies", async () => {
 			const fs = new FS({
 				"./package.json": "{}",
 			});
@@ -38,7 +38,7 @@ test("npm.js", (t) => {
 			assert.equal(value.size, 0);
 		});
 
-		t.test("no aliases", async () => {
+		await t.test("no aliases", async () => {
 			const fs = new FS({
 				"./package.json": JSON.stringify({
 					dependencies: {
@@ -64,7 +64,7 @@ test("npm.js", (t) => {
 			assert.equal(value.size, 0);
 		});
 
-		t.test("alias in (production) dependencies", async () => {
+		await t.test("alias in (production) dependencies", async () => {
 			const alias = "foo";
 			const name = "bar";
 			const version = "3.1.4";
@@ -86,7 +86,7 @@ test("npm.js", (t) => {
 			assert.deepEqual(value.get(alias), { name, version });
 		});
 
-		t.test("alias in development dependencies", async () => {
+		await t.test("alias in development dependencies", async () => {
 			const alias = "hello";
 			const name = "world";
 			const version = "2.7.1";
@@ -108,7 +108,7 @@ test("npm.js", (t) => {
 			assert.deepEqual(value.get(alias), { name, version });
 		});
 
-		t.test("alias in optional dependencies", async () => {
+		await t.test("alias in optional dependencies", async () => {
 			const alias = "hello";
 			const name = "world";
 			const version = "2.7.1";
@@ -130,7 +130,7 @@ test("npm.js", (t) => {
 			assert.deepEqual(value.get(alias), { name, version });
 		});
 
-		t.test("alias in peer dependencies", async () => {
+		await t.test("alias in peer dependencies", async () => {
 			const alias = "hello";
 			const name = "world";
 			const version = "2.7.1";
@@ -152,7 +152,7 @@ test("npm.js", (t) => {
 			assert.deepEqual(value.get(alias), { name, version });
 		});
 
-		t.test("missing manifest", async () => {
+		await t.test("missing manifest", async () => {
 			const fs = new FS({});
 
 			const npm = new NPM({ cp, fs, options });
@@ -166,7 +166,7 @@ test("npm.js", (t) => {
 			);
 		});
 
-		t.test("corrupt manifest", async () => {
+		await t.test("corrupt manifest", async () => {
 			const fs = new FS({
 				"./package.json": "not JSON",
 			});
@@ -183,8 +183,8 @@ test("npm.js", (t) => {
 		});
 	});
 
-	t.test("deprecations", (t) => {
-		t.test("with dependencies", async () => {
+await t.test("deprecations", async (t) => {
+		await t.test("with dependencies", async () => {
 			const options = {};
 
 			const cp = new CP({
@@ -291,7 +291,7 @@ test("npm.js", (t) => {
 			]);
 		});
 
-		t.test("without dependencies", async () => {
+		await t.test("without dependencies", async () => {
 			const options = {};
 
 			const cp = new CP({
@@ -314,7 +314,7 @@ test("npm.js", (t) => {
 			assert.deepEqual(value, []);
 		});
 
-		t.test("with aliased dependency", async () => {
+		await t.test("with aliased dependency", async () => {
 			const options = {};
 
 			const cp = new CP({
@@ -360,10 +360,10 @@ test("npm.js", (t) => {
 			]);
 		});
 
-		t.test("error", (t) => {
+		await t.test("error", async (t) => {
 			const options = {};
 
-			t.test("malformed manifest", async () => {
+			await t.test("malformed manifest", async () => {
 				const cp = new CP({});
 				const fs = new FS({
 					"./package.json": "not valid JSON",
@@ -377,7 +377,7 @@ test("npm.js", (t) => {
 				assert.match(err, /^could not get manifest:/u);
 			});
 
-			t.test("npm list", async () => {
+			await t.test("npm list", async () => {
 				const stderr = "Something list-y went wrong";
 
 				const cp = new CP({
@@ -402,7 +402,7 @@ test("npm.js", (t) => {
 				assert.equal(err, `npm list failed:\n${stderr}`);
 			});
 
-			t.test("npm view", async () => {
+			await t.test("npm view", async () => {
 				const stderr = "Something view-y went wrong";
 
 				const cp = new CP({
@@ -441,9 +441,9 @@ test("npm.js", (t) => {
 		});
 	});
 
-	t.test("hierarchy", (t) => {
-		t.test("success", (t) => {
-			t.test("with dependencies", async () => {
+await t.test("hierarchy", async (t) => {
+await t.test("success", async (t) => {
+		await t.test("with dependencies", async () => {
 				const options = {};
 
 				const cp = new CP({
@@ -555,7 +555,7 @@ test("npm.js", (t) => {
 				});
 			});
 
-			t.test("without dependencies", async () => {
+		await t.test("without dependencies", async () => {
 				const options = {};
 
 				const cp = new CP({
@@ -582,7 +582,7 @@ test("npm.js", (t) => {
 				});
 			});
 
-			t.test("with optional peer dependencies", async () => {
+		await t.test("with optional peer dependencies", async () => {
 				const options = {};
 
 				const cp = new CP({
@@ -671,7 +671,7 @@ test("npm.js", (t) => {
 			});
 		});
 
-		t.test("options", (t) => {
+await t.test("options", async (t) => {
 			function setup() {
 				return {
 					cp: new CP({
@@ -685,8 +685,8 @@ test("npm.js", (t) => {
 				};
 			}
 
-			t.test("omitDev", (t) => {
-				t.test("true", async () => {
+			await t.test("omitDev", async (t) => {
+				await t.test("true", async () => {
 					const { cp, fs } = setup();
 					const options = {
 						omitDev: true,
@@ -700,7 +700,7 @@ test("npm.js", (t) => {
 					assert.ok(call.arguments[1].join(" ").includes("--omit dev"));
 				});
 
-				t.test("false", async () => {
+				await t.test("false", async () => {
 					const { cp, fs } = setup();
 					const options = {
 						omitDev: false,
@@ -715,8 +715,8 @@ test("npm.js", (t) => {
 				});
 			});
 
-			t.test("omitOptional", (t) => {
-				t.test("true", async () => {
+			await t.test("omitOptional", async (t) => {
+				await t.test("true", async () => {
 					const { cp, fs } = setup();
 					const options = {
 						omitOptional: true,
@@ -730,7 +730,7 @@ test("npm.js", (t) => {
 					assert.ok(call.arguments[1].join(" ").includes("--omit optional"));
 				});
 
-				t.test("false", async () => {
+				await t.test("false", async () => {
 					const { cp, fs } = setup();
 					const options = {
 						omitOptional: false,
@@ -745,8 +745,8 @@ test("npm.js", (t) => {
 				});
 			});
 
-			t.test("omitPeer", (t) => {
-				t.test("true", async () => {
+			await t.test("omitPeer", async (t) => {
+				await t.test("true", async () => {
 					const { cp, fs } = setup();
 					const options = {
 						omitPeer: true,
@@ -760,7 +760,7 @@ test("npm.js", (t) => {
 					assert.ok(call.arguments[1].join(" ").includes("--omit peer"));
 				});
 
-				t.test("false", async () => {
+				await t.test("false", async () => {
 					const { cp, fs } = setup();
 					const options = {
 						omitPeer: false,
@@ -776,8 +776,8 @@ test("npm.js", (t) => {
 			});
 		});
 
-		t.test("cli error", () => {
-			t.test("command error", async () => {
+	await t.test("cli error", async (t) => {
+		await t.test("command error", async () => {
 				const options = {};
 				const stderr = "Something went wrong";
 
@@ -799,7 +799,7 @@ test("npm.js", (t) => {
 				assert.equal(err, `npm list failed:\n${stderr}`);
 			});
 
-			t.test("corrupt output", async () => {
+		await t.test("corrupt output", async () => {
 				const options = {};
 
 				const cp = new CP({
@@ -820,7 +820,7 @@ test("npm.js", (t) => {
 			});
 		});
 
-		t.test("cli usage", async () => {
+	await t.test("cli usage", async () => {
 			const options = {};
 
 			const cp = new CP({
@@ -843,7 +843,7 @@ test("npm.js", (t) => {
 			assert.ok(call.arguments[1].includes("--json"));
 		});
 
-		t.test("no manifest", async () => {
+	await t.test("no manifest", async () => {
 			const options = {};
 
 			const cp = new CP({});
@@ -857,7 +857,7 @@ test("npm.js", (t) => {
 			assert.match(err, /^could not \w+ package\.json: .+/u);
 		});
 
-		t.test("dependency missing from manifest", async () => {
+	await t.test("dependency missing from manifest", async () => {
 			const options = {};
 
 			const cp = new CP({
@@ -880,12 +880,13 @@ test("npm.js", (t) => {
 			const npm = new NPM({ cp, fs, options });
 			await assert.rejects(
 				async () => await npm.hierarchy(),
+				{ name: "TypeError" },
 			);
 		});
 	});
 
-	t.test("install", (t) => {
-		t.test("success", async () => {
+	await t.test("install", async (t) => {
+		await t.test("success", async () => {
 			const options = {};
 
 			const cp = new CP({
@@ -900,7 +901,7 @@ test("npm.js", (t) => {
 			assert.ok(got.isOk());
 		});
 
-		t.test("npm error", async () => {
+		await t.test("npm error", async () => {
 			const options = {};
 			const stderr = "Something went wrong";
 
@@ -920,7 +921,7 @@ test("npm.js", (t) => {
 			assert.equal(err, `npm install failed:\n${stderr}`);
 		});
 
-		t.test("npm CLI usage", async () => {
+		await t.test("npm CLI usage", async () => {
 			const options = {};
 
 			const cp = new CP({

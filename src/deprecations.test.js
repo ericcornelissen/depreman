@@ -23,8 +23,8 @@ import {
 	getDeprecatedPackages,
 } from "./deprecations.js";
 
-test("deprecations.js", (t) => {
-	t.test("getDeprecatedPackages", (t) => {
+test("deprecations.js", async (t) => {
+	await t.test("getDeprecatedPackages", async (t) => {
 		const testCases = {
 			"no dependencies": {
 				deprecations: [],
@@ -247,7 +247,7 @@ test("deprecations.js", (t) => {
 		};
 
 		for (const [name, testCase] of Object.entries(testCases)) {
-			t.test(name, async () => {
+			await t.test(name, async () => {
 				const { aliases, deprecations, hierarchy, want } = testCase;
 
 				const pm = new PackageManager({
@@ -262,7 +262,7 @@ test("deprecations.js", (t) => {
 			});
 		}
 
-		t.test("deprecation warnings cannot be obtained", async () => {
+		await t.test("deprecation warnings cannot be obtained", async () => {
 			const err = "deprecations error";
 
 			const pm = new PackageManager({
@@ -276,7 +276,7 @@ test("deprecations.js", (t) => {
 			assert.equal(got.error(), err);
 		});
 
-		t.test("dependency hierarchy cannot be obtained", async () => {
+		await t.test("dependency hierarchy cannot be obtained", async () => {
 			const err = "hierarchy error";
 
 			const pm = new PackageManager({
@@ -290,7 +290,7 @@ test("deprecations.js", (t) => {
 			assert.equal(got.error(), err);
 		});
 
-		t.test("aliases cannot be obtained", async () => {
+		await t.test("aliases cannot be obtained", async () => {
 			const err = "alias error";
 
 			const pm = new PackageManager({
@@ -304,7 +304,7 @@ test("deprecations.js", (t) => {
 			assert.equal(got.error(), err);
 		});
 
-		t.test("multiple errors", async () => {
+		await t.test("multiple errors", async () => {
 			const err1 = "deprecations error";
 			const err2 = "aliases error";
 			const err3 = "hierarchy error";
@@ -320,7 +320,7 @@ test("deprecations.js", (t) => {
 			assert.equal(got.error(), err1);
 		});
 
-		t.test("race conditions", async () => {
+		await t.test("race conditions", async () => {
 			await fc.assert(
 				fc.asyncProperty(
 					fc.scheduler(),

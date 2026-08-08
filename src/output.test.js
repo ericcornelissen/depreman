@@ -22,7 +22,7 @@ import {
 	makeReport,
 } from "./output.js";
 
-test("output.js", (t) => {
+test("output.js", async (t) => {
 	const styler = MockStyler;
 
 	const testCases = {
@@ -297,20 +297,20 @@ foo@2.7.1 ${styler.italic(`("not maintained anymore")`)}:
 		},
 	};
 
-	t.test("isSuccesss", (t) => {
+	await t.test("isSuccesss", async (t) => {
 		for (const [name, testCase] of Object.entries(testCases)) {
 			const { results, unused, want } = testCase;
-			t.test(name, () => {
+			await t.test(name, () => {
 				const got = isSuccess(results, unused);
 				assert.equal(got, want.ok);
 			});
 		}
 	});
 
-	t.test("makeReport", (t) => {
+	await t.test("makeReport", async (t) => {
 		for (const [name, testCase] of Object.entries(testCases)) {
 			const { options, results, unused, want } = testCase;
-			t.test(name, () => {
+			await t.test(name, () => {
 				const got = makeReport(results, unused, options, styler);
 				assert.equal(got, want.report);
 			});
