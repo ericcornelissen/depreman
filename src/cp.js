@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -45,10 +45,10 @@ export class CP {
 					if (error) {
 						const err = new Err(result);
 						resolve(err);
+					} else {
+						const ok = new Ok(result);
+						resolve(ok);
 					}
-
-					const ok = new Ok(result);
-					resolve(ok);
 				},
 			);
 		});

@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -151,7 +151,7 @@ test("result.js", (t) => {
 					fc.property(arbitrary.err(), (err) => {
 						const callback = mock.fn();
 
-						err.map(callback);
+						err.map(callback); // eslint-disable-line unicorn/no-unused-array-method-return
 						assert.equal(callback.mock.calls.length, 0);
 					}),
 				);

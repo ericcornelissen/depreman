@@ -71,7 +71,7 @@ function validateConfig(config, isRoot=true) {
  */
 function validateChildren(config, isRoot) {
 	const children = Object.entries(config).filter(([key]) => !isDirective(key));
-	if (children.length === 0 && !Object.hasOwn(config, "#ignore") && !isRoot) {
+	if (!isRoot && children.length === 0 && !Object.hasOwn(config, "#ignore")) {
 		return ["ineffective leaf (no '#ignore' found)"];
 	}
 
