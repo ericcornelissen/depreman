@@ -20,8 +20,8 @@ import {
 	unusedIgnores,
 } from "./ignores.js";
 
-test("ignore.js", (t) => {
-	t.test("removeIgnored", (t) => {
+test("ignore.js", async (t) => {
+await t.test("removeIgnored", async (t) => {
 		const goodTestCases = {
 			"ignore a direct dependency": {
 				config: {
@@ -1109,32 +1109,35 @@ test("ignore.js", (t) => {
 
 		for (const [name, testCase] of Object.entries(goodTestCases)) {
 			const { config, deprecations, want } = testCase;
-			t.test(name, () => {
+			await t.test(name, () => {
 				const got = removeIgnored(config, deprecations);
 				assert.deepEqual(got, want);
 			});
 
-			t.test(`${name} - mark used directives`, () => {
+			await t.test(`${name} - mark used directives`, () => {
 				const kUsed = Symbol.for("#used");
 
 				removeIgnored(config, deprecations);
 
-				const values = Object.values(config);
-				while (values.length > 0) {
-					const value = values.pop();
-					assert.ok(value[kUsed] === true || !Object.hasOwn(value, kUsed));
+				const values = [];
+				const queue = Object.values(config);
+				while (queue.length > 0) {
+					const value = queue.pop();
+					values.push(value);
 
-					values.push(
+					queue.push(
 						...Object.entries(value)
 							.filter(entry => !entry[0].startsWith("#"))
 							.map(entry => entry[1]),
 					);
 				}
+
+				assert.ok(values.every((value) => value[kUsed] === true || !Object.hasOwn(value, kUsed)));
 			});
 		}
 	});
 
-	t.test("unusedIgnores", (t) => {
+	await t.test("unusedIgnores", async (t) => {
 		const kUsed = Symbol.for("#used");
 
 		const testCases = {
@@ -1198,7 +1201,7 @@ test("ignore.js", (t) => {
 
 		for (const [name, testCase] of Object.entries(testCases)) {
 			const { config, want } = testCase;
-			t.test(name, () => {
+			await t.test(name, () => {
 				const got = unusedIgnores(config);
 				assert.deepEqual(got, want);
 			});

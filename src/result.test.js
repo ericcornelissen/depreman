@@ -13,22 +13,22 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as assert from "node:assert/strict";
-import { mock, test } from "node:test";
+import { test } from "node:test";
 
 import * as fc from "fast-check";
 
 import { None } from "./option.js";
 import { Err, Ok } from "./result.js";
 
-test("result.js", (t) => {
+test("result.js", async (t) => {
 	const arbitrary = {
 		err: () => fc.anything().map((err) => new Err(err)),
 		ok: () => fc.anything().map((value) => new Ok(value)),
 	};
 
-	t.test("Err", (t) => {
-		t.test("and", (t) => {
-			t.test("Err", () => {
+	await t.test("Err", async (t) => {
+		await t.test("and", async (t) => {
+			await t.test("Err", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.err(),
@@ -42,7 +42,7 @@ test("result.js", (t) => {
 				);
 			});
 
-			t.test("Ok", () => {
+			await t.test("Ok", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.err(),
@@ -57,9 +57,9 @@ test("result.js", (t) => {
 			});
 		});
 
-		t.test("andThen", (t) => {
-			t.test("return value", (t) => {
-				t.test("Err", () => {
+		await t.test("andThen", async (t) => {
+			await t.test("return value", async (t) => {
+				await t.test("Err", () => {
 					fc.assert(
 						fc.property(
 							arbitrary.err(),
@@ -73,7 +73,7 @@ test("result.js", (t) => {
 					);
 				});
 
-				t.test("Ok", () => {
+				await t.test("Ok", () => {
 					fc.assert(
 						fc.property(
 							arbitrary.err(),
@@ -88,19 +88,19 @@ test("result.js", (t) => {
 				});
 			});
 
-			t.test("callback", () => {
+			await t.test("callback", (t) => {
 				fc.assert(
 					fc.property(arbitrary.err(), (err) => {
-						const callback = mock.fn();
+						const callback = t.mock.fn();
 
 						err.andThen(callback);
-						assert.equal(callback.mock.calls.length, 0);
+						assert.equal(callback.mock.callCount(), 0);
 					}),
 				);
 			});
 		});
 
-		t.test("error", () => {
+		await t.test("error", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const err = new Err(value);
@@ -112,7 +112,7 @@ test("result.js", (t) => {
 			);
 		});
 
-		t.test("isErr", () => {
+		await t.test("isErr", () => {
 			fc.assert(
 				fc.property(arbitrary.err(), (err) => {
 					const got = err.isErr();
@@ -122,7 +122,7 @@ test("result.js", (t) => {
 			);
 		});
 
-		t.test("isOk", () => {
+		await t.test("isOk", () => {
 			fc.assert(
 				fc.property(arbitrary.err(), (err) => {
 					const got = err.isOk();
@@ -132,8 +132,8 @@ test("result.js", (t) => {
 			);
 		});
 
-		t.test("map", (t) => {
-			t.test("return value", () => {
+		await t.test("map", async (t) => {
+			await t.test("return value", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.err(),
@@ -146,20 +146,20 @@ test("result.js", (t) => {
 				);
 			});
 
-			t.test("callback", () => {
+			await t.test("callback", (t) => {
 				fc.assert(
 					fc.property(arbitrary.err(), (err) => {
-						const callback = mock.fn();
+						const callback = t.mock.fn();
 
 						err.map(callback); // eslint-disable-line unicorn/no-unused-array-method-return
-						assert.equal(callback.mock.calls.length, 0);
+						assert.equal(callback.mock.callCount(), 0);
 					}),
 				);
 			});
 		});
 
-		t.test("mapErr", (t) => {
-			t.test("return value", () => {
+		await t.test("mapErr", async (t) => {
+			await t.test("return value", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.err(),
@@ -175,14 +175,14 @@ test("result.js", (t) => {
 				);
 			});
 
-			t.test("callback", () => {
+			await t.test("callback", (t) => {
 				fc.assert(
 					fc.property(fc.anything(), (value) => {
-						const callback = mock.fn();
+						const callback = t.mock.fn();
 
 						const err = new Err(value);
 						err.mapErr(callback);
-						assert.equal(callback.mock.calls.length, 1);
+						assert.equal(callback.mock.callCount(), 1);
 
 						const call = callback.mock.calls[0];
 						assert.equal(call.arguments.length, 1);
@@ -192,7 +192,7 @@ test("result.js", (t) => {
 			});
 		});
 
-		t.test("ok", () => {
+		await t.test("ok", () => {
 			fc.assert(
 				fc.property(arbitrary.err(), (err) => {
 					const got = err.ok();
@@ -202,7 +202,7 @@ test("result.js", (t) => {
 			);
 		});
 
-		t.test("value", () => {
+		await t.test("value", () => {
 			fc.assert(
 				fc.property(arbitrary.err(), (err) => {
 					assert.throws(
@@ -219,9 +219,9 @@ test("result.js", (t) => {
 		});
 	});
 
-	t.test("Ok", (t) => {
-		t.test("and", (t) => {
-			t.test("Err", () => {
+	await t.test("Ok", async (t) => {
+		await t.test("and", async (t) => {
+			await t.test("Err", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.ok(),
@@ -235,7 +235,7 @@ test("result.js", (t) => {
 				);
 			});
 
-			t.test("Ok", () => {
+			await t.test("Ok", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.ok(),
@@ -250,9 +250,9 @@ test("result.js", (t) => {
 			});
 		});
 
-		t.test("andThen", (t) => {
-			t.test("return value", (t) => {
-				t.test("Err", () => {
+		await t.test("andThen", async (t) => {
+			await t.test("return value", async (t) => {
+				await t.test("Err", () => {
 					fc.assert(
 						fc.property(
 							arbitrary.ok(),
@@ -266,7 +266,7 @@ test("result.js", (t) => {
 					);
 				});
 
-				t.test("Ok", () => {
+				await t.test("Ok", () => {
 					fc.assert(
 						fc.property(
 							arbitrary.ok(),
@@ -281,14 +281,14 @@ test("result.js", (t) => {
 				});
 			});
 
-			t.test("callback", () => {
+			await t.test("callback", (t) => {
 				fc.assert(
 					fc.property(fc.anything(), (value) => {
-						const callback = mock.fn();
+						const callback = t.mock.fn();
 
 						const ok = new Ok(value);
 						ok.andThen(callback);
-						assert.equal(callback.mock.calls.length, 1);
+						assert.equal(callback.mock.callCount(), 1);
 
 						const call = callback.mock.calls[0];
 						assert.equal(call.arguments.length, 1);
@@ -298,7 +298,7 @@ test("result.js", (t) => {
 			});
 		});
 
-		t.test("error", () => {
+		await t.test("error", () => {
 			fc.assert(
 				fc.property(arbitrary.ok(), (ok) => {
 					assert.throws(
@@ -312,7 +312,7 @@ test("result.js", (t) => {
 			);
 		});
 
-		t.test("isErr", () => {
+		await t.test("isErr", () => {
 			fc.assert(
 				fc.property(arbitrary.ok(), (ok) => {
 					const got = ok.isErr();
@@ -322,7 +322,7 @@ test("result.js", (t) => {
 			);
 		});
 
-		t.test("isOk", () => {
+		await t.test("isOk", () => {
 			fc.assert(
 				fc.property(arbitrary.ok(), (ok) => {
 					const got = ok.isOk();
@@ -332,8 +332,8 @@ test("result.js", (t) => {
 			);
 		});
 
-		t.test("map", (t) => {
-			t.test("return value", () => {
+		await t.test("map", async (t) => {
+			await t.test("return value", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.ok(),
@@ -349,14 +349,14 @@ test("result.js", (t) => {
 				);
 			});
 
-			t.test("callback", () => {
+			await t.test("callback", (t) => {
 				fc.assert(
 					fc.property(fc.anything(), (value) => {
-						const callback = mock.fn();
+						const callback = t.mock.fn();
 
 						const ok = new Ok(value);
 						ok.map(callback);
-						assert.equal(callback.mock.calls.length, 1);
+						assert.equal(callback.mock.callCount(), 1);
 
 						const call = callback.mock.calls[0];
 						assert.equal(call.arguments.length, 1);
@@ -366,8 +366,8 @@ test("result.js", (t) => {
 			});
 		});
 
-		t.test("mapErr", (t) => {
-			t.test("return value", () => {
+		await t.test("mapErr", async (t) => {
+			await t.test("return value", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.ok(),
@@ -380,19 +380,19 @@ test("result.js", (t) => {
 				);
 			});
 
-			t.test("callback", () => {
+			await t.test("callback", (t) => {
 				fc.assert(
 					fc.property(arbitrary.ok(), (ok) => {
-						const callback = mock.fn();
+						const callback = t.mock.fn();
 
 						ok.mapErr(callback);
-						assert.equal(callback.mock.calls.length, 0);
+						assert.equal(callback.mock.callCount(), 0);
 					}),
 				);
 			});
 		});
 
-		t.test("ok", () => {
+		await t.test("ok", () => {
 			fc.assert(
 				fc.property(arbitrary.ok(), (ok) => {
 					const some = ok.ok();
@@ -405,7 +405,7 @@ test("result.js", (t) => {
 			);
 		});
 
-		t.test("value", () => {
+		await t.test("value", () => {
 			fc.assert(
 				fc.property(fc.anything(), (value) => {
 					const ok = new Ok(value);

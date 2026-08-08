@@ -73,6 +73,7 @@
     "better-npm-audit": "3.11.0",
     "ci-info": "4.3.1",
     "eslint": "10.5.0",
+    "eslint-node-test": "0.4.0",
     "eslint-plugin-depend": "1.4.0",
     "eslint-plugin-functional": "10.0.0",
     "eslint-plugin-jsdoc": "63.3.2",

@@ -21,7 +21,7 @@ import {
 	parseArgv,
 } from "./cli.js";
 
-test("cli.js", (t) => {
+test("cli.js", async (t) => {
 	const flags = [
 		"--help", "-h",
 		"--errors-only",
@@ -89,10 +89,10 @@ test("cli.js", (t) => {
 		},
 	};
 
-	t.test("parseArgv", (t) => {
+	await t.test("parseArgv", async (t) => {
 		const base = ["node", "depreman"];
 
-		t.test("no flags", () => {
+		await t.test("no flags", () => {
 			const argv = [...base];
 			const got = parseArgv(argv);
 			assert.ok(got.isOk());
@@ -105,8 +105,8 @@ test("cli.js", (t) => {
 			assert.equal(got.value().reportUnused, false);
 		});
 
-		t.test("--help", (t) => {
-			t.test("full flag", () => {
+		await t.test("--help", async (t) => {
+			await t.test("full flag", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.flags({ include: ["--help"] }),
@@ -120,7 +120,7 @@ test("cli.js", (t) => {
 				);
 			});
 
-			t.test("shorthand", () => {
+			await t.test("shorthand", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.flags({ include: ["-h"] }),
@@ -134,7 +134,7 @@ test("cli.js", (t) => {
 				);
 			});
 
-			t.test("both full and shorthand", () => {
+			await t.test("both full and shorthand", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.flags({ include: ["--help", "-h"] }),
@@ -149,7 +149,7 @@ test("cli.js", (t) => {
 			});
 		});
 
-		t.test("--errors-only", () => {
+		await t.test("--errors-only", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--errors-only"] }),
@@ -163,7 +163,7 @@ test("cli.js", (t) => {
 			);
 		});
 
-		t.test("--omit=dev", () => {
+		await t.test("--omit=dev", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--omit=dev"] }),
@@ -177,7 +177,7 @@ test("cli.js", (t) => {
 			);
 		});
 
-		t.test("--omit=optional", () => {
+		await t.test("--omit=optional", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--omit=optional"] }),
@@ -191,7 +191,7 @@ test("cli.js", (t) => {
 			);
 		});
 
-		t.test("--omit=peer", () => {
+		await t.test("--omit=peer", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--omit=peer"] }),
@@ -205,8 +205,8 @@ test("cli.js", (t) => {
 			);
 		});
 
-		t.test("--package-manager", (t) => {
-			t.test("npm", () => {
+		await t.test("--package-manager", async (t) => {
+			await t.test("npm", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.flags({ include: ["--package-manager=npm"] }),
@@ -220,7 +220,7 @@ test("cli.js", (t) => {
 				);
 			});
 
-			t.test("yarn", () => {
+			await t.test("yarn", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.flags({ include: ["--package-manager=yarn"] }),
@@ -234,7 +234,7 @@ test("cli.js", (t) => {
 				);
 			});
 
-			t.test("not present", () => {
+			await t.test("not present", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.flags({ exclude: ["--package-manager=npm", "--package-manager=yarn"] }),
@@ -248,7 +248,7 @@ test("cli.js", (t) => {
 				);
 			});
 
-			t.test("unsupported", () => {
+			await t.test("unsupported", () => {
 				fc.assert(
 					fc.property(
 						fc.string()
@@ -264,7 +264,7 @@ test("cli.js", (t) => {
 				);
 			});
 
-			t.test("multiple", () => {
+			await t.test("multiple", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.flags({ include: ["--package-manager=npm", "--package-manager=yarn"] }),
@@ -279,7 +279,7 @@ test("cli.js", (t) => {
 			});
 		});
 
-		t.test("--report-unused", () => {
+		await t.test("--report-unused", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--report-unused"] }),
@@ -293,7 +293,7 @@ test("cli.js", (t) => {
 			);
 		});
 
-		t.test("--version", () => {
+		await t.test("--version", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flags({ include: ["--version"] }),
@@ -307,7 +307,7 @@ test("cli.js", (t) => {
 			);
 		});
 
-		t.test("a repeated flag that the CLI does know", () => {
+		await t.test("a repeated flag that the CLI does know", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.flag()
@@ -325,7 +325,7 @@ test("cli.js", (t) => {
 			);
 		});
 
-		t.test("flags that the CLI does not know", () => {
+		await t.test("flags that the CLI does not know", () => {
 			fc.assert(
 				fc.property(
 					fc.array(fc.string(), { minLength: 1 })
@@ -344,7 +344,7 @@ test("cli.js", (t) => {
 			);
 		});
 
-		t.test("arguments that the CLI does not expect", () => {
+		await t.test("arguments that the CLI does not expect", () => {
 			fc.assert(
 				fc.property(
 					fc.array(fc.string(), { minLength: 1 })

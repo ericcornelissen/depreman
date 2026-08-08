@@ -19,9 +19,9 @@ import * as fc from "fast-check";
 
 import { Object } from "./object.js";
 
-test("object.js", (t) => {
-	t.test("entries", (t) => {
-		t.test("example", () => {
+test("object.js", async (t) => {
+	await t.test("entries", async (t) => {
+		await t.test("example", () => {
 			const object = {
 				foo: "bar",
 				"hello world": "!",
@@ -38,7 +38,7 @@ test("object.js", (t) => {
 			assert.deepEqual(got, want);
 		});
 
-		t.test("value", () => {
+		await t.test("value", () => {
 			fc.assert(
 				fc.property(
 					fc.oneof(
@@ -57,21 +57,21 @@ test("object.js", (t) => {
 			);
 		});
 
-		t.test("undefined", () => {
+		await t.test("undefined", () => {
 			const got = Object.entries(undefined);
 			const want = [];
 			assert.deepEqual(got, want);
 		});
 
-		t.test("null", () => {
+		await t.test("null", () => {
 			const got = Object.entries(null);
 			const want = [];
 			assert.deepEqual(got, want);
 		});
 	});
 
-	t.test("hasOwn", (t) => {
-		t.test("own key", () => {
+	await t.test("hasOwn", async (t) => {
+		await t.test("own key", () => {
 			fc.assert(
 				fc.property(
 					fc.record({
@@ -89,7 +89,7 @@ test("object.js", (t) => {
 			);
 		});
 
-		t.test("not own key", () => {
+		await t.test("not own key", () => {
 			fc.assert(
 				fc.property(
 					fc.record({
@@ -106,7 +106,7 @@ test("object.js", (t) => {
 			);
 		});
 
-		t.test("undefined", () => {
+		await t.test("undefined", () => {
 			fc.assert(
 				fc.property(fc.string(), (key) => {
 						const got = Object.hasOwn(undefined, key);
@@ -116,7 +116,7 @@ test("object.js", (t) => {
 			);
 		});
 
-		t.test("null", () => {
+		await t.test("null", () => {
 			fc.assert(
 				fc.property(fc.string(), (key) => {
 					const got = Object.hasOwn(null, key);
@@ -127,8 +127,8 @@ test("object.js", (t) => {
 		});
 	});
 
-	t.test("keys", (t) => {
-		t.test("example", () => {
+	await t.test("keys", async (t) => {
+		await t.test("example", () => {
 			const object = {
 				foo: "bar",
 				"hello world": "!",
@@ -143,7 +143,7 @@ test("object.js", (t) => {
 			assert.deepEqual(got, want);
 		});
 
-		t.test("value", () => {
+		await t.test("value", () => {
 			fc.assert(
 				fc.property(
 					fc.oneof(
@@ -162,21 +162,21 @@ test("object.js", (t) => {
 			);
 		});
 
-		t.test("undefined", () => {
+		await t.test("undefined", () => {
 			const got = Object.keys(undefined);
 			const want = [];
 			assert.deepEqual(got, want);
 		});
 
-		t.test("null", () => {
+		await t.test("null", () => {
 			const got = Object.keys(null);
 			const want = [];
 			assert.deepEqual(got, want);
 		});
 	});
 
-	t.test("values", (t) => {
-		t.test("example", () => {
+	await t.test("values", async (t) => {
+		await t.test("example", () => {
 			const object = {
 				foo: "bar",
 				digit: 42,
@@ -191,7 +191,7 @@ test("object.js", (t) => {
 			assert.deepEqual(got, want);
 		});
 
-		t.test("value", () => {
+		await t.test("value", () => {
 			fc.assert(
 				fc.property(
 					fc.oneof(
@@ -210,13 +210,13 @@ test("object.js", (t) => {
 			);
 		});
 
-		t.test("undefined", () => {
+		await t.test("undefined", () => {
 			const got = Object.values(undefined);
 			const want = [];
 			assert.deepEqual(got, want);
 		});
 
-		t.test("null", () => {
+		await t.test("null", () => {
 			const got = Object.values(null);
 			const want = [];
 			assert.deepEqual(got, want);

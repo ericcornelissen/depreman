@@ -19,9 +19,9 @@ import { CP } from "./cp.mock.js";
 
 import { Yarn } from "./yarn.js";
 
-test("yarn.js", (t) => {
-	t.test("aliases", (t) => {
-		t.test("not implemented", async () => {
+test("yarn.js", async (t) => {
+	await t.test("aliases", async (t) => {
+		await t.test("not implemented", async () => {
 			const cp = new CP({});
 
 			const yarn = new Yarn({ cp });
@@ -33,8 +33,8 @@ test("yarn.js", (t) => {
 		});
 	});
 
-	t.test("deprecations", (t) => {
-		t.test("no audit warnings", async () => {
+	await t.test("deprecations", async (t) => {
+		await t.test("no audit warnings", async () => {
 			const cp = new CP({
 				"yarn npm audit": {
 					error: false,
@@ -49,7 +49,7 @@ test("yarn.js", (t) => {
 			assert.equal(value.length, 0);
 		});
 
-		t.test("no deprecation warnings", async () => {
+		await t.test("no deprecation warnings", async () => {
 			const cp = new CP({
 				"yarn npm audit": {
 					error: true,
@@ -69,7 +69,7 @@ test("yarn.js", (t) => {
 			assert.equal(value.length, 0);
 		});
 
-		t.test("a deprecation warning", async () => {
+		await t.test("a deprecation warning", async () => {
 			const name = "foobar";
 			const version = "3.1.4";
 			const reason = "This package is no longer supported.";
@@ -97,7 +97,7 @@ test("yarn.js", (t) => {
 			assert.deepEqual(value[0], { name, version, reason });
 		});
 
-		t.test("corrupt output", async () => {
+		await t.test("corrupt output", async () => {
 			const cp = new CP({
 				"yarn npm audit": {
 					error: true,
@@ -113,7 +113,7 @@ test("yarn.js", (t) => {
 			assert.match(err, /^yarn npm audit output not JSON: .+$/u);
 		});
 
-		t.test("yarn CLI usage", async () => {
+		await t.test("yarn CLI usage", async () => {
 			const cp = new CP({
 				"yarn npm audit": {},
 			});
@@ -131,8 +131,8 @@ test("yarn.js", (t) => {
 		});
 	});
 
-	t.test("hierarchy", (t) => {
-		t.test("success", async () => {
+	await t.test("hierarchy", async (t) => {
+		await t.test("success", async () => {
 			const indirect = {
 				value: "indirect@npm:3.1.4",
 				children: {},
@@ -183,7 +183,7 @@ ${JSON.stringify(root)}
 			});
 		});
 
-		t.test("yarn error", async () => {
+		await t.test("yarn error", async () => {
 			const stderr = "Something went wrong";
 
 			const cp = new CP({
@@ -201,7 +201,7 @@ ${JSON.stringify(root)}
 			assert.equal(err, `yarn info failed:\n${stderr}`);
 		});
 
-		t.test("corrupt output", async () => {
+		await t.test("corrupt output", async () => {
 			const cp = new CP({
 				"yarn info": {
 					stdout: "not JSON",
@@ -216,7 +216,7 @@ ${JSON.stringify(root)}
 			assert.match(err, /^yarn info output not JSON: .+$/u);
 		});
 
-		t.test("yarn CLI usage", async () => {
+		await t.test("yarn CLI usage", async () => {
 			const stderr = "Something went wrong";
 
 			const cp = new CP({
@@ -238,7 +238,7 @@ ${JSON.stringify(root)}
 		});
 	});
 
-	t.test("install", async () => {
+	await t.test("install", async () => {
 		const cp = new CP({});
 
 		const yarn = new Yarn({ cp });

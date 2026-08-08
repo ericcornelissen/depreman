@@ -19,9 +19,9 @@ import * as fc from "fast-check";
 
 import { parseJSON } from "./json.js";
 
-test("json.js", (t) => {
-	t.test("parseJSON", (t) => {
-		t.test("json", () => {
+test("json.js", async (t) => {
+	await t.test("parseJSON", async (t) => {
+		await t.test("json", () => {
 			fc.assert(
 				fc.property(
 					fc.oneof(
@@ -37,7 +37,7 @@ test("json.js", (t) => {
 			);
 		});
 
-		t.test("non-json", () => {
+		await t.test("non-json", () => {
 			fc.assert(
 				fc.property(
 					fc.string().filter(string => !isJSON(string)),

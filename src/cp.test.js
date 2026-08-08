@@ -14,16 +14,16 @@
 
 import * as assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
-import { mock, test } from "node:test";
+import { test } from "node:test";
 
 import * as fc from "fast-check";
 
 import { CP } from "./cp.js";
 import { CP as MockCP } from "./cp.mock.js";
 
-test("cp.js", (t) => {
-	t.test("exec", (t) => {
-		t.test("child_process usage", async () => {
+test("cp.js", async (t) => {
+	await t.test("exec", async (t) => {
+		await t.test("child_process usage", async (t) => {
 			await fc.assert(
 				fc.asyncProperty(
 					fc.record({
@@ -37,7 +37,7 @@ test("cp.js", (t) => {
 						stderr: fc.string(),
 					}),
 					async ({ cmd, args, error, stdout, stderr }) => {
-						const exec = createExec({
+						const exec = createExec(t, {
 							error,
 							stdout,
 							stderr,
@@ -49,16 +49,14 @@ test("cp.js", (t) => {
 
 						const call = exec.mock.calls[0];
 						assert.ok(call.arguments[0].startsWith(cmd));
-						for (const arg of args) {
-							assert.ok(call.arguments[0].includes(` ${arg}`));
-						}
+						assert.ok(args.every((arg) => call.arguments[0].includes(` ${arg}`)));
 						assert.equal(typeof call.arguments[1], "function");
 					},
 				),
 			);
 		});
 
-		t.test("command succeeds", async () => {
+		await t.test("command succeeds", async (t) => {
 			await fc.assert(
 				fc.asyncProperty(
 					fc.record({
@@ -68,7 +66,7 @@ test("cp.js", (t) => {
 						stderr: fc.string(),
 					}),
 					async ({ cmd, args, stdout, stderr }) => {
-						const exec = createExec({
+						const exec = createExec(t, {
 							error: null,
 							stdout,
 							stderr,
@@ -86,7 +84,7 @@ test("cp.js", (t) => {
 			);
 		});
 
-		t.test("command fails", async () => {
+		await t.test("command fails", async (t) => {
 			await fc.assert(
 				fc.asyncProperty(
 					fc.record({
@@ -97,7 +95,7 @@ test("cp.js", (t) => {
 						stderr: fc.string(),
 					}),
 					async ({ cmd, args, error, stdout, stderr }) => {
-						const exec = createExec({
+						const exec = createExec(t, {
 							error,
 							stdout,
 							stderr,
@@ -116,8 +114,8 @@ test("cp.js", (t) => {
 		});
 	});
 
-	function createExec(result) {
-		return mock.fn((_, callback) => {
+	function createExec(t, result) {
+		return t.mock.fn((_, callback) => {
 			const { error, stdout, stderr } = result;
 			callback(
 				error,
@@ -128,11 +126,11 @@ test("cp.js", (t) => {
 	}
 });
 
-test("cp.mock.js", (t) => {
-	t.test("CP", (t) => {
-		t.test("exec", (t) => {
-			t.test("command found", (t) => {
-				t.test("command succeeds", async () => {
+test("cp.mock.js", async (t) => {
+	await t.test("CP", async (t) => {
+		await t.test("exec", async (t) => {
+			await t.test("command found", async (t) => {
+				await t.test("command succeeds", async () => {
 					await fc.assert(
 						fc.asyncProperty(
 							fc.record({
@@ -161,7 +159,7 @@ test("cp.mock.js", (t) => {
 					);
 				});
 
-				t.test("command errors", async () => {
+				await t.test("command errors", async () => {
 					await fc.assert(
 						fc.asyncProperty(
 							fc.record({
@@ -191,7 +189,7 @@ test("cp.mock.js", (t) => {
 				});
 			});
 
-			t.test("command not found", () => {
+			await t.test("command not found", () => {
 				fc.assert(
 					fc.property(
 						fc.record({

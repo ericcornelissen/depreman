@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -19,8 +19,8 @@ import {
 	satisfies,
 } from "./semver.js";
 
-test("semver.js", (t) => {
-	t.test("satisfies", (t) => {
+test("semver.js", async (t) => {
+	await t.test("satisfies", async (t) => {
 		const goodCases = {
 			...{
 				"no range: exact match": {
@@ -425,7 +425,7 @@ test("semver.js", (t) => {
 		};
 
 		for (const [name, testCase] of Object.entries(goodCases)) {
-			t.test(name, () => {
+			await t.test(name, () => {
 				const { version, range, want } = testCase;
 
 				const got = satisfies(version, range);
@@ -447,7 +447,7 @@ test("semver.js", (t) => {
 		};
 
 		for (const [name, testCase] of Object.entries(badCases)) {
-			t.test(name, () => {
+			await t.test(name, () => {
 				const { version, range, want } = testCase;
 
 				const got = satisfies(version, range);

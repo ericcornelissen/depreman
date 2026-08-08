@@ -24,9 +24,9 @@ import {
 	MockStyler,
 } from "./style.mock.js";
 
-test("style.js", (t) => {
-	t.test("create", (t) => {
-		t.test("dim", () => {
+test("style.js", async (t) => {
+	await t.test("create", async (t) => {
+		await t.test("dim", () => {
 			fc.assert(
 				fc.property(
 					fc.string(),
@@ -39,7 +39,7 @@ test("style.js", (t) => {
 			);
 		});
 
-		t.test("italic", () => {
+		await t.test("italic", () => {
 			fc.assert(
 				fc.property(
 					fc.string(),
@@ -54,9 +54,9 @@ test("style.js", (t) => {
 	});
 });
 
-test("style.mock.js", (t) => {
-	t.test("MockStyler", (t) => {
-		t.test("dim", () => {
+test("style.mock.js", async (t) => {
+	await t.test("MockStyler", async (t) => {
+		await t.test("dim", () => {
 			fc.assert(
 				fc.property(
 					fc.string(),
@@ -68,7 +68,7 @@ test("style.mock.js", (t) => {
 			);
 		});
 
-		t.test("italic", () => {
+		await t.test("italic", () => {
 			fc.assert(
 				fc.property(
 					fc.string(),

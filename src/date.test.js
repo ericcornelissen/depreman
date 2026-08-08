@@ -23,7 +23,7 @@ import {
 	today,
 } from "./date.js";
 
-test("date.js", (t) => {
+test("date.js", async (t) => {
 	const arbitrary = {
 		day: () => fc.integer({ min: 1, max: 31 }),
 		month: () => fc.integer({ min: 1, max: 12 }),
@@ -48,7 +48,7 @@ test("date.js", (t) => {
 			),
 	};
 
-	t.test("parse", (t) => {
+	await t.test("parse", async (t) => {
 		const goodTestCases = {
 			"full year": {
 				str: "2024-12-31",
@@ -142,7 +142,7 @@ test("date.js", (t) => {
 
 		for (const [name, testCase] of Object.entries(goodTestCases)) {
 			const { str, raw } = testCase;
-			t.test(name, () => {
+			await t.test(name, () => {
 				const result = parse(str);
 				assert.ok(result.isOk());
 
@@ -207,7 +207,7 @@ test("date.js", (t) => {
 
 		for (const [name, testCase] of Object.entries(badTestCases)) {
 			const { str, want } = testCase;
-			t.test(name, () => {
+			await t.test(name, () => {
 				const result = parse(str);
 				assert.ok(result.isErr(), name);
 
@@ -216,7 +216,7 @@ test("date.js", (t) => {
 			});
 		}
 
-		t.test("correct format", () => {
+		await t.test("correct format", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.rawDate(),
@@ -237,7 +237,7 @@ test("date.js", (t) => {
 			);
 		});
 
-		t.test("wrong format", () => {
+		await t.test("wrong format", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.invalidDate(),
@@ -253,7 +253,7 @@ test("date.js", (t) => {
 		});
 	});
 
-	t.test("today", () => {
+	await t.test("today", () => {
 		const date = new Date();
 
 		const got = today();
@@ -267,8 +267,8 @@ test("date.js", (t) => {
 		assert.ok(got.is(want));
 	});
 
-	t.test("DepremanDate", (t) => {
-		t.test("constructor", () => {
+	await t.test("DepremanDate", async (t) => {
+		await t.test("constructor", () => {
 			fc.assert(
 				fc.property(
 					arbitrary.rawDate(),
@@ -281,8 +281,8 @@ test("date.js", (t) => {
 			);
 		});
 
-		t.test("is", (t) => {
-			t.test("compare to self", () => {
+		await t.test("is", async (t) => {
+			await t.test("compare to self", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.rawDate(),
@@ -294,7 +294,7 @@ test("date.js", (t) => {
 				);
 			});
 
-			t.test("identical date", () => {
+			await t.test("identical date", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.rawDate(),
@@ -308,7 +308,7 @@ test("date.js", (t) => {
 				);
 			});
 
-			t.test("different year", () => {
+			await t.test("different year", () => {
 				fc.assert(
 					fc.property(
 						fc.record({
@@ -327,7 +327,7 @@ test("date.js", (t) => {
 				);
 			});
 
-			t.test("different month", () => {
+			await t.test("different month", () => {
 				fc.assert(
 					fc.property(
 						fc.record({
@@ -346,7 +346,7 @@ test("date.js", (t) => {
 				);
 			});
 
-			t.test("different day", () => {
+			await t.test("different day", () => {
 				fc.assert(
 					fc.property(
 						fc.record({
@@ -365,7 +365,7 @@ test("date.js", (t) => {
 				);
 			});
 
-			t.test("wrong type", () => {
+			await t.test("wrong type", () => {
 				fc.assert(
 					fc.property(
 						fc.record({
@@ -387,7 +387,7 @@ test("date.js", (t) => {
 			});
 		});
 
-		t.test("isBefore", (t) => {
+		await t.test("isBefore", async (t) => {
 			const trueCases = {
 				"previous year": {
 					a: {
@@ -428,7 +428,7 @@ test("date.js", (t) => {
 			};
 
 			for (const [name, testCase] of Object.entries(trueCases)) {
-				t.test(name, () => {
+				await t.test(name, () => {
 					const a = new DepremanDate(testCase.a);
 					const b = new DepremanDate(testCase.b);
 					assert.ok(a.isBefore(b));
@@ -475,14 +475,14 @@ test("date.js", (t) => {
 			};
 
 			for (const [name, testCase] of Object.entries(falseCases)) {
-				t.test(name, () => {
+				await t.test(name, () => {
 					const a = new DepremanDate(testCase.a);
 					const b = new DepremanDate(testCase.b);
 					assert.ok(!a.isBefore(b));
 				});
 			}
 
-			t.test("one date is always before another", () => {
+			await t.test("one date is always before another", () => {
 				fc.assert(
 					fc.property(
 						fc.record({
@@ -498,7 +498,7 @@ test("date.js", (t) => {
 				);
 			});
 
-			t.test("compare to self", () => {
+			await t.test("compare to self", () => {
 				fc.assert(
 					fc.property(
 						arbitrary.rawDate(),
@@ -510,7 +510,7 @@ test("date.js", (t) => {
 				);
 			});
 
-			t.test("wrong type", () => {
+			await t.test("wrong type", () => {
 				fc.assert(
 					fc.property(
 						fc.record({

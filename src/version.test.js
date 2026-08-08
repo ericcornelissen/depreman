@@ -1,4 +1,4 @@
-// Copyright (C) 2025  Eric Cornelissen
+// Copyright (C) 2025-2026  Eric Cornelissen
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -21,20 +21,20 @@ import { FS } from "./fs.mock.js";
 
 import { getVersions } from "./version.js";
 
-test("version.js", (t) => {
-	t.test("getVersions", (t) => {
+test("version.js", async (t) => {
+	await t.test("getVersions", async (t) => {
 		const cmdNodeVersion = "node --version";
 		const cmdNpmVersion = "npm --version";
 		const cmdYarnVersion = "yarn --version";
 		const fileManifest = path.join(import.meta.dirname, "..", "package.json");
 
-		t.test("success", () => {
+		await t.test("success", async (t) => {
 			const depreman = "0.3.11";
 			const node = "24.4.1";
 			const npm = "11.4.2";
 			const yarn = "4.1.0";
 
-			t.test("with npm and yarn", async () => {
+			await t.test("with npm and yarn", async () => {
 				const cp = new CP({
 					[cmdNodeVersion]: { stdout: `v${node}\n` },
 					[cmdNpmVersion]: { stdout: `${npm}\n` },
@@ -56,7 +56,7 @@ test("version.js", (t) => {
 				});
 			});
 
-			t.test("with only npm", async () => {
+			await t.test("with only npm", async () => {
 				const cp = new CP({
 					[cmdNodeVersion]: { stdout: `v${node}\n` },
 					[cmdNpmVersion]: { stdout: `${npm}\n` },
@@ -77,7 +77,7 @@ test("version.js", (t) => {
 				});
 			});
 
-			t.test("with only yarn", async () => {
+			await t.test("with only yarn", async () => {
 				const cp = new CP({
 					[cmdNodeVersion]: { stdout: `v${node}\n` },
 					[cmdNpmVersion]: { error: true },
@@ -99,7 +99,7 @@ test("version.js", (t) => {
 			});
 		});
 
-		t.test("node version error", async () => {
+		await t.test("node version error", async () => {
 			const stderr = "could not get Node.js version";
 
 			const cp = new CP({
@@ -118,7 +118,7 @@ test("version.js", (t) => {
 			assert.equal(err, stderr);
 		});
 
-		t.test("all package manager version error", async () => {
+		await t.test("all package manager version error", async () => {
 			const cp = new CP({
 				[cmdNodeVersion]: { stdout: "v24.4.1\n" },
 				[cmdNpmVersion]: { error: true },
@@ -135,8 +135,8 @@ test("version.js", (t) => {
 			assert.equal(err, "no package manager found");
 		});
 
-		t.test("self version error", (t) => {
-			t.test("corrupted", async () => {
+		await t.test("self version error", async (t) => {
+			await t.test("corrupted", async () => {
 				const cp = new CP({
 					[cmdNodeVersion]: { stdout: "v24.4.1\n" },
 					[cmdNpmVersion]: { stdout: "11.4.2\n" },
@@ -153,7 +153,7 @@ test("version.js", (t) => {
 				assert.match(err, /^Unexpected .+ JSON$/u);
 			});
 
-			t.test("not found", async () => {
+			await t.test("not found", async () => {
 				const cp = new CP({
 					[cmdNodeVersion]: { stdout: "v24.4.1" },
 					[cmdNpmVersion]: { stdout: "11.4.2" },

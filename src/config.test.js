@@ -21,8 +21,8 @@ import {
 	getConfig,
 } from "./config.js";
 
-test("config.js", (t) => {
-	t.test("getConfig", (t) => {
+test("config.js", async (t) => {
+	await t.test("getConfig", async (t) => {
 		const okCases = {
 			"empty config": {
 				config: {},
@@ -86,7 +86,7 @@ test("config.js", (t) => {
 		};
 
 		for (const [name, testCase] of Object.entries(okCases)) {
-			t.test(name, async () => {
+			await t.test(name, async () => {
 				const fs = new FS({
 					"./.ndmrc": JSON.stringify(testCase.config),
 				});
@@ -302,7 +302,7 @@ test("config.js", (t) => {
 		};
 
 		for (const [name, testCase] of Object.entries(errCases)) {
-			t.test(name, async () => {
+			await t.test(name, async () => {
 				const fs = new FS({
 					"./.ndmrc": JSON.stringify(testCase.config),
 				});
@@ -313,7 +313,7 @@ test("config.js", (t) => {
 			});
 		}
 
-		t.test("usage of fs.readFile", async () => {
+		await t.test("usage of fs.readFile", async () => {
 			const fs = new FS({
 				"./.ndmrc": JSON.stringify({}),
 			});
@@ -326,7 +326,7 @@ test("config.js", (t) => {
 			assert.match(got.arguments[0], /.ndmrc$/u);
 		});
 
-		t.test("config not in JSON format", async () => {
+		await t.test("config not in JSON format", async () => {
 			const fs = new FS({
 				"./.ndmrc": "I'm not valid JSON",
 			});
@@ -339,7 +339,7 @@ test("config.js", (t) => {
 			);
 		});
 
-		t.test("file not found", async () => {
+		await t.test("file not found", async () => {
 			const fs = new FS({});
 
 			const got = await getConfig(fs);
