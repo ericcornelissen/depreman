@@ -20,7 +20,13 @@ import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 // Bump dependencies with known vulnerabilities.
-execSync("npm audit fix");
+try {
+	execSync("npm audit fix");
+} catch {
+	// Ignore failures, which may occur when only some but not all vulnerabilities
+	// could be fixed. In this case we still want to perform the rest of these
+	// steps.
+}
 
 // Restore direct runtime dependencies.
 const packageJson = resolve(import.meta.dirname, "..", "package.json");
