@@ -1112,6 +1112,7 @@ export default [
 
 			// eslint-plugin-functional
 			"functional/no-let": "off",
+			"functional/no-try-statements": "off",
 
 			// eslint-plugin-jsdoc
 			"jsdoc/require-jsdoc": "off",
