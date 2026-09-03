@@ -85,3 +85,4 @@ jobs:
           add-paths: package.json, package-lock.json
           branch: bump-vulnerable-dependencies
           commit-message: Bump vulnerable dependencies with `npm audit fix`
+          signoff: true
