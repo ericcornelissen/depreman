@@ -86,7 +86,7 @@
     "lockfile-lint": "5.0.0",
     "ls-engines": "0.10.0",
     "publint": "0.3.22",
-    "strip-directives": "2.0.0",
+    "strip-directives": "2.2.1",
     "which": "7.0.0"
   }
 }
