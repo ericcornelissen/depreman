@@ -370,6 +370,7 @@ export default [
 				"jsdoc/no-restricted-syntax": "off",
 				"jsdoc/no-types": "off",
 				"jsdoc/no-undefined-types": "error",
+				"jsdoc/no-unnecessary-type-assertion": "off",
 				"jsdoc/normalize-see-links": "error",
 				"jsdoc/prefer-import-tag": ["error", {
 					enableFixer: false,
