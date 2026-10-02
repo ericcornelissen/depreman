@@ -151,7 +151,7 @@ test("result.js", async (t) => {
 					fc.property(arbitrary.err(), (err) => {
 						const callback = t.mock.fn();
 
-						err.map(callback); // eslint-disable-line unicorn/no-unused-array-method-return
+						err.map(callback); // eslint-disable-line unicorn/no-unused-builtin-method-return
 						assert.equal(callback.mock.callCount(), 0);
 					}),
 				);

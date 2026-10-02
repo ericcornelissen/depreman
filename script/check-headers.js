@@ -48,10 +48,12 @@ const header = `
 let hasViolation = false;
 for await (const entry of jsFiles(".", ignore)) {
 	const result = await hasLicenseHeader(entry);
-	if (!result) {
-		console.log("Missing/incorrect license header in:", entry);
-		hasViolation = true;
+	if (result) {
+		continue;
 	}
+
+	console.log("Missing/incorrect license header in:", entry);
+	hasViolation = true;
 }
 
 if (hasViolation) {
