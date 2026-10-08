@@ -13,7 +13,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as assert from "node:assert/strict";
-import { test } from "node:test";
+import { suite, test } from "node:test";
 
 import * as fc from "fast-check";
 
@@ -24,9 +24,9 @@ import {
 	MockStyler,
 } from "./style.mock.js";
 
-test("style.js", async (t) => {
-	await t.test("create", async (t) => {
-		await t.test("dim", () => {
+suite("style.js", () => {
+	suite("create", () => {
+		test("dim", () => {
 			fc.assert(
 				fc.property(
 					fc.string(),
@@ -39,7 +39,7 @@ test("style.js", async (t) => {
 			);
 		});
 
-		await t.test("italic", () => {
+		test("italic", () => {
 			fc.assert(
 				fc.property(
 					fc.string(),
@@ -54,9 +54,9 @@ test("style.js", async (t) => {
 	});
 });
 
-test("style.mock.js", async (t) => {
-	await t.test("MockStyler", async (t) => {
-		await t.test("dim", () => {
+suite("style.mock.js", () => {
+	suite("MockStyler", () => {
+		test("dim", () => {
 			fc.assert(
 				fc.property(
 					fc.string(),
@@ -68,7 +68,7 @@ test("style.mock.js", async (t) => {
 			);
 		});
 
-		await t.test("italic", () => {
+		test("italic", () => {
 			fc.assert(
 				fc.property(
 					fc.string(),
