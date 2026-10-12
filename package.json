@@ -83,7 +83,7 @@
     "fast-check": "4.10.2",
     "lcov-total": "2.1.1",
     "licensee": "12.0.1",
-    "lockfile-lint": "5.0.0",
+    "lockfile-lint": "5.1.0",
     "ls-engines": "0.10.0",
     "publint": "0.3.22",
     "strip-directives": "2.2.1",
