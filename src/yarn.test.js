@@ -101,7 +101,7 @@ test("yarn.js", async (t) => {
 			const cp = new CP({
 				"yarn npm audit": {
 					error: true,
-					stderr: "not JSON",
+					stdout: "not JSON",
 				},
 			});
 

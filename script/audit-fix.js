@@ -16,8 +16,10 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import { execSync } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+
+import manifest from "../package.json" with { type: "json" };
 
 // Bump dependencies with known vulnerabilities.
 try {
@@ -30,7 +32,6 @@ try {
 
 // Restore direct runtime dependencies.
 const packageJson = resolve(import.meta.dirname, "..", "package.json");
-const manifest = JSON.parse(await readFile(packageJson));
 for (const [dependency, version] of Object.entries(manifest.dependencies)) {
 	execSync(`npm install --save-exact ${dependency}@${version.slice(1)}`);
 }
