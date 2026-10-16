@@ -23,8 +23,7 @@ import * as process from "node:process";
 
 const manifestPath = path.resolve(".", "package.json");
 const rawManifest = fs.readFileSync(manifestPath).toString();
-const manifest = JSON.parse(rawManifest);
-const { dependencies } = manifest;
+const { dependencies } = JSON.parse(rawManifest);
 
 const violations = Object.entries(dependencies)
 	.map(([dependency, supported]) => ({

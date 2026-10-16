@@ -26,10 +26,7 @@ export class CP {
 			for (const command in commands) {
 				if (want.includes(command)) {
 					const { error, stdout, stderr } = commands[command];
-					const result = {
-						stderr: stderr || "",
-						stdout: stdout || "",
-					};
+					const result = { stderr, stdout };
 
 					if (error) {
 						const err = new Err(result);
