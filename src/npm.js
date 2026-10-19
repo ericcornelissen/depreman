@@ -83,19 +83,14 @@ export class NPM {
 	 * @returns {Promise<Result<DeprecatedPackage[], string>>}
 	 */
 	async deprecations() {
-		const [aliases, list] = await Promise.all([
-			this.aliases(),
-			this.#list(),
-		]);
-
-		const err = aliases.and(list);
-		if (err.isErr()) {
-			return err;
+		const list = await this.#list();
+		if (list.isErr()) {
+			return list;
 		}
 
 		const pool = Promise.pool(os.cpus().length);
 		for (const pkg of list.value()) {
-			pool.add(() => this.#deprecation(aliases.value().get(pkg.name) ?? pkg));
+			pool.add(() => this.#deprecation(pkg));
 		}
 
 		const results = await pool.await();
@@ -126,6 +121,8 @@ export class NPM {
 			"list",
 			"--all",
 			"--json",
+			// Include the installed package name for aliases at every depth.
+			"--long",
 		];
 
 		if (this.#options.omitDev) {
@@ -239,7 +236,7 @@ export class NPM {
 		while (queue.length > 0) {
 			const [name, info] = queue.pop();
 
-			const pkg = { name, version: info.version };
+			const pkg = { name: info.name ?? name, version: info.version };
 			const id = `${pkg.name}@${pkg.version}`;
 			pkgs.set(id, pkg);
 
@@ -251,17 +248,20 @@ export class NPM {
 
 	/**
 	 * @param {PackageHierarchy} hierarchy
+	 * @param {boolean} isRoot
 	 * @returns {Promise<PackageHierarchy>}
 	 */
-	#normalizeHierarchy(hierarchy) {
+	#normalizeHierarchy(hierarchy, isRoot = true) {
 		hierarchy.dependencies ||= {};
 
-		delete hierarchy.dependencies[hierarchy.name];
+		if (isRoot) {
+			delete hierarchy.dependencies[hierarchy.name];
+		}
 		for (const [name, info] of Object.entries(hierarchy.dependencies)) {
 			if (info.extraneous || Object.keys(info).length === 0) {
 				delete hierarchy.dependencies[name];
 			} else {
-				this.#normalizeHierarchy(hierarchy.dependencies[name]);
+				this.#normalizeHierarchy(hierarchy.dependencies[name], false);
 			}
 		}
 
@@ -330,6 +330,7 @@ export class NPM {
 
 /**
  * @typedef Dependency
+ * @property {string} [name]
  * @property {{[key: string]: Dependency}} dependencies
  * @property {string} version
  * @property {Scope} scope
