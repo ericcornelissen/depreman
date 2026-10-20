@@ -9,7 +9,7 @@ Versioning].
 
 ## Unreleased
 
-- _No changes yet_
+- Fix deprecation lookup and dependency paths for transitive npm aliases.
 
 ## 0.4.0 (2026-07-31)
 
