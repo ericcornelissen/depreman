@@ -727,6 +727,7 @@ export default [
 				"unicorn/consistent-boolean-name": [
 					"error",
 					{
+						checkFunctions: "never",
 						ignore: [
 							"^(ok|got|want)$",
 						],
