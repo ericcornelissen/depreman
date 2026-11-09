@@ -56,8 +56,10 @@ function findPackagePaths(pkg, hierarchy, aliases, path = []) {
 			scope: info.scope,
 			version: info.version,
 
-			// Override name and version if there exists an alias
-			...aliases.get(name),
+			// Prefer installed metadata; other package managers may only expose aliases.
+			...(info.name === undefined ? aliases.get(name) : {
+				name: info.name,
+			}),
 		};
 
 		const dependencyPath = [...path, dependency];

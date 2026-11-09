@@ -324,6 +324,7 @@ await t.test("deprecations", async (t) => {
 						name: "depreman",
 						dependencies: {
 							foo: {
+								name: "bar",
 								version: "1.2.3",
 								dependencies: {},
 							},
@@ -374,7 +375,7 @@ await t.test("deprecations", async (t) => {
 				assert.ok(got.isErr());
 
 				const err = got.error();
-				assert.match(err, /^could not get manifest:/u);
+				assert.match(err, /^could not parse package\.json:/u);
 			});
 
 			await t.test("npm list", async () => {
