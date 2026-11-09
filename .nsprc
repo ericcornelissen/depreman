@@ -12,5 +12,15 @@
     "active": true,
     "expiry": "2027-01-01",
     "notes": "tracked in https://github.com/micromark/micromark-extension-math/pull/14"
+  },
+  "GHSA-3g3m-2fjr-6pw4": {
+    "active": true,
+    "expiry": "2027-01-01",
+    "notes": "backported to 13.0.7 (https://github.com/isaacs/node-glob/issues/664)"
+  },
+  "GHSA-g3hv-75wg-m249": {
+    "active": true,
+    "expiry": "2027-01-01",
+    "notes": "low to no impact, updates needs to propagate across the ecosystem"
   }
 }
