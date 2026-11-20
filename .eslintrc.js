@@ -1052,6 +1052,7 @@ export default [
 				"unicorn/prefer-object-iterable-methods": "error",
 				"unicorn/prefer-observer-apis": "off",
 				"unicorn/prefer-optional-catch-binding": "error",
+				"unicorn/prefer-options-parameter": "error",
 				"unicorn/prefer-path2d": "off",
 				"unicorn/prefer-private-class-fields": "error",
 				"unicorn/prefer-promise-static-methods": "error",
@@ -1062,6 +1063,7 @@ export default [
 				"unicorn/prefer-queue-microtask": "error",
 				"unicorn/prefer-reflect-apply": "error",
 				"unicorn/prefer-regexp-escape": "error",
+				"unicorn/prefer-regexp-exec": "error",
 				"unicorn/prefer-regexp-test": "off",
 				"unicorn/prefer-response-static-json": "off",
 				"unicorn/prefer-scoped-selector": "off",
@@ -1117,6 +1119,7 @@ export default [
 				"unicorn/require-passive-events": "off",
 				"unicorn/require-post-message-target-origin": "error",
 				"unicorn/require-proxy-trap-boolean-return": "error",
+				"unicorn/require-spread-parentheses": "error",
 				"unicorn/require-text-decoder-streaming": "error",
 				"unicorn/single-line-block-comment-style": "off",
 				"unicorn/string-content": "error",
@@ -1415,7 +1418,7 @@ export default [
 		},
 	},
 
-	...process.argv.includes("**/*.md**") ? [
+	...(process.argv.includes("**/*.md**") ? [
 		{
 			name: "MarkDown processor",
 			files: ["**/*.md"],
@@ -1494,7 +1497,7 @@ export default [
 				}],
 			},
 		},
-	],
+	]),
 
 	{
 		ignores: [
